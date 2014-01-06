@@ -251,10 +251,9 @@ firmware design flexibility.
 //----------------------------------------------------------------------------------*/
 
 /** INCLUDES *******************************************************/
-#include "./USB/usb.h"
-#include "HardwareProfile.h"
-
-#include "../USB/usb_device_local.h"
+#include "../Include/USB/usb.h"
+#include "../../USB/Device - HID - Keyboard/Firmware/HardwareProfile.h"
+#include "usb_device_local.h"
 
 
 #if defined(USB_USE_MSD)
@@ -275,7 +274,7 @@ firmware design flexibility.
 /** DEFINITIONS ****************************************************/
 
 /** VARIABLES ******************************************************/
-#if defined(__18CXX)
+#if defined(COMPILER_MPLAB_C18)
     #pragma udata
 #endif
 
@@ -319,7 +318,7 @@ volatile BOOL USBDeferOUTDataStagePackets;
 #endif
 
 /** USB FIXED LOCATION VARIABLES ***********************************/
-#if defined(__18CXX)
+#if defined(COMPILER_MPLAB_C18)
     #pragma udata USB_BDT=USB_BDT_ADDRESS
 #endif
 
@@ -366,7 +365,7 @@ volatile BYTE CtrlTrfData[USB_EP0_BUFF_SIZE] CTRL_TRF_DATA_ADDR_TAG;
 extern ROM BYTE *ROM USB_SD_Ptr[];
 
 /** DECLARATIONS ***************************************************/
-#if defined(__18CXX)
+#if defined(COMPILER_MPLAB_C18)
     #pragma code
 #endif
 

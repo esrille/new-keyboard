@@ -43,7 +43,7 @@ Description:
  Dependancies:    none
  Processor:       PIC18, PIC24, or PIC32 USB Microcontrollers
  Hardware:        The code is natively intended to be used on the following
-     				hardware platforms: PICDEMô FS USB Demo Board, 
+     				hardware platforms: PICDEM‚Ñ¢ FS USB Demo Board,
      				PIC18F87J50 FS USB Plug-In Module, or
      				Explorer 16 + PIC24 USB PIM.  The firmware may be
      				modified for use on other USB platforms by editing the
@@ -54,8 +54,8 @@ Description:
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the ìCompanyî) for its PICmicroÆ Microcontroller is intended and
- supplied to you, the Companyís customer, for use solely and
+ (the ‚ÄúCompany‚Äù) for its PICmicro¬Æ Microcontroller is intended and
+ supplied to you, the Company‚Äôs customer, for use solely and
  exclusively on Microchip PICmicro Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
  protected under applicable copyright laws. All rights are reserved.
@@ -64,7 +64,7 @@ Description:
  civil liability for the breach of the terms and conditions of this
  license.
 
- THIS SOFTWARE IS PROVIDED IN AN ìAS ISî CONDITION. NO WARRANTIES,
+ THIS SOFTWARE IS PROVIDED IN AN ‚ÄúAS IS‚Äù CONDITION. NO WARRANTIES,
  WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -91,19 +91,19 @@ Description:
 //DOM-IGNORE-END
 
 #if defined(__18CXX)
-    #include "USB/usb_hal_pic18.h"
+    #include "usb_hal_pic18.h"
 #elif defined(__C30__) || defined __XC16__
 	#if defined(__dsPIC33E__) 
-	    #include "USB/usb_hal_dspic33E.h"
+	    #include "usb_hal_dspic33E.h"
 	#elif defined(__PIC24E__)
-		#include "USB/usb_hal_pic24e.h"
+		#include "usb_hal_pic24e.h"
 	#else
-    #include "USB/usb_hal_pic24.h"
+    #include "usb_hal_pic24.h"
 	#endif
 #elif defined(__PIC32MX__)
-    #include "USB/usb_hal_pic32.h"
+    #include "usb_hal_pic32.h"
 #elif defined(_PIC14E)
-    #include "USB/usb_hal_pic16f1.h"
+    #include "usb_hal_pic16f1.h"
 #else
     #error "Silicon Platform not defined"
 #endif

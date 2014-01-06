@@ -49,9 +49,9 @@
 #define KEYBOARD_C
 
 /** INCLUDES *******************************************************/
-#include "./USB/usb.h"
+#include "../../../Microchip/Include/USB/usb.h"
 #include "HardwareProfile.h"
-#include "./USB/usb_function_hid.h"
+#include "../../../Microchip/Include/USB//usb_function_hid.h"
 
 /** CONFIGURATION **************************************************/
 #if defined(PICDEM_FS_USB)      // Configuration bits for PICDEM FS USB Demo Board (based on PIC18F4550)
@@ -427,28 +427,38 @@ void USBHIDCBSetReportComplete(void);
 	#pragma code HIGH_INTERRUPT_VECTOR = 0x08
 	void High_ISR (void)
 	{
-	     _asm goto REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS _endasm
+#asm
+	     goto REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS
+#endasm
 	}
 	#pragma code LOW_INTERRUPT_VECTOR = 0x18
 	void Low_ISR (void)
 	{
-	     _asm goto REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS _endasm
+#asm
+	     goto REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS
+#endasm
 	}
 	extern void _startup (void);        // See c018i.c in your C18 compiler dir
 	#pragma code REMAPPED_RESET_VECTOR = REMAPPED_RESET_VECTOR_ADDRESS
 	void _reset (void)
 	{
-	    _asm goto _startup _endasm
+#asm
+	    goto _startup
+#endasm
 	}
 	#pragma code REMAPPED_HIGH_INTERRUPT_VECTOR = REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS
 	void Remapped_High_ISR (void)
 	{
-	     _asm goto YourHighPriorityISRCode _endasm
+#asm
+	     goto YourHighPriorityISRCode
+#endasm
 	}
 	#pragma code REMAPPED_LOW_INTERRUPT_VECTOR = REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS
 	void Remapped_Low_ISR (void)
 	{
-	     _asm goto YourLowPriorityISRCode _endasm
+#asm
+	     goto YourLowPriorityISRCode
+#endasm
 	}
 	#pragma code
 	

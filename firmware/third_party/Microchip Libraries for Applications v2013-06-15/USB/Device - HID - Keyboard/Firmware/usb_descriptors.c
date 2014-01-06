@@ -12,7 +12,7 @@
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the "Company") for its PIC® Microcontroller is intended and
+ (the "Company") for its PICÂ® Microcontroller is intended and
  supplied to you, the Company's customer, for use solely and
  exclusively on Microchip PIC Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
@@ -153,8 +153,8 @@ state according to the definition in the USB specification.
 #define __USB_DESCRIPTORS_C
 
 /** INCLUDES *******************************************************/
-#include "./USB/usb.h"
-#include "./USB/usb_function_hid.h"
+#include "../../../Microchip/Include/USB/usb.h"
+#include "../../../Microchip/Include/USB/usb_function_hid.h"
 
 /** CONSTANTS ******************************************************/
 #if defined(__18CXX)
@@ -277,10 +277,10 @@ ROM struct{BYTE report[HID_RPT01_SIZE];}hid_rpt01={
     0x95, 0x06,                    //   REPORT_COUNT (6)
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
+    0x25, 0xFF,                    //   LOGICAL_MAXIMUM (101)
     0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
     0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
-    0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
+    0x29, 0xFF,                    //   USAGE_MAXIMUM (Keyboard Application)
     0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
     0xc0}                          // End Collection
 };

@@ -96,7 +96,7 @@ Description:
 #ifndef USB_HAL_PIC24F_C
 #define USB_HAL_PIC24F_C
 
-#include "USB/usb.h"
+#include "../Include/USB/usb.h"
 
 //Only include the source for this file if you are using C30.  This code
 //  applies only to PIC24 parts.

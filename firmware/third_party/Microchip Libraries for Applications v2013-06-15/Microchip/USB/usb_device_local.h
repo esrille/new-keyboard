@@ -85,7 +85,7 @@
   2.9    No functional change.  Fixed spelling typo in the name of 
          "USB_TRANSFER_COMPLETE_HANDLER()"
 ********************************************************************/
-#include "usb_config.h"
+#include "../../USB/Device - HID - Keyboard/Firmware/usb_config.h"
 
 /* Short Packet States - Used by Control Transfer Read  - CTRL_TRF_TX */
 #define SHORT_PKT_NOT_USED  0
