@@ -4,7 +4,7 @@
                	Situational: usb_function_hid.h, usb_function_cdc.h, usb_function_msd.h, etc.
  Processor:		PIC18 or PIC24 USB Microcontrollers
  Hardware:		The code is natively intended to be used on the following
- 				hardware platforms: PICDEMô FS USB Demo Board, 
+ 				hardware platforms: PICDEM‚Ñ¢ FS USB Demo Board,
  				PIC18F87J50 FS USB Plug-In Module, or
  				Explorer 16 + PIC24 USB PIM.  The firmware may be
  				modified for use on other USB platforms by editing the
@@ -15,8 +15,8 @@
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the ìCompanyî) for its PICÆ Microcontroller is intended and
- supplied to you, the Companyís customer, for use solely and
+ (the ‚ÄúCompany‚Äù) for its PIC¬Æ Microcontroller is intended and
+ supplied to you, the Company‚Äôs customer, for use solely and
  exclusively on Microchip PIC Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
  protected under applicable copyright laws. All rights are reserved.
@@ -25,7 +25,7 @@
  civil liability for the breach of the terms and conditions of this
  license.
 
- THIS SOFTWARE IS PROVIDED IN AN ìAS ISî CONDITION. NO WARRANTIES,
+ THIS SOFTWARE IS PROVIDED IN AN ‚ÄúAS IS‚Äù CONDITION. NO WARRANTIES,
  WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -81,8 +81,8 @@
 //  is available on the target processor.
 //#define USB_TRANSCEIVER_OPTION USB_EXTERNAL_TRANSCEIVER
 
-#define USB_SPEED_OPTION USB_FULL_SPEED
-//#define USB_SPEED_OPTION USB_LOW_SPEED //(not valid option for PIC24F devices)
+//#define USB_SPEED_OPTION USB_FULL_SPEED
+#define USB_SPEED_OPTION USB_LOW_SPEED //(not valid option for PIC24F devices)
 
 #define MY_VID 0x04D8
 #define MY_PID 0x0055

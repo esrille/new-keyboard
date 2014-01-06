@@ -1,3 +1,11 @@
+/*
+ * Copyright 2013-2014 Esrille Inc.
+ *
+ * This file is a modified version of Keyboard.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  FileName:		Keyboard.c
  Dependencies:  See INCLUDES section
@@ -49,17 +57,64 @@
 #define KEYBOARD_C
 
 /** INCLUDES *******************************************************/
+
+#include <plib/delays.h>
 #include "../../../Microchip/Include/USB/usb.h"
 #include "HardwareProfile.h"
 #include "../../../Microchip/Include/USB//usb_function_hid.h"
+#include "../../../../../src/Keyboard.h"
 
 /** CONFIGURATION **************************************************/
-#if defined(PICDEM_FS_USB)      // Configuration bits for PICDEM FS USB Demo Board (based on PIC18F4550)
+#if defined(ESRILLE_NEW_KEYBOARD) // Configuration bits for the Esrille New Keyboard (PIC18F4550)
         #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
         #if (USB_SPEED_OPTION == USB_FULL_SPEED)
-            #pragma config CPUDIV   = OSC1_PLL2  
+            #pragma config CPUDIV   = OSC1_PLL2
         #else
-            #pragma config CPUDIV   = OSC3_PLL4   
+            #pragma config CPUDIV   = OSC3_PLL4
+        #endif
+        #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
+        #pragma config FOSC     = HSPLL_HS
+        #pragma config FCMEN    = OFF
+        #pragma config IESO     = OFF
+        #pragma config PWRT     = OFF
+        #pragma config BOR      = ON
+        #pragma config BORV     = 3
+        #pragma config VREGEN   = ON        // USB Voltage Regulator
+        #pragma config WDT      = OFF
+        #pragma config WDTPS    = 32768
+        #pragma config MCLRE    = ON
+        #pragma config LPT1OSC  = OFF
+        #pragma config PBADEN   = OFF       // PORTB A/D Enable bit
+//      #pragma config CCP2MX   = ON
+        #pragma config STVREN   = ON
+        #pragma config LVP      = OFF
+//      #pragma config ICPRT    = OFF       // Dedicated In-Circuit Debug/Programming
+        #pragma config XINST    = OFF       // Extended Instruction Set
+        #pragma config CP0      = OFF
+        #pragma config CP1      = OFF
+//      #pragma config CP2      = OFF
+//      #pragma config CP3      = OFF
+        #pragma config CPB      = OFF
+//      #pragma config CPD      = OFF
+        #pragma config WRT0     = OFF
+        #pragma config WRT1     = OFF
+//      #pragma config WRT2     = OFF
+//      #pragma config WRT3     = OFF
+        #pragma config WRTB     = OFF       // Boot Block Write Protection
+        #pragma config WRTC     = OFF
+//      #pragma config WRTD     = OFF
+        #pragma config EBTR0    = OFF
+        #pragma config EBTR1    = OFF
+//      #pragma config EBTR2    = OFF
+//      #pragma config EBTR3    = OFF
+        #pragma config EBTRB    = OFF
+
+#elif defined(PICDEM_FS_USB)      // Configuration bits for PICDEM FS USB Demo Board (based on PIC18F4550)
+        #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
+        #if (USB_SPEED_OPTION == USB_FULL_SPEED)
+            #pragma config CPUDIV   = OSC1_PLL2
+        #else
+            #pragma config CPUDIV   = OSC3_PLL4
         #endif
         #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
         #pragma config FOSC     = HSPLL_HS
@@ -369,18 +424,13 @@ volatile unsigned char hid_report_out[HID_INT_OUT_EP_SIZE] OUT_DATA_BUFFER_ADDRE
 #if defined(__18CXX)
     #pragma udata
 #endif
-BYTE old_sw2,old_sw3;
 char buffer[8];
 unsigned char OutBuffer[8];
 USB_HANDLE lastINTransmission;
 USB_HANDLE lastOUTTransmission;
 BOOL Keyboard_out;
-BOOL BlinkStatusValid;
-DWORD CountdownTimerToShowUSBStatusOnLEDs;
+
 /** PRIVATE PROTOTYPES *********************************************/
-void BlinkUSBStatus(void);
-BOOL Switch2IsPressed(void);
-BOOL Switch3IsPressed(void);
 static void InitializeSystem(void);
 void ProcessIO(void);
 void UserInit(void);
@@ -828,14 +878,39 @@ static void InitializeSystem(void)
  *****************************************************************************/
 void UserInit(void)
 {
-    //Initialize all of the LED pins
-    mInitAllLEDs();
-    BlinkStatusValid = TRUE;
-    
-    //Initialize all of the push buttons
-    mInitAllSwitches();
-    old_sw2 = sw2;
-    old_sw3 = sw3;
+    CCP1CON = 0;
+    CCP2CON = 0;
+    ADCON1 |= 0x0F; // Digital I/O
+
+    //Initialize all of the LED pins and key matrix ports
+    // PORT A (0~5, input initially)
+    LATA &= 0xC0;
+    TRISA |= 0x3F;
+
+    // PORT B (0~7, input)
+    TRISB |= 0xFF;
+    LATB |= 0xFF;
+    INTCON2bits.RBPU = 0;   // Enable pull up
+
+    // TODO: Check INT
+
+    // PORT C (2, output)
+    LATC &= 0xFB;
+    LATC |= 0x04;   // Default HI
+    TRISC &= 0xFB;
+    // TODO: Check timer
+
+    // PORT D (0~1, output; 2~7, input)
+    LATD &= 0xFC;
+    LATD |= 0x03;   // Default HI
+    TRISD &= 0xFC;
+    TRISD |= 0xFC;
+    LATD |= 0xFC;
+    PORTEbits.RDPU = 1;     // Enable pull up
+
+    // PORT E (0~1, input initially)
+    LATE &= 0xFC;
+    TRISE |= 0x03;
 
     //initialize the variable holding the handle for the last
     // transmission
@@ -843,6 +918,7 @@ void UserInit(void)
     lastINTransmission = 0;
     lastOUTTransmission = 0;
 
+    initKeyboard();
 }//end UserInit
 
 
@@ -865,29 +941,9 @@ void UserInit(void)
  *******************************************************************/
 void ProcessIO(void)
 {   
-    //Blink the LEDs according to the USB device status
-    //However, the LEDs are also used temporarily for showing the Num Lock 
-    //keyboard LED status.  If the host sends an LED state update interrupt
-    //out report, or sends it by a SET_REPORT control transfer, then
-    //the demo board LEDs are temporarily taken over to show the Num Lock
-    //LED state info.  After a countdown timout, the firmware will switch
-    //back to showing the USB state on the LEDs, instead of the num lock status.
-    if(BlinkStatusValid == TRUE)
-    {
-	    BlinkUSBStatus();
-	}
-	else
-	{
-		CountdownTimerToShowUSBStatusOnLEDs--;
-		if(CountdownTimerToShowUSBStatusOnLEDs == 0)
-		{
-			BlinkStatusValid = TRUE;
-		}	
-	}	 
-	
 	//Check if we should assert a remote wakeup request to the USB host, when
 	//the user presses the pushbutton.
-    if(sw2 == 0)
+    if((~PORTD & 0xfc) || (~PORTB & 0x3f))
     {
         USBCBSendResume(); //Does nothing unless we are in USB suspend with remote wakeup armed.
     } 
@@ -900,230 +956,131 @@ void ProcessIO(void)
      
 }//end ProcessIO
 
-
 void Keyboard(void)
 {
-	static unsigned char key = 4;	
+    static char xmit = XMIT_NORMAL;
+    signed char row;
+    unsigned char column;
+    unsigned char on;
 
-	//Check if the IN endpoint is not busy, and if it isn't check if we want to send 
-	//keystroke data to the host.
-    if(!HIDTxHandleBusy(lastINTransmission))
+    if (xmit != XMIT_BRK)
+        Delay10KTCYx(3);   // 5msec at 24MHz
+
+    //Check if the IN endpoint is not busy, and if it isn't check if we want to send
+    //keystroke data to the host.
+    if (!HIDTxHandleBusy(lastINTransmission))
     {
-        if(Switch3IsPressed())
-        {
-        	//Load the HID buffer
-        	hid_report_in[0] = 0;
-        	hid_report_in[1] = 0;
-        	hid_report_in[2] = key++;
-        	hid_report_in[3] = 0;
-        	hid_report_in[4] = 0;
-        	hid_report_in[5] = 0;
-        	hid_report_in[6] = 0;
-        	hid_report_in[7] = 0;
-           	//Send the 8 byte packet over USB to the host.
-           	lastINTransmission = HIDTxPacket(HID_EP, (BYTE*)hid_report_in, 0x08);
-    
-            if(key == 40)
-            {
-                key = 4;
+        for (row = 7; 0 <= row; --row) {
+            PORTA &= 0xC0;
+            PORTE &= 0xFC;
+            TRISA |= 0x3F;
+            TRISE |= 0x03;
+            switch (row) {
+            case 0:
+                TRISAbits.TRISA0 = 0;
+                break;
+            case 1:
+                TRISAbits.TRISA1 = 0;
+                break;
+            case 2:
+                TRISAbits.TRISA2 = 0;
+                break;
+            case 3:
+                TRISAbits.TRISA3 = 0;
+                break;
+            case 4:
+                TRISAbits.TRISA4 = 0;
+                break;
+            case 5:
+                TRISAbits.TRISA5 = 0;
+                break;
+            case 6:
+                TRISEbits.TRISE0 = 0;
+                break;
+            case 7:
+                TRISEbits.TRISE1 = 0;
+                break;
+            }
+            for (column = 0; column < 12; ++column) {
+                switch (column) {
+                case 0:
+                    on = !PORTDbits.RD4;
+                    break;
+                case 1:
+                    on = !PORTDbits.RD5;
+                    break;
+                case 2:
+                    on = !PORTDbits.RD6;
+                    break;
+                case 3:
+                    on = !PORTDbits.RD7;
+                    break;
+                case 4:
+                    on = !PORTDbits.RD2;
+                    break;
+                case 5:
+                    on = !PORTDbits.RD3;
+                    break;
+                case 6:
+                    on = !PORTBbits.RB5;
+                    break;
+                case 7:
+                    on = !PORTBbits.RB4;
+                    break;
+                case 8:
+                    on = !PORTBbits.RB1;
+                    break;
+                case 9:
+                    on = !PORTBbits.RB0;
+                    break;
+                case 10:
+                    on = !PORTBbits.RB2;
+                    break;
+                case 11:
+                    on = !PORTBbits.RB3;
+                    break;
+                }
+                if (on)
+                    onPressed(row, column);
             }
         }
-        else
-        {
-        	//Load the HID buffer
-        	hid_report_in[0] = 0;
-        	hid_report_in[1] = 0;
-        	hid_report_in[2] = 0;   //Indicate no character pressed
-        	hid_report_in[3] = 0;
-        	hid_report_in[4] = 0;
-        	hid_report_in[5] = 0;
-        	hid_report_in[6] = 0;
-        	hid_report_in[7] = 0;
-           	//Send the 8 byte packet over USB to the host.
-           	lastINTransmission = HIDTxPacket(HID_EP, (BYTE*)hid_report_in, 0x08);
+
+        xmit = makeReport(hid_report_in);
+        switch (xmit) {
+        case XMIT_BRK:
+            memset(hid_report_in + 2, 0, 6);
+            lastINTransmission = HIDTxPacket(HID_EP, (BYTE*) hid_report_in, 0x08);
+            break;
+        case XMIT_NORMAL:
+            lastINTransmission = HIDTxPacket(HID_EP, (BYTE*) hid_report_in, 0x08);
+            break;
         }
     }
-    
     
     //Check if any data was sent from the PC to the keyboard device.  Report descriptor allows
     //host to send 1 byte of data.  Bits 0-4 are LED states, bits 5-7 are unused pad bits.
     //The host can potentially send this OUT report data through the HID OUT endpoint (EP1 OUT),
     //or, alternatively, the host may try to send LED state information by sending a
     //SET_REPORT control transfer on EP0.  See the USBHIDCBSetReportHandler() function.
-    if(!HIDRxHandleBusy(lastOUTTransmission))
-    {
-		//Do something useful with the data now.  Data is in the OutBuffer[0].
-		//Num Lock LED state is in Bit0.
-		if(hid_report_out[0] & 0x01) //Make LED1 and LED2 match Num Lock state.
-		{
-			mLED_1_On();
-			mLED_2_On();
-		}
-		else
-		{
-			mLED_1_Off();
-			mLED_2_Off();			
-		}
-		
-		//Stop toggling the LEDs, so you can temporily see the Num lock LED state instead.
-		//Once the CountdownTimerToShowUSBStatusOnLEDs reaches 0, the LEDs will go back to showing USB state instead.
-		BlinkStatusValid = FALSE;
-		CountdownTimerToShowUSBStatusOnLEDs = 140000;
-	
-		lastOUTTransmission = HIDRxPacket(HID_EP,(BYTE*)&hid_report_out,1);
-	} 
-    
-    return;		
-}//end keyboard()
+    if (!HIDRxHandleBusy(lastOUTTransmission))
+        lastOUTTransmission = HIDRxPacket(HID_EP,(BYTE*)&hid_report_out,1);
 
-
-
-/******************************************************************************
- * Function:        BOOL Switch2IsPressed(void)
- *
- * PreCondition:    None
- *
- * Input:           None
- *
- * Output:          TRUE - pressed, FALSE - not pressed
- *
- * Side Effects:    None
- *
- * Overview:        Indicates if the switch is pressed.  
- *
- * Note:            
- *
- *****************************************************************************/
-BOOL Switch2IsPressed(void)
-{
-    if(sw2 != old_sw2)
-    {
-        old_sw2 = sw2;                  // Save new value
-        if(sw2 == 0)                    // If pressed
-            return TRUE;                // Was pressed
-    }//end if
-    return FALSE;                       // Was not pressed
-}//end Switch2IsPressed
-
-/******************************************************************************
- * Function:        BOOL Switch3IsPressed(void)
- *
- * PreCondition:    None
- *
- * Input:           None
- *
- * Output:          TRUE - pressed, FALSE - not pressed
- *
- * Side Effects:    None
- *
- * Overview:        Indicates if the switch is pressed.  
- *
- * Note:            
- *
- *****************************************************************************/
-BOOL Switch3IsPressed(void)
-{
-    if(sw3 != old_sw3)
-    {
-        old_sw3 = sw3;                  // Save new value
-        if(sw3 == 0)                    // If pressed
-            return TRUE;                // Was pressed
-    }//end if
-    return FALSE;                       // Was not pressed
-}//end Switch3IsPressed
-
-/********************************************************************
- * Function:        void BlinkUSBStatus(void)
- *
- * PreCondition:    None
- *
- * Input:           None
- *
- * Output:          None
- *
- * Side Effects:    None
- *
- * Overview:        BlinkUSBStatus turns on and off LEDs 
- *                  corresponding to the USB device state.
- *
- * Note:            mLED macros can be found in HardwareProfile.h
- *                  USBDeviceState is declared and updated in
- *                  usb_device.c.
- *******************************************************************/
-void BlinkUSBStatus(void)
-{
-    static WORD led_count=0;
-    
-    if(led_count == 0)led_count = 10000U;
-    led_count--;
-
-    #define mLED_Both_Off()         {mLED_1_Off();mLED_2_Off();}
-    #define mLED_Both_On()          {mLED_1_On();mLED_2_On();}
-    #define mLED_Only_1_On()        {mLED_1_On();mLED_2_Off();}
-    #define mLED_Only_2_On()        {mLED_1_Off();mLED_2_On();}
-
-    if(USBSuspendControl == 1)
-    {
-        if(led_count==0)
-        {
-            mLED_1_Toggle();
-            if(mGetLED_1())
-            {
-                mLED_2_On();
-            }
-            else
-            {
-                mLED_2_Off();
-            }
-        }//end if
-    }
+    unsigned char led = controlLed(hid_report_out[0]);
+    if (led & LED_NUM_LOCK)
+        mLED_1_On();
     else
-    {
-        if(USBDeviceState == DETACHED_STATE)
-        {
-            mLED_Both_Off();
-        }
-        else if(USBDeviceState == ATTACHED_STATE)
-        {
-            mLED_Both_On();
-        }
-        else if(USBDeviceState == POWERED_STATE)
-        {
-            mLED_Only_1_On();
-        }
-        else if(USBDeviceState == DEFAULT_STATE)
-        {
-            mLED_Only_2_On();
-        }
-        else if(USBDeviceState == ADDRESS_STATE)
-        {
-            if(led_count == 0)
-            {
-                mLED_1_Toggle();
-                mLED_2_Off();
-            }//end if
-        }
-        else if(USBDeviceState == CONFIGURED_STATE)
-        {
-            if(led_count==0)
-            {
-                mLED_1_Toggle();
-                if(mGetLED_1())
-                {
-                    mLED_2_Off();
-                }
-                else
-                {
-                    mLED_2_On();
-                }
-            }//end if
-        }//end if(...)
-    }//end if(UCONbits.SUSPND...)
+        mLED_1_Off();
 
-}//end BlinkUSBStatus
+    if (led & LED_CAPS_LOCK)
+        mLED_2_On();
+    else
+        mLED_2_Off();
 
-
-
+    if (led & LED_SCROLL_LOCK)
+        mLED_3_On();
+    else
+        mLED_3_Off();
+}
 
 // ******************************************************************************************************
 // ************** USB Callback Functions ****************************************************************
@@ -1181,6 +1138,7 @@ void USBCBSuspend(void)
     	//Configure device for low power consumption
     	mLED_1_Off();
     	mLED_2_Off();
+    	mLED_3_Off();
     	//Should also configure all other I/O pins for lowest power consumption.
     	//Typically this is done by driving unused I/O pins as outputs and driving them high or low.
     	//In this example, this is not done however, in case the user is expecting the I/O pins
@@ -1200,8 +1158,14 @@ void USBCBSuspend(void)
 
 	//IMPORTANT NOTE: Do not clear the USBActivityIF (ACTVIF) bit here.  This bit is 
 	//cleared inside the usb_device.c file.  Clearing USBActivityIF here will cause 
-	//things to not work as intended.	
-	
+	//things to not work as intended.
+
+    // Keep sensing row 7 for resume
+    PORTA &= 0xC0;
+    PORTE &= 0xFC;
+    TRISA |= 0x3F;
+    TRISE |= 0x03;
+    TRISEbits.TRISE1 = 0;
 }
 
 /******************************************************************************
@@ -1654,24 +1618,27 @@ void USBHIDCBSetReportHandler(void)
 //control transfer completes for the USBHIDCBSetReportHandler()
 void USBHIDCBSetReportComplete(void)
 {
+    unsigned char led;
+
 	//1 byte of LED state data should now be in the CtrlTrfData buffer.
 
-	//Num Lock LED state is in Bit0.
-	if(CtrlTrfData[0] & 0x01)	//Make LED1 and LED2 match Num Lock state.
-	{
+    hid_report_out[0] = CtrlTrfData[0];
+    led = controlLed(hid_report_out[0]);
+
+	if(led & LED_NUM_LOCK)
 		mLED_1_On();
-		mLED_2_On();
-	}
-	else
-	{
+    else
 		mLED_1_Off();
-		mLED_2_Off();			
-	}
-	
-	//Stop toggling the LEDs, so you can temporily see the Num lock LED state instead.
-	//Once the CountdownTimerToShowUSBStatusOnLEDs reaches 0, the LEDs will go back to showing USB state instead.
-	BlinkStatusValid = FALSE;	
-	CountdownTimerToShowUSBStatusOnLEDs = 140000; 
+
+	if(led & LED_CAPS_LOCK)
+		mLED_2_On();
+    else
+		mLED_2_Off();
+
+	if(led & LED_SCROLL_LOCK)
+		mLED_3_On();
+    else
+		mLED_3_Off();
 }	
 /** EOF Keyboard.c **********************************************/
 #endif

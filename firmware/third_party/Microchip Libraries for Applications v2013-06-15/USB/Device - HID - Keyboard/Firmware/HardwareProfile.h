@@ -1,3 +1,11 @@
+/*
+ * Copyright 2013-2014 Esrille Inc.
+ *
+ * This file is a modified version of HardwareProfile.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  FileName:      HardwareProfile.h
  Dependencies:  See INCLUDES section
@@ -14,7 +22,7 @@
  Software License Agreement:
 
  The software supplied herewith by Microchip Technology Incorporated
- (the "Company") for its PIC® Microcontroller is intended and
+ (the "Company") for its PICï¿½ Microcontroller is intended and
  supplied to you, the Company's customer, for use solely and
  exclusively on Microchip PIC Microcontroller products. The
  software is owned by the Company and/or its supplier, and is
@@ -37,6 +45,7 @@
 #define HARDWARE_PROFILE_H
 
 //#define DEMO_BOARD USER_DEFINED_BOARD
+#include "HardwareProfile - Esrille New Keyboard.h"
 
 #if !defined(DEMO_BOARD)
     #if defined(__C32__)
