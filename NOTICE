@@ -1,0 +1,62 @@
+The Esrille New Keyboard
+Copyright 2013, 2014 Esrille Inc.
+
+This product includes the design (the "Design") and the firmware (the
+"Firmware") of the Esrille New Keyboard being developed at Esrille Inc.
+(http://www.esrille.com/keyboard/).
+
+The Design is licensed under a Creative Commons Attribution-ShareAlike 4.0
+International License. You may obtain a copy of the License at:
+    http://creativecommons.org/licenses/by-sa/4.0/
+
+The Firmware is licensed under the Apache License, Version 2.0 (the "License");
+you may not use the Firmware except in compliance with the License. You may
+obtain a copy of the License at:
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Some portions of the Design and the Firmware are provided under licenses other
+than the above mentioned licenses and may be under the copyright of
+organizations other than Esrille Inc.
+
+== Credits ==
+
+The Firmware contains code provided by Microchip Technology Incorporated for
+its PIC Microcontroller, for use solely and exclusively on Microchip PIC
+Microcontroller products; see the individual source files for details.
+
+The Firmware supports the NICOLA keyboard layout developed at:
+    The Nihongo-Nyuryoku Consortium (http://nicola.sunicom.co.jp/)
+    The design of the original Thumb Shift Keyboard is published in 1979
+    from Fujitsu.
+    http://www.fujitsu.com/global/about/profile/history/products/computer/wordprocessor/keyboard.html
+
+The Firmware supports the Japanese logical layout of the TRON keyboard
+published as:
+    Ken Sakamura, "Method to Input Japanese characters in BTRON Environment -
+    Design of TRON Keyboard", Information Processing Society of Japan, Japanese
+    Documentation Processing Study Group, 7-2, 1986.
+    (https://ipsj.ixsq.nii.ac.jp/ej/index.php?active_action=repository_view_main_item_detail&item_id=37816&item_no=1&page_id=13&block_id=8)
+
+The Firmware supports the Japanese logical layout of the M-type keyboard
+published as:
+    Masasuke Morita, "On the Optimization of Japanese Text Input System and
+    Keyboard System", IEICE Trans. D, Vol.J70-D, No.11, 1987.
+    (http://search.ieice.org/bin/summary.php?id=j70-d_11_2047&category=D&lang=J&year=1987&abst=)
+
+== The Esrille logo ==
+
+The Esrille logo is a trademark of Esrille Inc. All rights reserved.
+
+The Esrille logo is a special trademark to identify the products developed and
+distributed by Esrille Inc.
+
+The Esrille logo can be used by anyone if that use of the logo is nominative.
+The "nominative use" authorizes everyone (even commercial companies) to use
+the trademark of another if:
+
+  1. The product or service cannot be readily identified without use of
+     the trademark;
+  2. The user only uses as much of the mark as is necessary to identify
+     the product or service; and,
+  3. The user does nothing to suggest sponsorship or endorsement by the
+     trademark holder.
