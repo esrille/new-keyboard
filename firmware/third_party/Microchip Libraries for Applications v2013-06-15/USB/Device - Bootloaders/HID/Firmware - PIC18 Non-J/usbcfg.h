@@ -69,6 +69,9 @@
 
 
 /* Make sure the proper hardware platform is being used*/
+#define DEMO_BOARD ESRILLE_NEW_KEYBOARD
+#define ESRILLE_NEW_KEYBOARD
+#ifndef DEMO_BOARD
 #if defined(__18F4550) || defined(__18F4455) || defined(__18F4450) || defined(__18F2550) || defined(__18F2455) || defined(__18F2450) || defined(__18F2458) || defined(__18F2553) || defined(__18F4458) || defined(__18F4553)
 	#define PIC18F4550_PICDEM_FS_USB
 #elif defined(__18F45K50) || defined(__18LF45K50) || defined(__18F25K50) || defined(__18LF25K50) || defined(__18F24K50) || defined(__18LF24K50)
@@ -77,6 +80,7 @@
 	#define LOW_PIN_COUNT_USB_DEVELOPMENT_KIT
 #else
     #error Unsupported processor type for this firmware.  See other firmware projects.
+#endif
 #endif
 
 

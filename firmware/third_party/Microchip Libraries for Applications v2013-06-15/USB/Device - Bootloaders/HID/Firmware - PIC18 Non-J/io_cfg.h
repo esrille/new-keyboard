@@ -141,7 +141,37 @@
     #define sw2                 PORTAbits.RA3
     #define mDeInitSwitch2()    {ADCON1 = 0x07;}
 
+#elif defined(ESRILLE_NEW_KEYBOARD)     //Based on PIC18F4550
+    /** U S B ***********************************************************/
+    #define tris_usb_bus_sense  TRISAbits.TRISA1    // Input
 
+    #if defined(USE_USB_BUS_SENSE_IO)
+        #define usb_bus_sense       PORTAbits.RA1
+    #else
+        #define usb_bus_sense       1
+    #endif
+
+    #define tris_self_power     TRISAbits.TRISA2    // Input
+
+    #if defined(USE_SELF_POWER_SENSE_IO)
+        #define self_power          PORTAbits.RA2
+    #else
+        #define self_power          0
+    #endif
+
+    /** L E D ***********************************************************/
+    #define mInitAllLEDs()      LATD &= 0xFD; TRISD &= 0xFD;
+    #define mLED_1              LATDbits.LATD1
+    #define mLED_1_On()         mLED_1 = 0;
+    #define mLED_1_Off()        mLED_1 = 1;
+    #define mLED_1_Toggle()     mLED_1 = !mLED_1;
+
+    /** S W I T C H *****************************************************/
+    #define mInitAllSwitches()  {mInitSwitch2();}
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA5 = 0;}
+    #define sw2                 (PORTDbits.RD3)
+    #define mDeInitSwitch2()    {ADCON1 = 0x07;}
+    /********************************************************************/
 
 #else
     #error Not a supported board (yet), add I/O pin mapping in __FILE__, line __LINE__
