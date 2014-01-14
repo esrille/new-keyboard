@@ -83,7 +83,7 @@
 	
     //Uncomment the following line to make the output HEX of this 
     //  project work with the HID Bootloader
-    //#define PROGRAMMABLE_WITH_USB_HID_BOOTLOADER
+    #define PROGRAMMABLE_WITH_USB_HID_BOOTLOADER
 
     /*******************************************************************/
     /*******************************************************************/
