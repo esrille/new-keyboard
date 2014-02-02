@@ -280,7 +280,7 @@ must be shared between the bootloader and application firmware.
 
 #elif defined(ESRILLE_NEW_KEYBOARD)		// Configuration bits for Esrille New Keybard (PIC18F4550)
  	#if defined(__18F4550) || defined(__18F4553)
-        #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
+        #pragma config PLLDIV   = 4         // (16 MHz resonator on PICDEM FS USB board)
         #pragma config CPUDIV   = OSC3_PLL4
         #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
         #pragma config FOSC     = HSPLL_HS

@@ -66,7 +66,7 @@
 
 /** CONFIGURATION **************************************************/
 #if defined(ESRILLE_NEW_KEYBOARD) // Configuration bits for the Esrille New Keyboard (PIC18F4550)
-        #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
+        #pragma config PLLDIV   = 4         // (16 MHz resonator on PICDEM FS USB board)
         #if (USB_SPEED_OPTION == USB_FULL_SPEED)
             #pragma config CPUDIV   = OSC1_PLL2
         #else
