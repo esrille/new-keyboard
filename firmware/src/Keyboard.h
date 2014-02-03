@@ -294,7 +294,8 @@ unsigned char switchBase(unsigned char* report, unsigned char count);
 #define KANA_NICOLA     1
 #define KANA_MTYPE      2
 #define KANA_TRON       3
-#define KANA_MAX        3
+#define KANA_STICKNEY   4
+#define KANA_MAX        4
 unsigned char switchKana(unsigned char* report, unsigned char count);
 
 #define OS_PC           0   // Windows, Linux, etc.

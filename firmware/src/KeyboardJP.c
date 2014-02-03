@@ -25,6 +25,34 @@ static unsigned char const kanaKeys[6][6] =
     {KEY_N, KEY_I, KEY_C, KEY_O, KEY_ENTER},
     {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
     {KEY_T, KEY_R, KEY_O, KEY_N, KEY_ENTER},
+    {KEY_S, KEY_T, KEY_I, KEY_C, KEY_K, KEY_ENTER},
+};
+
+//
+// Stickney Next
+//
+static unsigned char const matrixStickney[8][12][4] =
+{
+    {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{KEY_LEFTSHIFT, KEY_NON_US_HASH}, {KEY_MINUS}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_PERIOD}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_COMMA}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFT_BRACKET}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {KEY_LEFTSHIFT, KEY_0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_INTERNATIONAL3}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+};
+
+static unsigned char const matrixStickneyShift[8][12][4] =
+{
+    {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{KEY_LEFTSHIFT, KEY_NON_US_HASH}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_PERIOD}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_SLASH}},
+    {{0}, {0}, {0}, {KEY_C}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_RIGHT_BRACKET}},
+    {{0}, {0}, {KEY_P}, {KEY_EQUAL}, {KEY_QUOTE}, {0}, {0}, {0}, {KEY_SLASH}, {KEY_1}, {KEY_INTERNATIONAL1}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
@@ -296,6 +324,8 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
         return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
     case KANA_MTYPE:
         return processKana(current, processed, report, matrixMtype, matrixMtypeLeft, matrixMtypeRight);
+    case KANA_STICKNEY:
+        return processKana(current, processed, report, matrixStickney, matrixStickneyShift, matrixStickneyShift);
     default:
         return processKeysBase(current, processed, report);
     }
