@@ -1065,7 +1065,7 @@ void Keyboard(void)
     if (!HIDRxHandleBusy(lastOUTTransmission))
         lastOUTTransmission = HIDRxPacket(HID_EP,(BYTE*)&hid_report_out,1);
 
-    unsigned char led = controlLed(hid_report_out[0]);
+    unsigned char led = controlLED(hid_report_out[0]);
     if (led & LED_NUM_LOCK)
         mLED_1_On();
     else
@@ -1623,7 +1623,7 @@ void USBHIDCBSetReportComplete(void)
 	//1 byte of LED state data should now be in the CtrlTrfData buffer.
 
     hid_report_out[0] = CtrlTrfData[0];
-    led = controlLed(hid_report_out[0]);
+    led = controlLED(hid_report_out[0]);
 
 	if(led & LED_NUM_LOCK)
 		mLED_1_On();

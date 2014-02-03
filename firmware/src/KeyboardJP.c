@@ -19,10 +19,18 @@
 #include <string.h>
 #include <xc.h>
 
+static unsigned char const kanaKeys[6][6] =
+{
+    {KEY_R, KEY_O, KEY_M, KEY_A, KEY_ENTER},
+    {KEY_N, KEY_I, KEY_C, KEY_O, KEY_ENTER},
+    {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
+    {KEY_T, KEY_R, KEY_O, KEY_N, KEY_ENTER},
+};
+
 //
 // TRON
 //
-static unsigned char const matrixTron[7][12][4] =
+static unsigned char const matrixTron[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -31,9 +39,10 @@ static unsigned char const matrixTron[7][12][4] =
     {{KEY_R, KEY_A}, {KEY_R, KEY_U}, {KEY_K, KEY_O}, {KEY_H, KEY_A}, {KEY_X, KEY_Y, KEY_O}, {0}, {0}, {KEY_K, KEY_I}, {KEY_N, KEY_O}, {KEY_K, KEY_U}, {KEY_A}, {KEY_R, KEY_E}},
     {{KEY_T, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_A}, {KEY_T, KEY_E}, {KEY_M, KEY_O}, {0}, {0}, {KEY_W, KEY_O}, {KEY_I}, {KEY_U}, {KEY_S, KEY_I}, {KEY_X, KEY_N}},
     {{KEY_M, KEY_A}, {KEY_R, KEY_I}, {KEY_N, KEY_I}, {KEY_S, KEY_A}, {KEY_N, KEY_A}, {0}, {0}, {KEY_S, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}, {KEY_PERIOD}, {KEY_X, KEY_T, KEY_U}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronLeft[7][12][4] =
+static unsigned char const matrixTronLeft[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -42,9 +51,10 @@ static unsigned char const matrixTronLeft[7][12][4] =
     {{KEY_H, KEY_I}, {KEY_S, KEY_O}, {KEY_Z, KEY_SLASH}, {KEY_X, KEY_Y, KEY_A}, {KEY_H, KEY_O}, {0}, {0}, {KEY_G, KEY_I}, {KEY_G, KEY_E}, {KEY_G, KEY_U}, {KEY_A}, {KEY_W, KEY_Y, KEY_I}},
     {{KEY_N, KEY_U}, {KEY_N, KEY_E}, {KEY_X, KEY_Y, KEY_U}, {KEY_Y, KEY_O}, {KEY_H, KEY_U}, {0}, {0}, {KEY_DAKUTEN}, {KEY_D, KEY_I}, {KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_W, KEY_Y, KEY_E}},
     {{KEY_X, KEY_E}, {KEY_X, KEY_O}, {KEY_S, KEY_E}, {KEY_Y, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_Z, KEY_U}, {KEY_D, KEY_U}, {KEY_LEFTSHIFT, KEY_COMMA}, {KEY_LEFTSHIFT, KEY_PERIOD}, {KEY_X, KEY_W, KEY_A}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronRight[7][12][4] =
+static unsigned char const matrixTronRight[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -53,12 +63,13 @@ static unsigned char const matrixTronRight[7][12][4] =
     {{KEY_B, KEY_I}, {KEY_Z, KEY_O}, {KEY_G, KEY_O}, {KEY_B, KEY_A}, {KEY_B, KEY_O}, {0}, {0}, {KEY_E}, {KEY_K, KEY_E}, {KEY_M, KEY_E}, {KEY_M, KEY_U}, {KEY_R, KEY_O}},
     {{KEY_D, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_A}, {KEY_D, KEY_E}, {KEY_B, KEY_U}, {0}, {0}, {KEY_O}, {KEY_T, KEY_I}, {KEY_MINUS}, {KEY_M, KEY_I}, {KEY_Y, KEY_A}},
     {{KEY_X, KEY_K, KEY_A}, {KEY_X, KEY_K, KEY_E}, {KEY_Z, KEY_E}, {KEY_Z, KEY_A}, {KEY_B, KEY_E}, {0}, {0}, {KEY_W, KEY_A}, {KEY_X, KEY_I}, {KEY_X, KEY_A}, {KEY_HANDAKU}, {KEY_X, KEY_U}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // Nicola
 //
-static unsigned char const matrixNicola[7][12][4] =
+static unsigned char const matrixNicola[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -67,9 +78,10 @@ static unsigned char const matrixNicola[7][12][4] =
     {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
     {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_H, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_X, KEY_N}},
     {{KEY_PERIOD}, {KEY_H, KEY_I}, {KEY_S, KEY_U}, {KEY_H, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_H, KEY_O}, {KEY_Z, KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaLeft[7][12][4] =
+static unsigned char const matrixNicolaLeft[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -78,9 +90,10 @@ static unsigned char const matrixNicolaLeft[7][12][4] =
     {{KEY_X, KEY_A}, {KEY_E}, {KEY_R, KEY_I}, {KEY_X, KEY_Y, KEY_A}, {KEY_R, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_D, KEY_I}, {KEY_G, KEY_U}, {KEY_D, KEY_U}, {KEY_P, KEY_I}},
     {{KEY_W, KEY_O}, {KEY_A}, {KEY_N, KEY_A}, {KEY_X, KEY_Y, KEY_U}, {KEY_M, KEY_O}, {0}, {0}, {KEY_B, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_I}, {KEY_P, KEY_O}, {KEY_X, KEY_N}},
     {{KEY_X, KEY_U}, {KEY_MINUS}, {KEY_R, KEY_O}, {KEY_Y, KEY_A}, {KEY_X, KEY_I}, {0}, {0}, {KEY_P, KEY_U}, {KEY_Z, KEY_O}, {KEY_P, KEY_E}, {KEY_B, KEY_O}, {KEY_LEFTSHIFT, KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaRight[7][12][4] =
+static unsigned char const matrixNicolaRight[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -89,12 +102,13 @@ static unsigned char const matrixNicolaRight[7][12][4] =
     {{KEY_PERIOD}, {KEY_G, KEY_A}, {KEY_D, KEY_A}, {KEY_G, KEY_O}, {KEY_Z, KEY_A}, {0}, {0}, {KEY_Y, KEY_O}, {KEY_N, KEY_I}, {KEY_R, KEY_U}, {KEY_M, KEY_A}, {KEY_X, KEY_E}},
     {{KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_D, KEY_E}, {KEY_G, KEY_E}, {KEY_Z, KEY_E}, {0}, {0}, {KEY_M, KEY_I}, {KEY_O}, {KEY_N, KEY_O}, {KEY_X, KEY_Y, KEY_O}, {KEY_X, KEY_T, KEY_U}},
     {{KEY_PERIOD}, {KEY_B, KEY_I}, {KEY_Z, KEY_U}, {KEY_B, KEY_U}, {KEY_B, KEY_E}, {0}, {0}, {KEY_N, KEY_U}, {KEY_Y, KEY_U}, {KEY_M, KEY_U}, {KEY_W, KEY_A}, {KEY_X, KEY_O}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // M type
 //
-static unsigned char const matrixMtype[7][12][4] =
+static unsigned char const matrixMtype[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -103,9 +117,10 @@ static unsigned char const matrixMtype[7][12][4] =
     {{KEY_Q}, {KEY_L}, {KEY_J}, {KEY_F}, {KEY_C}, {0}, {0}, {KEY_M}, {KEY_Y}, {KEY_R}, {KEY_W}, {KEY_P}},
     {{KEY_E}, {KEY_U}, {KEY_I}, {KEY_A}, {KEY_O}, {0}, {0}, {KEY_K}, {KEY_S}, {KEY_T}, {KEY_N}, {KEY_H}},
     {{KEY_E, KEY_I}, {KEY_X}, {KEY_V}, {KEY_A, KEY_I}, {KEY_O, KEY_U}, {0}, {0}, {KEY_G}, {KEY_Z}, {KEY_D}, {KEY_COMMA}, {KEY_B}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeLeft[7][12][4] =
+static unsigned char const matrixMtypeLeft[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -114,9 +129,10 @@ static unsigned char const matrixMtypeLeft[7][12][4] =
     {{KEY_Q}, {KEY_L}, {KEY_J}, {KEY_F}, {KEY_C}, {0}, {0}, {KEY_M, KEY_Y}, {KEY_L, KEY_T, KEY_U}, {KEY_R, KEY_Y}, {KEY_X, KEY_N}, {KEY_P, KEY_Y}},
     {{KEY_E}, {KEY_U}, {KEY_I}, {KEY_A}, {KEY_O}, {0}, {0}, {KEY_K, KEY_Y}, {KEY_S, KEY_Y}, {KEY_T, KEY_Y}, {KEY_N, KEY_Y}, {KEY_H, KEY_Y}},
     {{KEY_E, KEY_I}, {KEY_X}, {KEY_V}, {KEY_A, KEY_I}, {KEY_O, KEY_U}, {0}, {0}, {KEY_G, KEY_Y}, {KEY_Z, KEY_Y}, {KEY_D, KEY_Y}, {KEY_PERIOD}, {KEY_B, KEY_Y}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeRight[7][12][4] =
+static unsigned char const matrixMtypeRight[8][12][4] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -125,27 +141,36 @@ static unsigned char const matrixMtypeRight[7][12][4] =
     {{KEY_E, KEY_K, KEY_I}, {KEY_U, KEY_K, KEY_U}, {KEY_I, KEY_K, KEY_U}, {KEY_A, KEY_K, KEY_U}, {KEY_O, KEY_K, KEY_U}, {0}, {0}, {KEY_M}, {KEY_Y}, {KEY_R}, {KEY_W}, {KEY_P}},
     {{KEY_E, KEY_X, KEY_N}, {KEY_U, KEY_X, KEY_N}, {KEY_I, KEY_X, KEY_N}, {KEY_A, KEY_X, KEY_N}, {KEY_O, KEY_X, KEY_N}, {0}, {0}, {KEY_K}, {KEY_S}, {KEY_T}, {KEY_N}, {KEY_RIGHTSHIFT, KEY_SLASH}},
     {{KEY_E, KEY_T, KEY_U}, {KEY_U, KEY_T, KEY_U}, {KEY_I, KEY_T, KEY_U}, {KEY_A, KEY_T, KEY_U}, {KEY_O, KEY_T, KEY_U}, {0}, {0}, {KEY_G}, {KEY_Z}, {KEY_RIGHTSHIFT, KEY_COMMA}, {KEY_RIGHTSHIFT, KEY_PERIOD}, {KEY_Z, KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 static unsigned char const dakuonFrom[] = { KEY_K, KEY_S, KEY_T, KEY_H };
 static unsigned char const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
 
 static unsigned char mode;
-static unsigned char kana_led;
 
 static const unsigned char* sent;
 static const unsigned char* last;
 static unsigned char lastMod;
 
-void initKeyboardJP(void)
+void initKeyboardKana(void)
 {
-    mode = eeprom_read(EEPROM_MODE_JP);
+    mode = eeprom_read(EEPROM_KANA);
 }
 
-void setModeJP(unsigned char modeJP)
+unsigned char switchKana(unsigned char* report, unsigned char count)
 {
-    mode = modeJP;
-    eeprom_write(EEPROM_MODE_JP, mode);
+    ++mode;
+    if (KANA_MAX < mode)
+        mode = 0;
+    eeprom_write(EEPROM_KANA, mode);
+    const unsigned char* message = kanaKeys[mode];
+    for (char i = 0; i < 6 && count < 8; ++i, ++count) {
+        if (!kanaKeys[i])
+            break;
+        report[count] = message[i];
+    }
+    return count;
 }
 
 static char processKana(const unsigned char* current, const unsigned char* processed, unsigned char* report,
@@ -186,17 +211,19 @@ static char processKana(const unsigned char* current, const unsigned char* proce
                 mod &= ~MOD_RIGHTSHIFT;
         }
 
-        if (12 * 7 <= code)
-            a = modifierKeyArrays[code % 12];
-        else if (mod & MOD_LEFTSHIFT)
+        if (mod & MOD_LEFTSHIFT)
             a = left[code / 12][code % 12];
         else if (mod & MOD_RIGHTSHIFT)
             a = right[code / 12][code % 12];
         else
             a = base[code / 12][code % 12];
         if (!a[0]) {
-            key = getKeyUS(code);
+            key = getKeyBase(code);
             if (key) {
+                if (key == KEY_F13)
+                    kana_led = 1;
+                else if (key == KEY_F14)
+                    kana_led = 0;
                 report[count++] = key;
                 last = 0;
                 lastMod = current[0];
@@ -255,86 +282,28 @@ static char processKana(const unsigned char* current, const unsigned char* proce
     return XMIT_NORMAL;
 }
 
-char processKeysJP(const unsigned char* current, const unsigned char* processed, unsigned char* report)
+char isKanaMode(const unsigned char* current)
 {
-    unsigned char modifiers = current[0];
-    unsigned char key;
-    unsigned char count = 2;
-    const unsigned char* a;
-
-    if (current[1]) {
-        last = 0;
-        lastMod = current[0];
-        for (char i = 2; i < 8; ++i) {
-            unsigned char code = current[i];
-            a = getKeyFn(code);
-            for (char j = 0; a[j] && count < 8; ++j) {
-                key = a[j];
-                switch (key) {
-                case 0:
-                    break;
-                case KEY_TYPE:
-                    if (!memchr(processed + 2, code, 6))
-                        count = switchType(report, count);
-                    break;
-                case KEY_QWERTY:
-                    setModeUS(MODE_QWERTY);
-                    break;
-                case KEY_DVORAK:
-                    setModeUS(MODE_DVORAK);
-                    break;
-                case KEY_ROMAJI:
-                    setModeJP(MODE_ROMAJI);
-                    break;
-                case KEY_NICOLA:
-                    setModeJP(MODE_NICOLA);
-                    break;
-                case KEY_MTYPE:
-                    setModeJP(MODE_MTYPE);
-                    break;
-                case KEY_TRON:
-                    setModeJP(MODE_TRON);
-                    break;
-                case KEY_LEFTCONTROL:
-                    modifiers |= MOD_LEFTCONTROL;
-                    break;
-                case KEY_RIGHTCONTROL:
-                    modifiers |= MOD_CONTROL;
-                    break;
-                case KEY_LEFTSHIFT:
-                    modifiers |= MOD_LEFTSHIFT;
-                    break;
-                case KEY_RIGHTSHIFT:
-                    modifiers |= MOD_RIGHTSHIFT;
-                    break;
-                default:
-                    if (key == KEY_F13)
-                        kana_led = 1;
-                    else if (key == KEY_F14)
-                        kana_led = 0;
-                    report[count++] = key;
-                    break;
-                }
-            }
-        }
-        report[0] = modifiers;
-        return XMIT_NORMAL;
-    } else if (kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != MODE_ROMAJI) {
-        if (mode == MODE_TRON)
-            return processKana(current, processed, report, matrixTron, matrixTronLeft, matrixTronRight);
-        else if (mode == MODE_NICOLA)
-            return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
-        else if (mode == MODE_MTYPE)
-            return processKana(current, processed, report, matrixMtype, matrixMtypeLeft, matrixMtypeRight);
-    }
-    last = 0;
-    lastMod = current[0];
-    return processKeysUS(current, processed, report);
+    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != KANA_ROMAJI;
 }
 
-unsigned char controlLedJP(unsigned char report)
+char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report)
 {
-    if (kana_led)
+    switch (mode) {
+    case KANA_TRON:
+        return processKana(current, processed, report, matrixTron, matrixTronLeft, matrixTronRight);
+    case KANA_NICOLA:
+        return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
+    case KANA_MTYPE:
+        return processKana(current, processed, report, matrixMtype, matrixMtypeLeft, matrixMtypeRight);
+    default:
+        return processKeysBase(current, processed, report);
+    }
+}
+
+unsigned char controlKanaLED(unsigned char report)
+{
+    if (kana_led && mode != KANA_ROMAJI)
         report |= 0x02u;
     return report;
 }

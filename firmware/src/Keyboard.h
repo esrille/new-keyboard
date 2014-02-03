@@ -262,60 +262,67 @@
 //
 //
 
-#define EEPROM_LANG     0
-#define EEPROM_MODE_US  1
-#define EEPROM_MODE_JP  2
+#define EEPROM_BASE         0
+#define EEPROM_KANA         1
+#define EEPROM_OS           2
 
 unsigned char readEEPROM(char index);
 void writeEEPROM(unsigned char index, unsigned char value);
 
 void initKeyboard(void);
-void initKeyboardUS(void);
-void initKeyboardJP(void);
+void initKeyboardBase(void);
+void initKeyboardKana(void);
 
-#define KEY_FN      0xF0
-#define KEY_QWERTY  0xF1
-#define KEY_DVORAK  0xF2
-#define KEY_ROMAJI  0xF3
-#define KEY_NICOLA  0xF4
-#define KEY_MTYPE   0xF5
-#define KEY_TRON    0xF6
-#define KEY_DAKUTEN 0xF7
-#define KEY_HANDAKU 0xF8
-#define KEY_TYPE    0xF9
+#define KEY_FN                  0xF0
+#define KEY_LEFT_THUMBSHIFT     0xF1    // Nicola F only
+#define KEY_RIGHT_THUMBSHIFT	0xF2    // Nocola F only
+#define KEY_DAKUTEN             0xF3
+#define KEY_HANDAKU             0xF4
+#define KEY_BASE                0xF6
+#define KEY_KANA                0xF7
+#define KEY_OS                  0xF8
 
-#define MODE_QWERTY 0
-#define MODE_DVORAK 1
-void setModeUS(unsigned char mode);
+#define BASE_QWERTY     0
+#define BASE_DVORAK     1
+#define BASE_COLEMAK    2
+#define BASE_JIS        3
+#define BASE_NICOLA_F   4
+#define BASE_MAX        4
+unsigned char switchBase(unsigned char* report, unsigned char count);
 
-#define MODE_ROMAJI 0
-#define MODE_NICOLA 1
-#define MODE_MTYPE  2
-#define MODE_TRON   3
-void setModeJP(unsigned char mode);
+#define KANA_ROMAJI     0
+#define KANA_NICOLA     1
+#define KANA_MTYPE      2
+#define KANA_TRON       3
+#define KANA_MAX        3
+unsigned char switchKana(unsigned char* report, unsigned char count);
 
-#define VOID_KEY    14      // A key matrix index at which no key is assigned
+#define OS_PC           0   // Windows, Linux, etc.
+#define OS_MAC          1
+#define OS_MAX          1
+unsigned char switchOS(unsigned char* report, unsigned char count);
 
-extern unsigned char const modifierKeys[12];
-extern unsigned char const modifierKeyArrays[12][2];
+#define VOID_KEY        14  // A key matrix index at which no key is assigned
 
-#define XMIT_NONE   0
-#define XMIT_NORMAL 1
-#define XMIT_BRK    2
-
-unsigned char switchType(const unsigned char* current, unsigned char count);
+#define XMIT_NONE       0
+#define XMIT_NORMAL     1
+#define XMIT_BRK        2
 
 void onPressed(signed char row, unsigned char column);
 char makeReport(unsigned char* report);
 
-char processKeysJP(const unsigned char* current, const unsigned char* processed, unsigned char* report);
-char processKeysUS(const unsigned char* current, const unsigned char* processed, unsigned char* report);
+char isKanaMode(const unsigned char* current);
 
-unsigned char controlLed(unsigned char report);
-unsigned char controlLedJP(unsigned char report);
+char processKeysBase(const unsigned char* current, const unsigned char* processed, unsigned char* report);
+char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report);
+
+unsigned char controlLED(unsigned char report);
+unsigned char controlKanaLED(unsigned char report);
 
 const unsigned char* getKeyFn(unsigned char code);
 unsigned char getKeyNumLock(unsigned char code);
-unsigned char getKeyUS(unsigned char code);
+unsigned char getKeyBase(unsigned char code);
+
+extern unsigned char kana_led;
 
 #endif  // #ifndef KEYBOARD_H

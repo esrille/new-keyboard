@@ -19,44 +19,30 @@
 #include <string.h>
 #include <xc.h>
 
-#define LANG_US     0
-#define LANG_JP     1
-#define LANG_MAX    1
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 0, 0, 0, 0, 0);
 
-__EEPROM_DATA(LANG_US, MODE_QWERTY, MODE_ROMAJI, 0, 0, 0, 0, 0);
+unsigned char os;
+unsigned char kana_led;
 
-unsigned char lang;
-
-static unsigned char const langKeys[2][3] =
+static unsigned char const osKeys[2][4] =
 {
-    {KEY_U, KEY_S, KEY_ENTER},
-    {KEY_J, KEY_P, KEY_ENTER},
+    {KEY_P, KEY_C, KEY_ENTER},
+    {KEY_M, KEY_A, KEY_C, KEY_ENTER}
 };
 
-unsigned char const modifierKeys[12] =
+static unsigned char const matrixFn[8][12][4] =
 {
-    KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT,
-    KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
-};
-
-unsigned char const modifierKeyArrays[12][2] =
-{
-    {KEY_LEFTCONTROL}, {KEY_LEFT_GUI}, {KEY_FN}, {KEY_LEFTSHIFT}, {0}, {KEY_LEFTALT},
-    {KEY_RIGHTALT}, {0}, {KEY_RIGHTSHIFT}, {KEY_FN}, {KEY_RIGHT_GUI}, {KEY_RIGHTCONTROL}
-};
-
-static unsigned char const matrixFn[7][12][4] =
-{
-    {{0}, {KEY_DVORAK}, {KEY_ROMAJI}, {KEY_NICOLA}, {KEY_MTYPE}, {KEY_TRON}, {KEY_TYPE}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_UP}, {KEY_PAUSE}},
-    {{KEY_INSERT}, {KEY_QWERTY}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_DOWN}, {KEYPAD_NUM_LOCK}},
+    {{0}, {KEY_KANA}, {KEY_OS}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
+    {{KEY_INSERT}, {KEY_BASE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEYPAD_NUM_LOCK}},
     {{KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_Z}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_PRINTSCREEN}},
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_Q}, {KEY_LEFTCONTROL, KEY_W}, {KEY_PAGEUP}, {KEY_LEFTCONTROL, KEY_R}, {KEY_LEFTCONTROL, KEY_T}, {0}, {0}, {KEY_LEFTCONTROL, KEY_HOME}, {KEY_LEFTCONTROL, KEY_LEFTARROW}, {KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_RIGHTARROW}, {KEY_LEFTCONTROL, KEY_END}},
     {{KEY_LEFTCONTROL, KEY_A}, {KEY_LEFTCONTROL, KEY_S}, {KEY_PAGEDOWN}, {KEY_LEFTCONTROL, KEY_F}, {KEY_LEFTCONTROL, KEY_G}, {KEY_ESCAPE}, {KEY_APPLICATION}, {KEY_HOME}, {KEY_LEFTARROW}, {KEY_DOWNARROW}, {KEY_RIGHTARROW}, {KEY_END}},
     {{KEY_LEFTCONTROL, KEY_Z}, {KEY_LEFTCONTROL, KEY_X}, {KEY_LEFTCONTROL, KEY_C}, {KEY_LEFTCONTROL, KEY_V}, {KEY_F14}, {KEY_TAB}, {KEY_ENTER}, {KEY_F13}, {KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_DOWNARROW}, {KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_LEFTSHIFT, KEY_END}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}}
 };
 
-static unsigned char const matrixNumLock[7][12] =
+static unsigned char const matrixNumLock[8][12] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -65,6 +51,7 @@ static unsigned char const matrixNumLock[7][12] =
     0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_4, KEYPAD_5, KEYPAD_6, KEYPAD_MULTIPLY,
     0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_1, KEYPAD_2, KEYPAD_3, KEYPAD_SUBTRACT,
     0, 0, 0, 0, 0, 0, KEYPAD_ENTER, 0, KEYPAD_0, 0, KEYPAD_DOT, KEYPAD_ADD,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 static unsigned char tick;
@@ -80,20 +67,22 @@ static unsigned char led;
 
 void initKeyboard(void)
 {
-    lang = eeprom_read(EEPROM_LANG);
-    initKeyboardUS();
-    initKeyboardJP();
+    os = eeprom_read(EEPROM_OS);
+    initKeyboardBase();
+    initKeyboardKana();
 }
 
-unsigned char switchType(const unsigned char* current, unsigned char count)
+unsigned char switchOS(unsigned char* report, unsigned char count)
 {
-    ++lang;
-    if (LANG_MAX < lang)
-        lang = 0;
-    eeprom_write(EEPROM_LANG, lang);
-    if (count <= 5) {
-        memmove(current + count, langKeys[lang], 3);
-        count += 3;
+    ++os;
+    if (OS_MAX < os)
+        os = 0;
+    eeprom_write(EEPROM_OS, os);
+    const unsigned char* message = osKeys[os];
+    for (char i = 0; i < 4 && count < 8; ++i, ++count) {
+        if (!osKeys[i])
+            break;
+        report[count] = message[i];
     }
     return count;
 }
@@ -101,20 +90,19 @@ unsigned char switchType(const unsigned char* current, unsigned char count)
 void onPressed(signed char row, unsigned char column)
 {
     unsigned char key;
+    unsigned char code = 12 * row + column;
 
-    if (row == 7) {
-        key = modifierKeys[column];
-        if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI) {
-            modifiers |= 1u << (key - KEY_LEFTCONTROL);
-            return;
-        }
-        if (key == KEY_FN) {
-            current[1] = 1;
-            return;
-        }
+    key = getKeyBase(code);
+    if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI) {
+        modifiers |= 1u << (key - KEY_LEFTCONTROL);
+        return;
+    }
+    if (KEY_FN <= key && key <= KEY_RIGHT_THUMBSHIFT) {
+        current[1] = 1u << (key - KEY_FN);
+        return;
     }
     if (count < 8)
-        current[count++] = 12 * row + column;
+        current[count++] = code;
 }
 
 static char processKeys(const unsigned char* current, const unsigned char* processed, unsigned char* report)
@@ -124,15 +112,59 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
     if (!memcmp(current, processed, 8))
         return XMIT_NONE;
     memset(report, 0, 8);
-    switch (lang) {
-    case LANG_JP:
-        xmit = processKeysJP(current, processed, report);
-        break;
-    case LANG_US:
-    default:
-        xmit = processKeysUS(current, processed, report);
-        break;
-    }
+    if (current[1] & 1) {
+        unsigned char modifiers = current[0];
+        unsigned char count = 2;
+        for (char i = 2; i < 8; ++i) {
+            unsigned char code = current[i];
+            const unsigned char* a = getKeyFn(code);
+            for (char j = 0; a[j] && count < 8; ++j) {
+                unsigned char key = a[j];
+                switch (key) {
+                case 0:
+                    break;
+                case KEY_BASE:
+                    if (!memchr(processed + 2, code, 6))
+                        count = switchBase(report, count);
+                    break;
+                case KEY_KANA:
+                    if (!memchr(processed + 2, code, 6))
+                        count = switchKana(report, count);
+                    break;
+                case KEY_OS:
+                    if (!memchr(processed + 2, code, 6))
+                        count = switchOS(report, count);
+                    break;
+                case KEY_LEFTCONTROL:
+                    modifiers |= MOD_LEFTCONTROL;
+                    break;
+                case KEY_RIGHTCONTROL:
+                    modifiers |= MOD_CONTROL;
+                    break;
+                case KEY_LEFTSHIFT:
+                case KEY_LEFT_THUMBSHIFT:
+                    modifiers |= MOD_LEFTSHIFT;
+                    break;
+                case KEY_RIGHTSHIFT:
+                case KEY_RIGHT_THUMBSHIFT:
+                    modifiers |= MOD_RIGHTSHIFT;
+                    break;
+                default:
+                    if (key == KEY_F13)
+                        kana_led = 1;
+                    else if (key == KEY_F14)
+                        kana_led = 0;
+                    report[count++] = key;
+                    break;
+                }
+            }
+        }
+        report[0] = modifiers;
+        xmit = XMIT_NORMAL;
+    } else if (isKanaMode(current))
+        xmit = processKeysKana(current, processed, report);
+    else
+        xmit = processKeysBase(current, processed, report);
     if (xmit == XMIT_NORMAL)
         memmove(processed, current, 8);
     return xmit;
@@ -179,28 +211,19 @@ char makeReport(unsigned char* report)
     return xmit;
 }
 
-unsigned char controlLed(unsigned char report)
+unsigned char controlLED(unsigned char report)
 {
     led = report;
-    switch (lang) {
-    case LANG_JP:
-        return controlLedJP(report);
-    default:
-        return report;
-    }
+    return controlKanaLED(report);
 }
 
 const unsigned char* getKeyFn(unsigned char code)
 {
-    if (12 * 7 <= code)
-        return modifierKeyArrays[code % 12];
     return matrixFn[code / 12][code % 12];
 }
 
 unsigned char getKeyNumLock(unsigned char code)
 {
-    if (12 * 7 <= code)
-        return modifierKeys[code % 12];
     if (led & LED_NUM_LOCK)
         return matrixNumLock[code / 12][code % 12];
     return 0;
