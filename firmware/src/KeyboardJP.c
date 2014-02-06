@@ -23,6 +23,7 @@ static unsigned char const kanaKeys[6][6] =
 {
     {KEY_R, KEY_O, KEY_M, KEY_A, KEY_ENTER},
     {KEY_N, KEY_I, KEY_C, KEY_O, KEY_ENTER},
+    {KEY_N, KEY_I, KEY_C, KEY_O, KEY_F, KEY_ENTER},
     {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
     {KEY_T, KEY_R, KEY_O, KEY_N, KEY_ENTER},
     {KEY_S, KEY_T, KEY_I, KEY_C, KEY_K, KEY_ENTER},
@@ -130,6 +131,57 @@ static unsigned char const matrixNicolaRight[8][12][4] =
     {{KEY_PERIOD}, {KEY_G, KEY_A}, {KEY_D, KEY_A}, {KEY_G, KEY_O}, {KEY_Z, KEY_A}, {0}, {0}, {KEY_Y, KEY_O}, {KEY_N, KEY_I}, {KEY_R, KEY_U}, {KEY_M, KEY_A}, {KEY_X, KEY_E}},
     {{KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_D, KEY_E}, {KEY_G, KEY_E}, {KEY_Z, KEY_E}, {0}, {0}, {KEY_M, KEY_I}, {KEY_O}, {KEY_N, KEY_O}, {KEY_X, KEY_Y, KEY_O}, {KEY_X, KEY_T, KEY_U}},
     {{KEY_PERIOD}, {KEY_B, KEY_I}, {KEY_Z, KEY_U}, {KEY_B, KEY_U}, {KEY_B, KEY_E}, {0}, {0}, {KEY_N, KEY_U}, {KEY_Y, KEY_U}, {KEY_M, KEY_U}, {KEY_W, KEY_A}, {KEY_X, KEY_O}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+};
+
+//
+// Nicola F
+//
+static unsigned char const matrixNicolaF[8][12][4] =
+{
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_COMMA}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
+    {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_H, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_X, KEY_N}},
+    {{KEY_PERIOD}, {KEY_H, KEY_I}, {KEY_S, KEY_U}, {KEY_H, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_H, KEY_O}, {KEY_Z, KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+};
+
+static unsigned char const matrixNicolaFLeft[8][12][4] =
+{
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_LEFTSHIFT, KEY_SLASH}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_SLASH}, {KEY_LEFTSHIFT, KEY_EQUAL}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
+    {{KEY_X, KEY_A}, {KEY_E}, {KEY_R, KEY_I}, {KEY_X, KEY_Y, KEY_A}, {KEY_R, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_D, KEY_I}, {KEY_G, KEY_U}, {KEY_D, KEY_U}, {KEY_P, KEY_I}},
+    {{KEY_W, KEY_O}, {KEY_A}, {KEY_N, KEY_A}, {KEY_X, KEY_Y, KEY_U}, {KEY_M, KEY_O}, {0}, {0}, {KEY_B, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_I}, {KEY_P, KEY_O}, {KEY_X, KEY_N}},
+    {{KEY_X, KEY_U}, {KEY_MINUS}, {KEY_R, KEY_O}, {KEY_Y, KEY_A}, {KEY_X, KEY_I}, {0}, {0}, {KEY_P, KEY_U}, {KEY_Z, KEY_O}, {KEY_P, KEY_E}, {KEY_B, KEY_O}, {KEY_LEFTSHIFT, KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+};
+
+static unsigned char const matrixNicolaFRight[8][12][4] =
+{
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_LEFTSHIFT, KEY_SLASH}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_SLASH}, {KEY_LEFTSHIFT, KEY_EQUAL}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
+    {{KEY_PERIOD}, {KEY_G, KEY_A}, {KEY_D, KEY_A}, {KEY_G, KEY_O}, {KEY_Z, KEY_A}, {0}, {0}, {KEY_Y, KEY_O}, {KEY_N, KEY_I}, {KEY_R, KEY_U}, {KEY_M, KEY_A}, {KEY_X, KEY_E}},
+    {{KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_D, KEY_E}, {KEY_G, KEY_E}, {KEY_Z, KEY_E}, {0}, {0}, {KEY_M, KEY_I}, {KEY_O}, {KEY_N, KEY_O}, {KEY_X, KEY_Y, KEY_O}, {KEY_X, KEY_T, KEY_U}},
+    {{KEY_PERIOD}, {KEY_B, KEY_I}, {KEY_Z, KEY_U}, {KEY_B, KEY_U}, {KEY_B, KEY_E}, {0}, {0}, {KEY_N, KEY_U}, {KEY_Y, KEY_U}, {KEY_M, KEY_U}, {KEY_W, KEY_A}, {KEY_X, KEY_O}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+};
+
+static unsigned char const matrixNicolaFHandaku[8][12][4] =
+{
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_Z, KEY_NON_US_HASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_INTERNATIONAL1}, {KEY_Z, KEY_RIGHT_BRACKET}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
+    {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_X, KEY_N}},
+    {{KEY_PERIOD}, {KEY_P, KEY_I}, {KEY_S, KEY_U}, {KEY_P, KEY_U}, {KEY_P, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_P, KEY_O}, {KEY_Z, KEY_SLASH}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
@@ -243,6 +295,8 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             a = left[code / 12][code % 12];
         else if (mod & MOD_RIGHTSHIFT)
             a = right[code / 12][code % 12];
+        else if (current[1] & MOD_ALTSHIFT) // for Nicola F only
+            a = matrixNicolaFHandaku[code / 12][code % 12];
         else
             a = base[code / 12][code % 12];
         if (!a[0]) {
@@ -256,6 +310,10 @@ static char processKana(const unsigned char* current, const unsigned char* proce
                 last = 0;
                 lastMod = current[0];
                 modifiers = current[0];
+                if (current[1] & MOD_LEFT_ALTSHIFT)
+                    modifiers |= MOD_LEFTSHIFT;
+                else if (current[1] & MOD_RIGHT_ALTSHIFT)
+                    modifiers |= MOD_RIGHTSHIFT;
             }
             continue;
         }
@@ -322,6 +380,8 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
         return processKana(current, processed, report, matrixTron, matrixTronLeft, matrixTronRight);
     case KANA_NICOLA:
         return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
+    case KANA_NICOLA_F:
+        return processKana(current, processed, report, matrixNicolaF, matrixNicolaFLeft, matrixNicolaFRight);
     case KANA_MTYPE:
         return processKana(current, processed, report, matrixMtype, matrixMtypeLeft, matrixMtypeRight);
     case KANA_STICKNEY:

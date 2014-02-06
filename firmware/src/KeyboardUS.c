@@ -101,7 +101,19 @@ static unsigned char const matrixNicolaF[8][12] =
     KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, 0, 0, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P,
     KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
-    KEY_LEFT_THUMBSHIFT, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_F14, KEY_F13, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHT_THUMBSHIFT
+    KEY_LEFT_ALTSHIFT, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_F14, KEY_F13, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHT_ALTSHIFT
+};
+
+static unsigned char const matrixNicolaFShift[8][12][2] =
+{
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_LEFTSHIFT, KEY_SLASH}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {KEY_SLASH}, {KEY_LEFTSHIFT, KEY_EQUAL}, {KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {KEY_LEFTSHIFT, KEY_NON_US_HASH}, {0}, {0}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 static unsigned char mode;
@@ -134,22 +146,41 @@ static char isJP()
 char processKeysBase(const unsigned char* current, const unsigned char* processed, unsigned char* report)
 {
     unsigned char count = 2;
+    unsigned char modifiers = current[0];
     for (char i = 2; i < 8; ++i) {
         unsigned char code = current[i];
         unsigned char key = getKeyNumLock(code);
-        if (!key)
-            key = getKeyBase(code);
+        if (!key) {
+            if (mode == BASE_NICOLA_F) {
+                if (current[0] & MOD_SHIFT) {
+                    const unsigned char* a = matrixNicolaFShift[code / 12][code % 12];
+                    if (a[0]) {
+                        key = a[0];
+                        if (key == KEY_LEFTSHIFT) {
+                            modifiers |= (current[0] & MOD_SHIFT);
+                            key = a[1];
+                        } else
+                            modifiers &= ~MOD_SHIFT;
+                    }
+                } else if (current[1] & MOD_LEFT_ALTSHIFT)
+                    modifiers |= MOD_LEFTSHIFT;
+                else if (current[1] & MOD_RIGHT_ALTSHIFT)
+                    modifiers |= MOD_RIGHTSHIFT;
+            }
+            if (!key)
+                key = getKeyBase(code);
+        }
         if (key && count < 8) {
             if (key == KEY_F13)
                 kana_led = 1;
             else if (key == KEY_F14)
                 kana_led = 0;
-            else if (key == KEY_0 && (current[0] & MOD_SHIFT) && isJP())
+            else if (key == KEY_0 && (modifiers & MOD_SHIFT) && isJP())
                 key = KEY_INTERNATIONAL1;
             report[count++] = key;
         }
     }
-    report[0] = current[0];
+    report[0] = modifiers;
     return XMIT_NORMAL;
 }
 

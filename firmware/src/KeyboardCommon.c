@@ -97,8 +97,8 @@ void onPressed(signed char row, unsigned char column)
         modifiers |= 1u << (key - KEY_LEFTCONTROL);
         return;
     }
-    if (KEY_FN <= key && key <= KEY_RIGHT_THUMBSHIFT) {
-        current[1] = 1u << (key - KEY_FN);
+    if (KEY_FN <= key && key <= KEY_RIGHT_ALTSHIFT) {
+        current[1] |= 1u << (key - KEY_FN);
         return;
     }
     if (count < 8)
@@ -112,7 +112,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
     if (!memcmp(current, processed, 8))
         return XMIT_NONE;
     memset(report, 0, 8);
-    if (current[1] & 1) {
+    if (current[1] & MOD_FN) {
         unsigned char modifiers = current[0];
         unsigned char count = 2;
         for (char i = 2; i < 8; ++i) {
@@ -142,11 +142,9 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     modifiers |= MOD_CONTROL;
                     break;
                 case KEY_LEFTSHIFT:
-                case KEY_LEFT_THUMBSHIFT:
                     modifiers |= MOD_LEFTSHIFT;
                     break;
                 case KEY_RIGHTSHIFT:
-                case KEY_RIGHT_THUMBSHIFT:
                     modifiers |= MOD_RIGHTSHIFT;
                     break;
                 default:
@@ -176,7 +174,7 @@ char makeReport(unsigned char* report)
 
     current[0] = modifiers;
     if (led & LED_SCROLL_LOCK)
-        current[1] |= 1;
+        current[1] |= MOD_FN;
     while (count < 8)
         current[count++] = VOID_KEY;
 
