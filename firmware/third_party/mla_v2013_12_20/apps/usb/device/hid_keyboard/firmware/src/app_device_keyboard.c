@@ -307,6 +307,9 @@ void APP_KeyboardTasks(void)
     uint8_t column;
     uint8_t on;
 
+    if (xmit != XMIT_BRK)
+        Delay10KTCYx(3);   // 5msec at 24MHz
+
     /* Check if the IN endpoint is busy, and if it isn't check if we want to send
      * keystroke data to the host. */
     if(!HIDTxHandleBusy(keyboard.lastINTransmission))
@@ -397,7 +400,6 @@ void APP_KeyboardTasks(void)
             break;
         }
     }
-
 
     /* Check if any data was sent from the PC to the keyboard device.  Report
      * descriptor allows host to send 1 byte of data.  Bits 0-4 are LED states,
