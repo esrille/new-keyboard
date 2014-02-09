@@ -102,6 +102,12 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 ********************************************************************/
 bool BUTTON_IsPressed(BUTTON button)
 {
+    // Sense the row 7 for resume
+    PORTA &= 0xC0;
+    PORTE &= 0xFC;
+    TRISA |= 0x3F;
+    TRISE |= 0x03;
+    TRISEbits.TRISE1 = 0;
     return (~PORTD & 0xfc) || (~PORTB & 0x3f);
 }
 

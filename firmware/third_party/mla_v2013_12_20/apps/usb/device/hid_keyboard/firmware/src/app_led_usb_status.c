@@ -59,6 +59,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <system.h>
 #include <usb/usb_device.h>
 
+#include "app_device_keyboard.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -93,6 +94,7 @@ void APP_LEDUpdateUSBStatus(void)
     switch(USBGetDeviceState())
     {         
         case CONFIGURED_STATE:
+            APP_KeyboardProcessOutputReport();
             break;
 
         default:

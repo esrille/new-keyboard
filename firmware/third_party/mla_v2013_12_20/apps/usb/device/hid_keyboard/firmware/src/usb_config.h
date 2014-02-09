@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of usb_config.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  Software License Agreement:
 
@@ -12,7 +20,7 @@
  civil liability for the breach of the terms and conditions of this
  license.
 
- THIS SOFTWARE IS PROVIDED IN AN �AS IS� CONDITION. NO WARRANTIES,
+ THIS SOFTWARE IS PROVIDED IN AN “AS IS” CONDITION. NO WARRANTIES,
  WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -30,15 +38,15 @@
 #include "usb/usb_ch9.h"
 
 /** DEFINITIONS ****************************************************/
-#define USB_EP0_BUFF_SIZE		8	// Valid Options: 8, 16, 32, or 64 bytes.
-								// Using larger options take more SRAM, but
-								// does not provide much advantage in most types
-								// of applications.  Exceptions to this, are applications
-								// that use EP0 IN or OUT for sending large amounts of
-								// application related data.
+#define USB_EP0_BUFF_SIZE       8   // Valid Options: 8, 16, 32, or 64 bytes.
+                                    // Using larger options take more SRAM, but
+                                    // does not provide much advantage in most types
+                                    // of applications.  Exceptions to this, are applications
+                                    // that use EP0 IN or OUT for sending large amounts of
+                                    // application related data.
 									
 #define USB_MAX_NUM_INT     	1   // For tracking Alternate Setting
-#define USB_MAX_EP_NUMBER	    1
+#define USB_MAX_EP_NUMBER	1
 
 //Make sure only one of the below "#define USB_PING_PONG_MODE"
 //is uncommented.
@@ -104,9 +112,9 @@
 //USB_ENABLE_STATUS_STAGE_TIMEOUTS feature is not enabled, then the USB_STATUS_STAGE_TIMEOUT
 //parameter is not relevant.
 
-#define USB_STATUS_STAGE_TIMEOUT     (uint8_t)45   //Approximate timeout in milliseconds, except when
-                                                //USB_POLLING mode is used, and USBDeviceTasks() is called at < 1kHz
-                                                //In this special case, the timeout becomes approximately:
+#define USB_STATUS_STAGE_TIMEOUT     (uint8_t)45    //Approximate timeout in milliseconds, except when
+                                                    //USB_POLLING mode is used, and USBDeviceTasks() is called at < 1kHz
+                                                    //In this special case, the timeout becomes approximately:
 //Timeout(in milliseconds) = ((1000 * (USB_STATUS_STAGE_TIMEOUT - 1)) / (USBDeviceTasks() polling frequency in Hz))
 //------------------------------------------------------------------------------------------------------------------
 
@@ -121,7 +129,7 @@
 
 /* HID */
 #define HID_INTF_ID             0x00
-#define HID_EP 					1
+#define HID_EP 			1
 #define HID_INT_OUT_EP_SIZE     1
 #define HID_INT_IN_EP_SIZE      8
 #define HID_NUM_OF_DSC          1

@@ -58,6 +58,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <usb/usb.h>
 #include <usb/usb_device_hid.h>
 
+#include "app_device_keyboard.h"
 #include "app_led_usb_status.h"
 
 #include <Keyboard.h>
@@ -277,7 +278,6 @@ static volatile KEYBOARD_OUTPUT_REPORT outputReport KEYBOARD_OUTPUT_REPORT_DATA_
 // Section: Private Prototypes
 // *****************************************************************************
 // *****************************************************************************
-static void APP_KeyboardProcessOutputReport(void);
 
 
 // *****************************************************************************
@@ -415,7 +415,7 @@ void APP_KeyboardTasks(void)
     APP_KeyboardProcessOutputReport();
 }
 
-static void APP_KeyboardProcessOutputReport(void)
+void APP_KeyboardProcessOutputReport(void)
 {
     uint8_t led = controlLED(outputReport.value);
     if (led & LED_NUM_LOCK)
@@ -432,6 +432,35 @@ static void APP_KeyboardProcessOutputReport(void)
         LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
     else
         LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+}
+
+void APP_Suspend()
+{
+    APP_LEDUpdateUSBStatus();
+
+    PORTA &= 0xC0;
+    PORTE &= 0xFC;
+    TRISA |= 0x3F;
+    TRISE |= 0x03;
+
+    OSCCON = 0x13;	//Sleep on sleep, 125kHz selected as microcontroller clock source
+}
+
+void APP_WakeFromSuspend()
+{
+    OSCCON = 0x60;      //Primary clock source selected.
+
+    //Adding a software start up delay will ensure
+    //that the primary oscillator and PLL are running before executing any other
+    //code.  If the PLL isn't being used, (ex: primary osc = 48MHz externally applied EC)
+    //then this code adds a small unnecessary delay, but it is harmless to execute anyway.
+    {
+        unsigned int pll_startup_counter = 800;	//Long delay at 31kHz, but ~0.8ms at 48MHz
+        while (pll_startup_counter--)
+            ;                                   //Clock will switch over while executing this delay loop
+    }
+
+    APP_LEDUpdateUSBStatus();
 }
 
 static void USBHIDCBSetReportComplete(void)

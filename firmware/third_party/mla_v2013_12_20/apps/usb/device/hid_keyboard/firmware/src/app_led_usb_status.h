@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of app_led_usb_status.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  Software License Agreement:
 
@@ -20,6 +28,9 @@
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *******************************************************************/
 
+#ifndef APP_LED_H
+#define APP_LED_H
+
 /*********************************************************************
 * Function: void APP_LEDUpdateUSBStatus(void);
 *
@@ -38,3 +49,5 @@
 *
 ********************************************************************/
 void APP_LEDUpdateUSBStatus(void);
+
+#endif

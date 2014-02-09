@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of app_device_keyboard.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  Software License Agreement:
 
@@ -20,10 +28,14 @@
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 ********************************************************************/
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
+#ifndef APP_KEYBOARD_H
+#define APP_KEYBOARD_H
 
 void APP_KeyboardInit(void);
 void APP_KeyboardTasks(void);
+void APP_Suspend();
+void APP_WakeFromSuspend();
+
+void APP_KeyboardProcessOutputReport(void);
 
 #endif

@@ -75,7 +75,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
-
+static void USBCBSendResume(void);
 
 // *****************************************************************************
 // *****************************************************************************
@@ -92,12 +92,12 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 int main(void)
 {
-    SYSTEM_Initialize( SYSTEM_STATE_USB_START );
+    SYSTEM_Initialize(SYSTEM_STATE_USB_START);
 
     USBDeviceInit();
     USBDeviceAttach();
 
-    while(1)
+    for (;;)
     {
         SYSTEM_Tasks();
 
@@ -119,7 +119,7 @@ int main(void)
         /* If the USB device isn't configured yet, we can't really do anything
          * else since we don't have a host to talk to.  So jump back to the
          * top of the while loop. */
-        if( USBGetDeviceState() < CONFIGURED_STATE )
+        if (USBGetDeviceState() < CONFIGURED_STATE)
         {
             /* Jump back to the top of the while loop. */
             continue;
@@ -129,15 +129,21 @@ int main(void)
          * issue a remote wakeup.  In either case, we shouldn't process any
          * keyboard commands since we aren't currently communicating to the host
          * thus just continue back to the start of the while loop. */
-        if( USBIsDeviceSuspended()== true )
+        if (USBIsDeviceSuspended())
         {
             //Check if we should assert a remote wakeup request to the USB host,
             //when the user presses the pushbutton.
-            if(BUTTON_IsPressed(BUTTON_USB_DEVICE_REMOTE_WAKEUP) == 0)
+            if (BUTTON_IsPressed(BUTTON_USB_DEVICE_REMOTE_WAKEUP))
             {
-                //Add code here to issue a resume signal.
+                USBCBSendResume();  //Does nothing unless we are in USB suspend with remote wakeup armed.
             }
 
+            /* Jump back to the top of the while loop. */
+            continue;
+        }
+
+        if (USBSuspendControl == 1)
+        {
             /* Jump back to the top of the while loop. */
             continue;
         }
@@ -147,7 +153,145 @@ int main(void)
     }//end while
 }//end main
 
+/********************************************************************
+ * Function:        void USBCBSendResume(void)
+ *
+ * PreCondition:    None
+ *
+ * Input:           None
+ *
+ * Output:          None
+ *
+ * Side Effects:    None
+ *
+ * Overview:        The USB specifications allow some types of USB
+ * 					peripheral devices to wake up a host PC (such
+ *					as if it is in a low power suspend to RAM state).
+ *					This can be a very useful feature in some
+ *					USB applications, such as an Infrared remote
+ *					control	receiver.  If a user presses the "power"
+ *					button on a remote control, it is nice that the
+ *					IR receiver can detect this signalling, and then
+ *					send a USB "command" to the PC to wake up.
+ *
+ *					The USBCBSendResume() "callback" function is used
+ *					to send this special USB signalling which wakes
+ *					up the PC.  This function may be called by
+ *					application firmware to wake up the PC.  This
+ *					function will only be able to wake up the host if
+ *                  all of the below are true:
+ *
+ *					1.  The USB driver used on the host PC supports
+ *						the remote wakeup capability.
+ *					2.  The USB configuration descriptor indicates
+ *						the device is remote wakeup capable in the
+ *						bmAttributes field.
+ *					3.  The USB host PC is currently sleeping,
+ *						and has previously sent your device a SET
+ *						FEATURE setup packet which "armed" the
+ *						remote wakeup capability.
+ *
+ *                  If the host has not armed the device to perform remote wakeup,
+ *                  then this function will return without actually performing a
+ *                  remote wakeup sequence.  This is the required behavior,
+ *                  as a USB device that has not been armed to perform remote
+ *                  wakeup must not drive remote wakeup signalling onto the bus;
+ *                  doing so will cause USB compliance testing failure.
+ *
+ *					This callback should send a RESUME signal that
+ *                  has the period of 1-15ms.
+ *
+ * Note:            This function does nothing and returns quickly, if the USB
+ *                  bus and host are not in a suspended condition, or are
+ *                  otherwise not in a remote wakeup ready state.  Therefore, it
+ *                  is safe to optionally call this function regularly, ex:
+ *                  anytime application stimulus occurs, as the function will
+ *                  have no effect, until the bus really is in a state ready
+ *                  to accept remote wakeup.
+ *
+ *                  When this function executes, it may perform clock switching,
+ *                  depending upon the application specific code in
+ *                  USBCBWakeFromSuspend().  This is needed, since the USB
+ *                  bus will no longer be suspended by the time this function
+ *                  returns.  Therefore, the USB module will need to be ready
+ *                  to receive traffic from the host.
+ *
+ *                  The modifiable section in this routine may be changed
+ *                  to meet the application needs. Current implementation
+ *                  temporary blocks other functions from executing for a
+ *                  period of ~3-15 ms depending on the core frequency.
+ *
+ *                  According to USB 2.0 specification section 7.1.7.7,
+ *                  "The remote wakeup device must hold the resume signaling
+ *                  for at least 1 ms but for no more than 15 ms."
+ *                  The idea here is to use a delay counter loop, using a
+ *                  common value that would work over a wide range of core
+ *                  frequencies.
+ *                  That value selected is 1800. See table below:
+ *                  ==========================================================
+ *                  Core Freq(MHz)      MIP         RESUME Signal Period (ms)
+ *                  ==========================================================
+ *                      48              12          1.05
+ *                       4              1           12.6
+ *                  ==========================================================
+ *                  * These timing could be incorrect when using code
+ *                    optimization or extended instruction mode,
+ *                    or when having other interrupts enabled.
+ *                    Make sure to verify using the MPLAB SIM's Stopwatch
+ *                    and verify the actual signal on an oscilloscope.
+ *******************************************************************/
+static void USBCBSendResume(void)
+{
+    static uint16_t delay_count;
 
+    //First verify that the host has armed us to perform remote wakeup.
+    //It does this by sending a SET_FEATURE request to enable remote wakeup,
+    //usually just before the host goes to standby mode (note: it will only
+    //send this SET_FEATURE request if the configuration descriptor declares
+    //the device as remote wakeup capable, AND, if the feature is enabled
+    //on the host (ex: on Windows based hosts, in the device manager
+    //properties page for the USB device, power management tab, the
+    //"Allow this device to bring the computer out of standby." checkbox
+    //should be checked).
+    if(USBGetRemoteWakeupStatus())
+    {
+        //Verify that the USB bus is in fact suspended, before we send
+        //remote wakeup signalling.
+        if(USBIsBusSuspended())
+        {
+            USBMaskInterrupts();
+
+            //Clock switch to settings consistent with normal USB operation.
+            APP_WakeFromSuspend();
+            USBSuspendControl = 0;
+            USBBusIsSuspended = false;  //So we don't execute this code again,
+                                        //until a new suspend condition is detected.
+
+            //Section 7.1.7.7 of the USB 2.0 specifications indicates a USB
+            //device must continuously see 5ms+ of idle on the bus, before it sends
+            //remote wakeup signalling.  One way to be certain that this parameter
+            //gets met, is to add a 2ms+ blocking delay here (2ms plus at
+            //least 3ms from bus idle to USBIsBusSuspended() == TRUE, yeilds
+            //5ms+ total delay since start of idle).
+            delay_count = 3600U;
+            do
+            {
+                delay_count--;
+            }while(delay_count);
+
+            //Now drive the resume K-state signalling onto the USB bus.
+            USBResumeControl = 1;       // Start RESUME signaling
+            delay_count = 1800U;        // Set RESUME line for 1-13 ms
+            do
+            {
+                delay_count--;
+            }while(delay_count);
+            USBResumeControl = 0;       //Finished driving resume signalling
+
+            USBUnmaskInterrupts();
+        }
+    }
+}
 
 bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size)
 {
@@ -157,19 +301,14 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             break;
 
         case EVENT_SOF:
-            /* We are using the SOF as a timer to time the LED indicator.  Call
-             * the LED update function here. */
-            APP_LEDUpdateUSBStatus();
             break;
 
         case EVENT_SUSPEND:
-            /* Update the LED status for the suspend event. */
-            APP_LEDUpdateUSBStatus();
+            APP_Suspend();
             break;
 
         case EVENT_RESUME:
-            /* Update the LED status for the resume event. */
-            APP_LEDUpdateUSBStatus();
+            APP_WakeFromSuspend();
             break;
 
         case EVENT_CONFIGURED:
