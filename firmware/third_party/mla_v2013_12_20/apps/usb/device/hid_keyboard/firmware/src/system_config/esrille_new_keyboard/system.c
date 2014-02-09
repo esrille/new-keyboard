@@ -1,28 +1,25 @@
 /*
  * Copyright 2014 Esrille Inc.
  *
- * This file is a modified version of app_led_usb_status.c provided by
+ * This file is a modified version of system.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
  * See the Software License Agreement below for the License.
  */
 
 /*******************************************************************************
-  USB Status Indicator LED
+  System Initialization and Controls (PICDEM FS USB Demo Board)
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    led_usb_status.c
+    system.c
 
   Summary:
-    Indicates the USB device status to the user via an LED.
+    This file initializes and controls system level features.
 
   Description:
-    Indicates the USB device status to the user via an LED.
-    * The LED is turned off for suspend mode.
-    * It blinks quickly with 50% on time when configured
-    * It blinks slowly at a low on time (~5% on, 95% off) for all other states.
+    This file initializes and controls system level features.
 *******************************************************************************/
 
 // DOM-IGNORE-BEGIN
@@ -50,12 +47,12 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 *******************************************************************************/
 // DOM-IGNORE-END
 
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
 #include <system.h>
 #include <usb/usb_device.h>
 
@@ -65,6 +62,44 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
+#pragma config PLLDIV   = 4         // (16 MHz resonator on esrille new keyboard)
+#pragma config CPUDIV   = OSC3_PLL4 // USB Low Speed
+#pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
+#pragma config FOSC     = HSPLL_HS
+#pragma config FCMEN    = OFF
+#pragma config IESO     = OFF
+#pragma config PWRT     = OFF
+#pragma config BOR      = ON
+#pragma config BORV     = 3
+#pragma config VREGEN   = ON      //USB Voltage Regulator
+#pragma config WDT      = OFF
+#pragma config WDTPS    = 32768
+#pragma config MCLRE    = ON
+#pragma config LPT1OSC  = OFF
+#pragma config PBADEN   = OFF
+//#pragma config CCP2MX   = ON
+#pragma config STVREN   = ON
+#pragma config LVP      = OFF
+//#pragma config ICPRT    = OFF       // Dedicated In-Circuit Debug/Programming
+#pragma config XINST    = OFF       // Extended Instruction Set
+#pragma config CP0      = OFF
+#pragma config CP1      = OFF
+//#pragma config CP2      = OFF
+//#pragma config CP3      = OFF
+#pragma config CPB      = OFF
+//#pragma config CPD      = OFF
+#pragma config WRT0     = OFF
+#pragma config WRT1     = OFF
+//#pragma config WRT2     = OFF
+//#pragma config WRT3     = OFF
+#pragma config WRTB     = OFF       // Boot Block Write Protection
+#pragma config WRTC     = OFF
+//#pragma config WRTD     = OFF
+#pragma config EBTR0    = OFF
+#pragma config EBTR1    = OFF
+//#pragma config EBTR2    = OFF
+//#pragma config EBTR3    = OFF
+#pragma config EBTRB    = OFF
 
 
 // *****************************************************************************
@@ -79,30 +114,64 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Macros or Functions
 // *****************************************************************************
 // *****************************************************************************
-
-void APP_LEDUpdateUSBStatus(void)
-{
-    if(USBIsDeviceSuspended())
+void SYSTEM_Initialize( SYSTEM_STATE state )
+{   
+    switch(state)
     {
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-        return;
-    }
+        case SYSTEM_STATE_USB_START:
+            CCP1CON = 0;
+            CCP2CON = 0;
+            ADCON1 |= 0x0F; // Digital I/O
 
-    switch(USBGetDeviceState())
-    {         
-        case CONFIGURED_STATE:
+            //Initialize all of the LED pins and key matrix ports
+            // PORT A (0~5, input initially)
+            LATA &= 0xC0;
+            TRISA |= 0x3F;
+
+            // PORT B (0~7, input)
+            TRISB |= 0xFF;
+            LATB |= 0xFF;
+            INTCON2bits.RBPU = 0;   // Enable pull up
+
+            // TODO: Check INT
+
+            // PORT C (2, output)
+            LATC &= 0xFB;
+            LATC |= 0x04;   // Default HI
+            TRISC &= 0xFB;
+            // TODO: Check timer
+
+            // PORT D (0~1, output; 2~7, input)
+            LATD &= 0xFC;
+            LATD |= 0x03;   // Default HI
+            TRISD &= 0xFC;
+            TRISD |= 0xFC;
+            LATD |= 0xFC;
+            PORTEbits.RDPU = 1;     // Enable pull up
+
+            // PORT E (0~1, input initially)
+            LATE &= 0xFC;
+            TRISE |= 0x03;
             break;
-
-        default:
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+			
+        case SYSTEM_STATE_USB_SUSPEND: 
+            break;
+            
+        case SYSTEM_STATE_USB_RESUME:
             break;
     }
 }
+		
+#if defined(__XC8)
+void interrupt SYS_InterruptHigh(void)
+{
+    #if defined(USB_INTERRUPT)
+        USBDeviceTasks();
+    #endif
+}
+#endif
 
 /*******************************************************************************
  End of File
 */
+

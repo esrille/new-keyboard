@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of app_device_keyboard.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*******************************************************************************
   USB device keyboard demo source file
 
@@ -52,6 +60,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "app_led_usb_status.h"
 
+#include <Keyboard.h>
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: File Scope or Global Constants
@@ -86,10 +96,10 @@ const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01={
     0x95, 0x06,                    //   REPORT_COUNT (6)
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
+    0x25, 0xFF,                    //   LOGICAL_MAXIMUM (101)
     0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
     0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
-    0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
+    0x29, 0xFF,                    //   USAGE_MAXIMUM (Keyboard Application)
     0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
     0xc0}                          // End Collection
 };
@@ -242,8 +252,6 @@ typedef struct
 {
     USB_HANDLE lastINTransmission;
     USB_HANDLE lastOUTTransmission;
-    unsigned char key;
-    bool waitingForRelease;
 } KEYBOARD;
 
 // *****************************************************************************
@@ -279,53 +287,114 @@ static void APP_KeyboardProcessOutputReport(void);
 // *****************************************************************************
 void APP_KeyboardInit(void)
 {
+    initKeyboard();
+    
     //initialize the variable holding the handle for the last
     // transmission
     keyboard.lastINTransmission = 0;
     
-    keyboard.key = 4;
-    keyboard.waitingForRelease = false;
-
     //enable the HID endpoint
     USBEnableEndpoint(HID_EP, USB_IN_ENABLED|USB_OUT_ENABLED|USB_HANDSHAKE_ENABLED|USB_DISALLOW_SETUP);
 
     //Arm OUT endpoint so we can receive caps lock, num lock, etc. info from host
-    keyboard.lastOUTTransmission = HIDRxPacket(HID_EP,(uint8_t*)&outputReport, sizeof(outputReport) );
+    keyboard.lastOUTTransmission = HIDRxPacket(HID_EP, (uint8_t*) &outputReport, sizeof(outputReport));
 }
 
 void APP_KeyboardTasks(void)
 {
+    static int8_t xmit = XMIT_NORMAL;
+    int8_t row;
+    uint8_t column;
+    uint8_t on;
+
     /* Check if the IN endpoint is busy, and if it isn't check if we want to send
      * keystroke data to the host. */
-    if(HIDTxHandleBusy(keyboard.lastINTransmission) == false)
+    if(!HIDTxHandleBusy(keyboard.lastINTransmission))
     {
-        /* Clear the INPUT report buffer.  Set to all zeros. */
-        memset(&inputReport, 0, sizeof(inputReport));
-
-        if(BUTTON_IsPressed(BUTTON_USB_DEVICE_HID_KEYBOARD_KEY) == true)
-        {
-            if(keyboard.waitingForRelease == false)
-            {
-                keyboard.waitingForRelease = true;
-
-                /* Set the only important data, the key press data. */
-                inputReport.keys[0] = keyboard.key++;
-
-                /* Send the 8 byte packet over USB to the host. */
-                keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*)&inputReport, sizeof(inputReport));
-
-                if(keyboard.key == 40)
-                {
-                    keyboard.key = 4;
+        for (row = 7; 0 <= row; --row) {
+            PORTA &= 0xC0;
+            PORTE &= 0xFC;
+            TRISA |= 0x3F;
+            TRISE |= 0x03;
+            switch (row) {
+            case 0:
+                TRISAbits.TRISA0 = 0;
+                break;
+            case 1:
+                TRISAbits.TRISA1 = 0;
+                break;
+            case 2:
+                TRISAbits.TRISA2 = 0;
+                break;
+            case 3:
+                TRISAbits.TRISA3 = 0;
+                break;
+            case 4:
+                TRISAbits.TRISA4 = 0;
+                break;
+            case 5:
+                TRISAbits.TRISA5 = 0;
+                break;
+            case 6:
+                TRISEbits.TRISE0 = 0;
+                break;
+            case 7:
+                TRISEbits.TRISE1 = 0;
+                break;
+            }
+            for (column = 0; column < 12; ++column) {
+                switch (column) {
+                case 0:
+                    on = !PORTDbits.RD4;
+                    break;
+                case 1:
+                    on = !PORTDbits.RD5;
+                    break;
+                case 2:
+                    on = !PORTDbits.RD6;
+                    break;
+                case 3:
+                    on = !PORTDbits.RD7;
+                    break;
+                case 4:
+                    on = !PORTDbits.RD2;
+                    break;
+                case 5:
+                    on = !PORTDbits.RD3;
+                    break;
+                case 6:
+                    on = !PORTBbits.RB5;
+                    break;
+                case 7:
+                    on = !PORTBbits.RB4;
+                    break;
+                case 8:
+                    on = !PORTBbits.RB1;
+                    break;
+                case 9:
+                    on = !PORTBbits.RB0;
+                    break;
+                case 10:
+                    on = !PORTBbits.RB2;
+                    break;
+                case 11:
+                    on = !PORTBbits.RB3;
+                    break;
                 }
+                if (on)
+                    onPressed(row, column);
             }
         }
-        else
-        {
-            keyboard.waitingForRelease = false;
 
-            /* Send the 8 byte packet over USB to the host. */
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*)&inputReport, sizeof(inputReport));
+        xmit = makeReport((uint8_t*) &inputReport);
+        switch (xmit) {
+        case XMIT_BRK:
+            memset(&inputReport + 2, 0, 6);
+            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
+            break;
+        case XMIT_NORMAL:
+            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
+            break;
         }
     }
 
@@ -338,24 +407,29 @@ void APP_KeyboardTasks(void)
      * control transfer on EP0.  See the USBHIDCBSetReportHandler() function. */
     if(HIDRxHandleBusy(keyboard.lastOUTTransmission) == false)
     {
-        APP_KeyboardProcessOutputReport();
-
         keyboard.lastOUTTransmission = HIDRxPacket(HID_EP,(uint8_t*)&outputReport,sizeof(outputReport));
     }
     
-    return;		
+    APP_KeyboardProcessOutputReport();
 }
 
 static void APP_KeyboardProcessOutputReport(void)
 {
-    if(outputReport.leds.capsLock)
-    {
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-    }
+    uint8_t led = controlLED(outputReport.value);
+    if (led & LED_NUM_LOCK)
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
     else
-    {
+        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
+
+    if (led & LED_CAPS_LOCK)
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
+    else
         LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-    }
+
+    if (led & LED_SCROLL_LOCK)
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+    else
+        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
 }
 
 static void USBHIDCBSetReportComplete(void)

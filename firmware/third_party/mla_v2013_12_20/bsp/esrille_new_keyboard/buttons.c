@@ -1,28 +1,25 @@
 /*
  * Copyright 2014 Esrille Inc.
  *
- * This file is a modified version of app_led_usb_status.c provided by
+ * This file is a modified version of buttons.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
  * See the Software License Agreement below for the License.
  */
 
 /*******************************************************************************
-  USB Status Indicator LED
+  Demo board push button abstraction layer for PICDEM FS USB board.
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    led_usb_status.c
+    buttons.c
 
   Summary:
-    Indicates the USB device status to the user via an LED.
+    Provides simple interface for pushbuttons on the PICDEM FS USB board.
 
   Description:
-    Indicates the USB device status to the user via an LED.
-    * The LED is turned off for suspend mode.
-    * It blinks quickly with 50% on time when configured
-    * It blinks slowly at a low on time (~5% on, 95% off) for all other states.
+    Provides simple interface for pushbuttons on the PICDEM FS USB board.
 *******************************************************************************/
 
 // DOM-IGNORE-BEGIN
@@ -55,23 +52,30 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
-#include <system.h>
-#include <usb/usb_device.h>
-
+#include <stdbool.h>
+#include <xc.h>
+#include <buttons.h>
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
+//      S1       MCLR reset
+#define S2_PORT  PORTBbits.RB4      //AN11
+#define S3_PORT  PORTBbits.RB5      
 
+#define S2_TRIS  TRISBbits.TRISB4
+#define S3_TRIS  TRISBbits.TRISB5
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: File Scope Data Types
-// *****************************************************************************
-// *****************************************************************************
+#define BUTTON_PRESSED      0
+#define BUTTON_NOT_PRESSED  1
+
+#define PIN_INPUT           1
+#define PIN_OUTPUT          0
+
+#define PIN_DIGITAL         1
+#define PIN_ANALOG          0
 
 
 // *****************************************************************************
@@ -80,28 +84,27 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-void APP_LEDUpdateUSBStatus(void)
+/*********************************************************************
+* Function: bool BUTTON_IsPressed(BUTTON button);
+*
+* Overview: Returns the current state of the requested button
+*
+* PreCondition: button configured via BUTTON_SetConfiguration()
+*
+* Input: BUTTON button - enumeration of the buttons available in
+*        this demo.  They should be meaningful names and not the names 
+*        of the buttons on the silkscreen on the board (as the demo 
+*        code may be ported to other boards).
+*         i.e. - ButtonIsPressed(BUTTON_SEND_MESSAGE);
+*
+* Output: TRUE if pressed; FALSE if not pressed.
+*
+********************************************************************/
+bool BUTTON_IsPressed(BUTTON button)
 {
-    if(USBIsDeviceSuspended())
-    {
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-        return;
-    }
-
-    switch(USBGetDeviceState())
-    {         
-        case CONFIGURED_STATE:
-            break;
-
-        default:
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-            break;
-    }
+    return (~PORTD & 0xfc) || (~PORTB & 0x3f);
 }
+
 
 /*******************************************************************************
  End of File
