@@ -61,8 +61,8 @@
 //  is available on the target processor.
 //#define USB_TRANSCEIVER_OPTION USB_EXTERNAL_TRANSCEIVER
 
-#define USB_SPEED_OPTION USB_FULL_SPEED
-//#define USB_SPEED_OPTION USB_LOW_SPEED //(not valid option for PIC24F devices)
+//#define USB_SPEED_OPTION USB_FULL_SPEED
+#define USB_SPEED_OPTION USB_LOW_SPEED //(not valid option for PIC24F devices)
 
 #define MY_VID 0x04D8
 #define MY_PID 0x0055
