@@ -57,6 +57,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <system.h>
 #include <usb/usb.h>
 #include <usb/usb_device_hid.h>
+#include <plib/delays.h>
 
 #include "app_device_keyboard.h"
 #include "app_led_usb_status.h"
