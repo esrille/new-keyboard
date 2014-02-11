@@ -49,14 +49,14 @@ void DisableUSBandExecuteLongDelay(void);
 
 
 //Vector remapping/absolute address constants
-#define REMAPPED_APPLICATION_RESET_VECTOR       0x1000
-//#define REMAPPED_APPLICATION_HIGH_ISR_VECTOR    0x1008        //See VectorRemap.asm
-//#define REMAPPED_APPLICATION_LOW_ISR_VECTOR     0x1018        //See VectorRemap.asm
+#define REMAPPED_APPLICATION_RESET_VECTOR       0x1800
+//#define REMAPPED_APPLICATION_HIGH_ISR_VECTOR    0x1808        //See VectorRemap.asm
+//#define REMAPPED_APPLICATION_LOW_ISR_VECTOR     0x1818        //See VectorRemap.asm
 #define BOOTLOADER_ABSOLUTE_ENTRY_ADDRESS       0x001C  //Execute a "goto 0x001C" inline assembly instruction, if you want to enter the bootloader mode from the application via software
 
-#define APP_SIGNATURE_ADDRESS                   0x1006  //0x1006 and 0x1007 contains the "signature" WORD, indicating successful erase/program/verify operation
+#define APP_SIGNATURE_ADDRESS                   0x1806  //0x1006 and 0x1007 contains the "signature" WORD, indicating successful erase/program/verify operation
 #define APP_SIGNATURE_VALUE                     0x600D  //leet "GOOD", implying that the erase/program was a success and the bootloader intentionally programmed the APP_SIGNATURE_ADDRESS with this value
-#define APP_VERSION_ADDRESS                     0x1016  //0x1016 and 0x1017 should contain the application image firmware version number
+#define APP_VERSION_ADDRESS                     0x1816  //0x1016 and 0x1017 should contain the application image firmware version number
 
 
 

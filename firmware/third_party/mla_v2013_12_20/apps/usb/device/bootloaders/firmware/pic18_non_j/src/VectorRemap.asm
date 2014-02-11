@@ -31,7 +31,7 @@
     PSECT HiVector,class=CODE,delta=1,abs
 #endif
         org 0x08
-    goto 0x1008     ;Resides at 0x0008 (hardware high priority interrupt vector), and causes PC to jump to 0x1008 upon a high priority interrupt event
+    goto 0x1808     ;Resides at 0x0008 (hardware high priority interrupt vector), and causes PC to jump to 0x1008 upon a high priority interrupt event
 
 
     ;//Low priority interrupt vector remapping, as well as bootloader mode absolute
@@ -40,7 +40,7 @@
     PSECT LoVector,class=CODE,delta=1,abs
 #endif
         org 0x18
-    goto    0x1018  ;Resides at 0x0018 (hardware low priority interrupt vector), and causes PC to jump to 0x1018 upon a low priority interrupt event
+    goto    0x1818  ;Resides at 0x0018 (hardware low priority interrupt vector), and causes PC to jump to 0x1018 upon a low priority interrupt event
     goto    0x30    ;Resides at 0x001C  //Serves as absolute entry point from application program into the bootloader mode
 
 

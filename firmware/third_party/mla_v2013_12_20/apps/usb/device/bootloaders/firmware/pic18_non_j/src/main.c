@@ -338,6 +338,52 @@ must be shared between the bootloader and application firmware.
     #pragma config EBTR1  = OFF
     #pragma config EBTRB  = OFF
 
+#elif defined(ESRILLE_NEW_KEYBOARD)     // Configuration bits for Esrille New Keybard (PIC18F4550)
+    #pragma config PLLDIV   = 4         // (16 MHz resonator on esrille new keyboard)
+    #pragma config CPUDIV   = OSC3_PLL4 // USB Low Speed
+    #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
+    #pragma config FOSC     = HSPLL_HS
+    #pragma config FCMEN    = OFF
+    #pragma config IESO     = OFF
+    #pragma config PWRT     = OFF
+    #pragma config BOR      = ON
+    #pragma config BORV     = 3
+    #pragma config VREGEN   = ON		//USB Voltage Regulator
+    #pragma config WDT      = OFF
+    #pragma config WDTPS    = 32768
+    #pragma config MCLRE    = ON
+    #pragma config LPT1OSC  = OFF
+    #pragma config PBADEN   = OFF		//NOTE: modifying this value here won't have an effect
+                                        //on the application.  See the top of the main() function.
+                                        //By default the RB4 I/O pin is used to detect if the
+                                        //firmware should enter the bootloader or the main application
+                                        //firmware after a reset.  In order to do this, it needs to
+                                        //configure RB4 as a digital input, thereby changing it from
+                                        //the reset value according to this configuration bit.
+    //#pragma config CCP2MX   = ON
+    #pragma config STVREN   = ON
+    #pragma config LVP      = OFF
+    //#pragma config ICPRT    = OFF       // Dedicated In-Circuit Debug/Programming
+    #pragma config XINST    = OFF       // Extended Instruction Set
+    #pragma config CP0      = OFF
+    #pragma config CP1      = OFF
+    //#pragma config CP2      = OFF
+    //#pragma config CP3      = OFF
+    #pragma config CPB      = OFF
+    //#pragma config CPD      = OFF
+    #pragma config WRT0     = OFF
+    #pragma config WRT1     = OFF
+    //#pragma config WRT2     = OFF
+    //#pragma config WRT3     = OFF
+    #pragma config WRTB     = OFF       // Boot Block Write Protection
+    #pragma config WRTC     = OFF
+    //#pragma config WRTD     = OFF
+    #pragma config EBTR0    = OFF
+    #pragma config EBTR1    = OFF
+    //#pragma config EBTR2    = OFF
+    //#pragma config EBTR3    = OFF
+    #pragma config EBTRB    = OFF
+
 #else
     #error "Double click this message and add your device specific configuration bit settings."
     //Make sure that the oscillator settings in particular are compatible with USB operation.
@@ -918,9 +964,9 @@ void USBCBCheckOtherReq(void)
 //message, please upgrade to the PRO compiler, and then use the mode
 //(ex: build configuration --> XC8 compiler --> Option Categories: Optimizations --> Operation Mode: PRO)
 #ifdef __XC8__
-    #if _HTC_EDITION_ < 2   //Check if PRO, Standard, or Free mode
-    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."
-    #endif
+//    #if _HTC_EDITION_ < 2   //Check if PRO, Standard, or Free mode
+//    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."
+//    #endif
     #if __XC8_VERSION < 1210
     #error "This code is only intended for XC8 v1.21 or later.  Please upgrade to the latest compiler version."
     #endif

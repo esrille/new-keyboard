@@ -37,6 +37,8 @@
 
 //Make sure board/platform specific definitions (like config bit settings and
 //I/O pin definitions are correct for your hardware platform).
+#define ESRILLE_NEW_KEYBOARD
+#ifndef ESRILLE_NEW_KEYBOARD
 #if defined(__18F4550)
     #define PIC18F4550_PICDEM_FS_USB
 #elif defined(__18F45K50)
@@ -52,6 +54,7 @@
     //2. I/O pin definitions for VBUS sensing, self power sensing, I/O pushbutton for entry into bootloader, and for LED blink settings.
     //3. Optional behavioral settings: ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY, ENABLE_USB_LED_BLINK_STATUS, USE_SELF_POWER_SENSE_IO, USE_USB_BUS_SENSE_IO.  See usb_config.h file.
     //4. Oscillator and other settings are correctly being initialized in the InitializeSystem() function, specific to your hardware (ex: turn on PLL [if needed] for proper USB clock, etc.)
+#endif
 #endif
 
 
@@ -117,6 +120,27 @@
     #define mDeInitSwitch2()    {} 
 	
 	
+
+#elif defined(ESRILLE_NEW_KEYBOARD)
+    //VBUS sensing pin definition, applicable if using the USE_USB_BUS_SENSE_IO option in usb_config.
+    #if defined(USE_USB_BUS_SENSE_IO)
+        #define tris_usb_bus_sense  TRISAbits.TRISA1    // Input
+        #define usb_bus_sense       PORTAbits.RA1
+    #endif
+    #if defined(USE_SELF_POWER_SENSE_IO)
+        #define tris_self_power     TRISAbits.TRISA2
+        #define self_power          PORTAbits.RA2
+    #endif
+
+    //LED definition, applicable if using ENABLE_USB_LED_BLINK_STATUS option in usb_config.h
+    #define mLED1       LATDbits.LATD1
+    #define mLED1Tris   TRISDbits.TRISD1
+    /** SWITCH *********************************************************/
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA5 = 0;}
+    #define sw2                 (PORTDbits.RD3)
+    #define mDeInitSwitch2()    {ADCON1 = 0x07;}
+
+
 
 #elif defined(YOUR_CUSTOM_BOARD)
     #warning "Add your hardware specific I/O pin mapping here."
