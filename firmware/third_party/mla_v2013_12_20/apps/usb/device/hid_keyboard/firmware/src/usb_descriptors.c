@@ -64,14 +64,14 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 const USB_DEVICE_DESCRIPTOR device_dsc=
 {
     0x12,    // Size of this descriptor in bytes
-    USB_DESCRIPTOR_DEVICE,                // DEVICE descriptor type
+    USB_DESCRIPTOR_DEVICE,  // DEVICE descriptor type
     0x0200,                 // USB Spec Release Number in BCD format
     0x00,                   // Class Code
     0x00,                   // Subclass code
     0x00,                   // Protocol code
-    USB_EP0_BUFF_SIZE,          // Max packet size for EP0, see usb_config.h
-    MY_VID,                 // Vendor ID
-    MY_PID,                 // Product ID: Keyboard fw demo
+    USB_EP0_BUFF_SIZE,      // Max packet size for EP0, see usb_config.h
+    MY_VID,                 // Vendor ID: Microchip
+    MY_PID,                 // Product ID: Esrille New Keyboard
     0x0001,                 // Device release number in BCD format
     0x01,                   // Manufacturer string index
     0x02,                   // Product string index
@@ -135,16 +135,15 @@ sizeof(sd000),USB_DESCRIPTOR_STRING,{0x0409
 }};
 
 //Manufacturer string descriptor
-const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[25];}sd001={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[12];}sd001={
 sizeof(sd001),USB_DESCRIPTOR_STRING,
-{'M','i','c','r','o','c','h','i','p',' ',
-'T','e','c','h','n','o','l','o','g','y',' ','I','n','c','.'
+{'E','s','r','i','l','l','e',' ','I','n','c','.'
 }};
 
 //Product string descriptor
-const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[13];}sd002={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[20];}sd002={
 sizeof(sd002),USB_DESCRIPTOR_STRING,
-{'K','e','y','b','o','a','r','d',' ','D','e','m','o'
+{'E','s','r','i','l','l','e',' ','N','e','w',' ','K','e','y','b','o','a','r','d'
 }};
 
 //Array of configuration descriptors
