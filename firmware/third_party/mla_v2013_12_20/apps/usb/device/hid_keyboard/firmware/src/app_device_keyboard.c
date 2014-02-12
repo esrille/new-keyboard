@@ -288,8 +288,6 @@ static volatile KEYBOARD_OUTPUT_REPORT outputReport KEYBOARD_OUTPUT_REPORT_DATA_
 // *****************************************************************************
 void APP_KeyboardInit(void)
 {
-    initKeyboard();
-    
     //initialize the variable holding the handle for the last
     // transmission
     keyboard.lastINTransmission = 0;

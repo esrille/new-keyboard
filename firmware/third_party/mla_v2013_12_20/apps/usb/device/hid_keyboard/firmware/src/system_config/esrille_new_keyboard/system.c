@@ -56,6 +56,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <system.h>
 #include <usb/usb_device.h>
 
+#include <Keyboard.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -152,6 +153,8 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             // PORT E (0~1, input initially)
             LATE &= 0xFC;
             TRISE |= 0x03;
+
+            initKeyboard();
             break;
 			
         case SYSTEM_STATE_USB_SUSPEND: 
