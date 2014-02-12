@@ -266,9 +266,6 @@
 #define EEPROM_KANA         1
 #define EEPROM_OS           2
 
-unsigned char readEEPROM(char index);
-void writeEEPROM(unsigned char index, unsigned char value);
-
 void initKeyboard(void);
 void initKeyboardBase(void);
 void initKeyboardKana(void);
