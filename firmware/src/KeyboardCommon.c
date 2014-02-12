@@ -62,6 +62,8 @@ static unsigned char processed[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KE
 static unsigned char modifiers;
 static unsigned char current[8];
 static signed char count = 2;
+static unsigned char rowCount[8];
+static unsigned char columnCount[12];
 
 static unsigned char led;
 
@@ -91,7 +93,8 @@ void onPressed(signed char row, unsigned char column)
 {
     unsigned char key;
     unsigned char code = 12 * row + column;
-
+    ++columnCount[column];
+    ++rowCount[row];
     key = getKeyBase(code);
     if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI) {
         modifiers |= 1u << (key - KEY_LEFTCONTROL);
@@ -103,6 +106,27 @@ void onPressed(signed char row, unsigned char column)
     }
     if (count < 8)
         current[count++] = code;
+}
+
+static char detectGhost(void)
+{
+    char i;
+    char detected;
+    unsigned char rx = 0;
+    unsigned char cx = 0;
+
+    for (i = 0; i < sizeof rowCount; ++i) {
+        if (2 <= rowCount[i])
+            ++rx;
+    }
+    for (i = 0; i < sizeof columnCount; ++i) {
+        if (2 <= columnCount[i])
+            ++cx;
+    }
+    detected = (2 <= rx && 2 <= cx);
+    memset(rowCount, 0, sizeof rowCount);
+    memset(columnCount, 0, sizeof columnCount);
+    return detected;
 }
 
 static char processKeys(const unsigned char* current, const unsigned char* processed, unsigned char* report)
@@ -171,36 +195,36 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
 char makeReport(unsigned char* report)
 {
     char xmit = XMIT_NONE;
-
-    current[0] = modifiers;
-    if (led & LED_SCROLL_LOCK)
-        current[1] |= MOD_FN;
-    while (count < 8)
-        current[count++] = VOID_KEY;
-
-    if (!memcmp(current, hold, 8)) {
-        if (10 <= ++tick) {
-            xmit = processKeys(current, processed, report);
-            tick = 0;
+    if (!detectGhost()) {
+        while (count < 8)
+            current[count++] = VOID_KEY;
+        current[0] = modifiers;
+        if (led & LED_SCROLL_LOCK)
+            current[1] |= MOD_FN;
+        if (!memcmp(current, hold, 8)) {
+            if (10 <= ++tick) {
+                xmit = processKeys(current, processed, report);
+                tick = 0;
+                holding = 0;
+            }
+        } else if (memcmp(current + 2, hold + 2, 6)) {
+            if (current[1] || (current[0] & MOD_SHIFT))
+                holding |= (!processed[1] || !(processed[0] & MOD_SHIFT));
+            xmit = processKeys(holding ? current : hold, processed, report);
             holding = 0;
-        }
-    } else if (memcmp(current + 2, hold + 2, 6)) {
-        if (current[1] || (current[0] & MOD_SHIFT))
-            holding |= (!processed[1] || !(processed[0] & MOD_SHIFT));
-        xmit = processKeys(holding ? current : hold, processed, report);
-        holding = 0;
-        tick = 0;
-        memmove(hold, current, 8);
-    } else {
-        tick = 0;
-        memmove(hold, current, 8);
-        if (current[1] || (current[0] & MOD_SHIFT)) {
-            holding = (!processed[1] || !(processed[0] & MOD_SHIFT));
-            xmit = processKeys(current, processed, report);
-        } else if (processed[1] && !current[1] ||
-            (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
-            (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT)) {
-            holding = 1;
+            tick = 0;
+            memmove(hold, current, 8);
+        } else {
+            tick = 0;
+            memmove(hold, current, 8);
+            if (current[1] || (current[0] & MOD_SHIFT)) {
+                holding = (!processed[1] || !(processed[0] & MOD_SHIFT));
+                xmit = processKeys(current, processed, report);
+            } else if (processed[1] && !current[1] ||
+                (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
+                (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT)) {
+                holding = 1;
+            }
         }
     }
     count = 2;
