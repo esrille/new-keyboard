@@ -109,7 +109,7 @@ const uint8_t configDescriptor1[]={
     0x00,                   // Country Code (0x00 for Not supported)
     HID_NUM_OF_DSC,         // Number of class descriptors, see usbcfg.h
     DSC_RPT,                // Report descriptor type
-    DESC_CONFIG_WORD(63),   //sizeof(hid_rpt01),      // Size of the report descriptor
+    DESC_CONFIG_WORD(HID_RPT01_SIZE),   // Size of the report descriptor
     
     /* Endpoint Descriptor */
     0x07,/*sizeof(USB_EP_DSC)*/

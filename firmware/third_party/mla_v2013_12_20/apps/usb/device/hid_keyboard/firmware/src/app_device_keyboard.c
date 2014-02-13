@@ -98,7 +98,7 @@ const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01={
     0x95, 0x06,                    //   REPORT_COUNT (6)
     0x75, 0x08,                    //   REPORT_SIZE (8)
     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0xFF,                    //   LOGICAL_MAXIMUM (101)
+    0x26, DESC_CONFIG_WORD(0xFF),  //   LOGICAL_MAXIMUM (255)
     0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
     0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
     0x29, 0xFF,                    //   USAGE_MAXIMUM (Keyboard Application)
