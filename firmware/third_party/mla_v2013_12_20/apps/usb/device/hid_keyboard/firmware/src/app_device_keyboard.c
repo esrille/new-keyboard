@@ -435,7 +435,7 @@ void APP_KeyboardTasks(void)
         keyboard.lastOUTTransmission = HIDRxPacket(HID_EP,(uint8_t*)&outputReport,sizeof(outputReport));
     }
     
-    APP_KeyboardProcessOutputReport();
+    APP_LEDUpdateUSBStatus();
 }
 
 void APP_KeyboardProcessOutputReport(void)
@@ -493,7 +493,7 @@ static void USBHIDCBSetReportComplete(void)
     outputReport.value = CtrlTrfData[0];
 
     /* Process the OUTPUT report. */
-    APP_KeyboardProcessOutputReport();
+    APP_LEDUpdateUSBStatus();
 }
 
 void USBHIDCBSetReportHandler(void)
