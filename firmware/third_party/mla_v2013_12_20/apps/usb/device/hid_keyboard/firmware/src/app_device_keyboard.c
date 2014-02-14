@@ -273,6 +273,8 @@ static KEYBOARD_INPUT_REPORT inputReport KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRE
 #endif
 static volatile KEYBOARD_OUTPUT_REPORT outputReport KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG;
 
+static uint8_t ordered_keys[6];
+static uint8_t ordered_pos = 0;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -306,13 +308,29 @@ void APP_KeyboardTasks(void)
     uint8_t column;
     uint8_t on;
 
-    if (xmit != XMIT_BRK)
+    if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER)
         Delay10KTCYx(3);   // 5msec at 24MHz
 
     /* Check if the IN endpoint is busy, and if it isn't check if we want to send
      * keystroke data to the host. */
     if(!HIDTxHandleBusy(keyboard.lastINTransmission))
     {
+        if (xmit == XMIT_IN_ORDER) {
+            if (inputReport.keys[0] && inputReport.keys[0] == ordered_keys[ordered_pos])
+                inputReport.keys[0] = 0;    // BRK
+            else {
+                inputReport.keys[0] = ordered_keys[ordered_pos++];
+                if (!inputReport.keys[0]) {
+                    xmit = XMIT_NORMAL;
+                    return;
+                }
+            }
+            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
+            if (6 <= ordered_pos)
+                xmit = XMIT_NORMAL;
+            return;
+        }
+
         for (row = 7; 0 <= row; --row) {
             PORTA &= 0xC0;
             PORTE &= 0xFC;
@@ -395,6 +413,12 @@ void APP_KeyboardTasks(void)
             keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
             break;
         case XMIT_NORMAL:
+            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
+            break;
+        case XMIT_IN_ORDER:
+            ordered_pos = 1;
+            memmove(ordered_keys, inputReport.keys, 6);
+            memset(inputReport.keys + 1, 0, 5);
             keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
             break;
         }

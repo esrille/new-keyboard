@@ -311,6 +311,7 @@ unsigned char switchOS(unsigned char* report, unsigned char count);
 #define XMIT_NONE       0
 #define XMIT_NORMAL     1
 #define XMIT_BRK        2
+#define XMIT_IN_ORDER   3
 
 void onPressed(signed char row, unsigned char column);
 char makeReport(unsigned char* report);

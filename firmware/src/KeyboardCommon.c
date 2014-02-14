@@ -139,6 +139,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
     if (current[1] & MOD_FN) {
         unsigned char modifiers = current[0];
         unsigned char count = 2;
+        xmit = XMIT_NORMAL;
         for (char i = 2; i < 8; ++i) {
             unsigned char code = current[i];
             const unsigned char* a = getKeyFn(code);
@@ -148,16 +149,22 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case 0:
                     break;
                 case KEY_BASE:
-                    if (!memchr(processed + 2, code, 6))
+                    if (!memchr(processed + 2, code, 6)) {
                         count = switchBase(report, count);
+                        xmit = XMIT_IN_ORDER;
+                    }
                     break;
                 case KEY_KANA:
-                    if (!memchr(processed + 2, code, 6))
+                    if (!memchr(processed + 2, code, 6)) {
                         count = switchKana(report, count);
+                        xmit = XMIT_IN_ORDER;
+                    }
                     break;
                 case KEY_OS:
-                    if (!memchr(processed + 2, code, 6))
+                    if (!memchr(processed + 2, code, 6)) {
                         count = switchOS(report, count);
+                        xmit = XMIT_IN_ORDER;
+                    }
                     break;
                 case KEY_LEFTCONTROL:
                     modifiers |= MOD_LEFTCONTROL;
@@ -182,12 +189,11 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
             }
         }
         report[0] = modifiers;
-        xmit = XMIT_NORMAL;
     } else if (isKanaMode(current))
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);
-    if (xmit == XMIT_NORMAL)
+    if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER)
         memmove(processed, current, 8);
     return xmit;
 }
