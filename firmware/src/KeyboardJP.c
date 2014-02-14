@@ -236,6 +236,8 @@ static unsigned char lastMod;
 void initKeyboardKana(void)
 {
     mode = eeprom_read(EEPROM_KANA);
+    if (KANA_MAX < mode)
+        mode = 0;
 }
 
 unsigned char switchKana(unsigned char* report, unsigned char count)
@@ -302,9 +304,9 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         if (!a[0]) {
             key = getKeyBase(code);
             if (key) {
-                if (key == KEY_F13)
+                if (key == KEY_LANG1)
                     kana_led = 1;
-                else if (key == KEY_F14)
+                else if (key == KEY_LANG2)
                     kana_led = 0;
                 report[count++] = key;
                 last = 0;

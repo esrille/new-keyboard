@@ -38,7 +38,7 @@ static unsigned char const matrixFn[8][12][4] =
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_Q}, {KEY_LEFTCONTROL, KEY_W}, {KEY_PAGEUP}, {KEY_LEFTCONTROL, KEY_R}, {KEY_LEFTCONTROL, KEY_T}, {0}, {0}, {KEY_LEFTCONTROL, KEY_HOME}, {KEY_LEFTCONTROL, KEY_LEFTARROW}, {KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_RIGHTARROW}, {KEY_LEFTCONTROL, KEY_END}},
     {{KEY_LEFTCONTROL, KEY_A}, {KEY_LEFTCONTROL, KEY_S}, {KEY_PAGEDOWN}, {KEY_LEFTCONTROL, KEY_F}, {KEY_LEFTCONTROL, KEY_G}, {KEY_ESCAPE}, {KEY_APPLICATION}, {KEY_HOME}, {KEY_LEFTARROW}, {KEY_DOWNARROW}, {KEY_RIGHTARROW}, {KEY_END}},
-    {{KEY_LEFTCONTROL, KEY_Z}, {KEY_LEFTCONTROL, KEY_X}, {KEY_LEFTCONTROL, KEY_C}, {KEY_LEFTCONTROL, KEY_V}, {KEY_F14}, {KEY_TAB}, {KEY_ENTER}, {KEY_F13}, {KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_DOWNARROW}, {KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_LEFTSHIFT, KEY_END}},
+    {{KEY_LEFTCONTROL, KEY_Z}, {KEY_LEFTCONTROL, KEY_X}, {KEY_LEFTCONTROL, KEY_C}, {KEY_LEFTCONTROL, KEY_V}, {KEY_LANG2}, {KEY_TAB}, {KEY_ENTER}, {KEY_LANG1}, {KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_DOWNARROW}, {KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_LEFTSHIFT, KEY_END}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}}
 };
 
@@ -70,6 +70,8 @@ static unsigned char led;
 void initKeyboard(void)
 {
     os = eeprom_read(EEPROM_OS);
+    if (OS_MAX < os)
+        os = 0;
     initKeyboardBase();
     initKeyboardKana();
 }
@@ -179,9 +181,9 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     modifiers |= MOD_RIGHTSHIFT;
                     break;
                 default:
-                    if (key == KEY_F13)
+                    if (key == KEY_LANG1)
                         kana_led = 1;
-                    else if (key == KEY_F14)
+                    else if (key == KEY_LANG2)
                         kana_led = 0;
                     report[count++] = key;
                     break;
@@ -230,6 +232,20 @@ char makeReport(unsigned char* report)
                 (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
                 (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT)) {
                 holding = 1;
+            }
+        }
+    }
+    if (os == OS_PC) {
+        for (char i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+                report[i] = KEY_F13;
+                break;
+            case KEY_LANG2:
+                report[i] = KEY_F14;
+                break;
+            default:
+                break;
             }
         }
     }

@@ -89,7 +89,7 @@ static unsigned char const matrixJIS[8][12] =
     KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, 0, 0, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P,
     KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
-    KEY_LEFTCONTROL, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_F14, KEY_F13, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
+    KEY_LEFTCONTROL, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LANG2, KEY_LANG1, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
 static unsigned char const matrixNicolaF[8][12] =
@@ -101,7 +101,7 @@ static unsigned char const matrixNicolaF[8][12] =
     KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, 0, 0, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P,
     KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
-    KEY_LEFT_ALTSHIFT, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_F14, KEY_F13, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHT_ALTSHIFT
+    KEY_LEFT_ALTSHIFT, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_LANG2, KEY_LANG1, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHT_ALTSHIFT
 };
 
 static unsigned char const matrixNicolaFShift[8][12][2] =
@@ -121,6 +121,8 @@ static unsigned char mode;
 void initKeyboardBase(void)
 {
     mode = eeprom_read(EEPROM_BASE);
+    if (BASE_MAX < mode)
+        mode = 0;
 }
 
 unsigned char switchBase(unsigned char* report, unsigned char count)
@@ -171,9 +173,9 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
                 key = getKeyBase(code);
         }
         if (key && count < 8) {
-            if (key == KEY_F13)
+            if (key == KEY_LANG1)
                 kana_led = 1;
-            else if (key == KEY_F14)
+            else if (key == KEY_LANG2)
                 kana_led = 0;
             else if (key == KEY_0 && (modifiers & MOD_SHIFT) && isJP())
                 key = KEY_INTERNATIONAL1;
