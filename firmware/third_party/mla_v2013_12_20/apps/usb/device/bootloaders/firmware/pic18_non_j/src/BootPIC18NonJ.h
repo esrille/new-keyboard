@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of BootPIC18NonJ.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*********************************************************************
  *
  *   Microchip USB HID Bootloader v1.01 for PIC18F and PIC18LF versions of:
@@ -58,6 +66,10 @@ void DisableUSBandExecuteLongDelay(void);
 #define APP_SIGNATURE_VALUE                     0x600D  //leet "GOOD", implying that the erase/program was a success and the bootloader intentionally programmed the APP_SIGNATURE_ADDRESS with this value
 #define APP_VERSION_ADDRESS                     0x1816  //0x1016 and 0x1017 should contain the application image firmware version number
 
-
+//
+// Esrille New Keyboard
+//
+#define BOARD_REV_ADDRESS                       0x17FE
+#define BOARD_REV_VALUE                         0x0001
 
 #endif //BOOTPIC18NONJ_H

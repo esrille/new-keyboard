@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of main.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*********************************************************************
  *
  *   Microchip USB HID Bootloader v1.02 for PIC18 (Non-J Family) USB Microcontrollers
@@ -420,6 +428,8 @@ void BlinkUSBStatus(void);
 //the USB cable or AC power is lost during an erase/program/verify sequence.
 #ifdef __XC8__
     const unsigned int __at(APP_SIGNATURE_ADDRESS) FlashSignatureWord = APP_SIGNATURE_VALUE;
+
+    const unsigned int BoardRev @ BOARD_REV_ADDRESS = BOARD_REV_VALUE;
 #else
     #pragma romdata FLASH_SIG_SECTION = APP_SIGNATURE_ADDRESS
     ROM unsigned int FlashSignatureWord = APP_SIGNATURE_VALUE;

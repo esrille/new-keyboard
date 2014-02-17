@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of HardwareProfile.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*********************************************************************
  * FileName:        HardwareProfile.h
  * Dependencies:    See INCLUDES section below
