@@ -170,7 +170,7 @@
         <property key="calibrate-oscillator-value" value=""/>
         <property key="clear-bss" value="true"/>
         <property key="code-model-external" value="wordwrite"/>
-        <property key="code-model-rom" value="default,-0-17FF,-1806-1807,-1816-1817"/>
+        <property key="code-model-rom" value="default,-0-17FF,-1806-1807,-1826-1827"/>
         <property key="create-html-files" value="false"/>
         <property key="data-model-ram" value=""/>
         <property key="data-model-size-of-double" value="24"/>

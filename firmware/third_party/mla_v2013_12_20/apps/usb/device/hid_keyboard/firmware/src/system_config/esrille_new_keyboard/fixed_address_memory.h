@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of fixed_address_memory.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  Software License Agreement:
 
@@ -25,7 +33,10 @@
 
 #define FIXED_ADDRESS_MEMORY
 
-#define KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRESS_TAG @0x500
-#define KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG @0x508
+#define KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRESS_TAG   @0x500
+#define KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG  @0x508
+
+#define APP_VERSION_ADDRESS     0x1826  // The application image firmware version number address
+#define APP_VERSION_VALUE       0x0001
 
 #endif //FIXED_MEMORY_ADDRESS

@@ -64,7 +64,7 @@ void DisableUSBandExecuteLongDelay(void);
 
 #define APP_SIGNATURE_ADDRESS                   0x1806  //0x1006 and 0x1007 contains the "signature" WORD, indicating successful erase/program/verify operation
 #define APP_SIGNATURE_VALUE                     0x600D  //leet "GOOD", implying that the erase/program was a success and the bootloader intentionally programmed the APP_SIGNATURE_ADDRESS with this value
-#define APP_VERSION_ADDRESS                     0x1816  //0x1016 and 0x1017 should contain the application image firmware version number
+#define APP_VERSION_ADDRESS                     0x1826  //0x1016 and 0x1017 should contain the application image firmware version number
 
 //
 // Esrille New Keyboard
