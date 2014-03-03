@@ -32,7 +32,7 @@ static unsigned char const kanaKeys[6][6] =
 //
 // Stickney Next
 //
-static unsigned char const matrixStickney[8][12][4] =
+static unsigned char const matrixStickney[8][12][3] =
 {
     {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -44,7 +44,7 @@ static unsigned char const matrixStickney[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixStickneyShift[8][12][4] =
+static unsigned char const matrixStickneyShift[8][12][3] =
 {
     {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -59,7 +59,7 @@ static unsigned char const matrixStickneyShift[8][12][4] =
 //
 // TRON
 //
-static unsigned char const matrixTron[8][12][4] =
+static unsigned char const matrixTron[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -71,7 +71,7 @@ static unsigned char const matrixTron[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronLeft[8][12][4] =
+static unsigned char const matrixTronLeft[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{KEY_Z, KEY_PERIOD}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -83,7 +83,7 @@ static unsigned char const matrixTronLeft[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronRight[8][12][4] =
+static unsigned char const matrixTronRight[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -98,7 +98,7 @@ static unsigned char const matrixTronRight[8][12][4] =
 //
 // Nicola
 //
-static unsigned char const matrixNicola[8][12][4] =
+static unsigned char const matrixNicola[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -110,7 +110,7 @@ static unsigned char const matrixNicola[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaLeft[8][12][4] =
+static unsigned char const matrixNicolaLeft[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -122,7 +122,7 @@ static unsigned char const matrixNicolaLeft[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaRight[8][12][4] =
+static unsigned char const matrixNicolaRight[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -137,7 +137,7 @@ static unsigned char const matrixNicolaRight[8][12][4] =
 //
 // Nicola F
 //
-static unsigned char const matrixNicolaF[8][12][4] =
+static unsigned char const matrixNicolaF[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -149,7 +149,7 @@ static unsigned char const matrixNicolaF[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFLeft[8][12][4] =
+static unsigned char const matrixNicolaFLeft[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -161,7 +161,7 @@ static unsigned char const matrixNicolaFLeft[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFRight[8][12][4] =
+static unsigned char const matrixNicolaFRight[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -173,7 +173,7 @@ static unsigned char const matrixNicolaFRight[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFHandaku[8][12][4] =
+static unsigned char const matrixNicolaFHandaku[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_Z, KEY_NON_US_HASH}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -188,7 +188,7 @@ static unsigned char const matrixNicolaFHandaku[8][12][4] =
 //
 // M type
 //
-static unsigned char const matrixMtype[8][12][4] =
+static unsigned char const matrixMtype[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -200,7 +200,7 @@ static unsigned char const matrixMtype[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeLeft[8][12][4] =
+static unsigned char const matrixMtypeLeft[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -212,7 +212,7 @@ static unsigned char const matrixMtypeLeft[8][12][4] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeRight[8][12][4] =
+static unsigned char const matrixMtypeRight[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -256,7 +256,7 @@ unsigned char switchKana(unsigned char* report, unsigned char count)
 }
 
 static char processKana(const unsigned char* current, const unsigned char* processed, unsigned char* report,
-                        const unsigned char base[][12][4], const unsigned char left[][12][4], const unsigned char right[][12][4])
+                        const unsigned char base[][12][3], const unsigned char left[][12][3], const unsigned char right[][12][3])
 {
     unsigned char mod = current[0];
     unsigned char modifiers;
@@ -319,17 +319,17 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             }
             continue;
         }
-        if (no_repeat && sent && sent[0]) {
-            for (char i = 0; sent[i]; ++i) {
-                for (char j = 0; a[j]; ++j) {
-                    if (a[j] && sent[i] == a[j]) {
+        if (no_repeat && sent) {
+            for (char i = 0; i < 3 && sent[i]; ++i) {
+                for (char j = 0; j < 3 && a[j]; ++j) {
+                    if (sent[i] == a[j]) {
                         sent = 0;
                         return XMIT_BRK;
                     }
                 }
             }
         }
-        for (char i = 0; a[i] && count < 8; ++i) {
+        for (char i = 0; i < 3 && a[i] && count < 8; ++i) {
             key = a[i];
             switch (key) {
             case KEY_DAKUTEN:
