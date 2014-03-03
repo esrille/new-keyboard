@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of usb_descriptors.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*******************************************************************************
   USB System Level Descriptors
 
@@ -88,7 +96,7 @@ const uint8_t configDescriptor1[]={
     1,                      // Number of interfaces in this cfg
     1,                      // Index value of this configuration
     0,                      // Configuration string index
-    _DEFAULT | _SELF | _RWU,               // Attributes, see usb_device.h
+    _DEFAULT | _RWU,        // Attributes, see usb_device.h
     50,                     // Max power consumption (2X mA)
 
     /* Interface Descriptor */
@@ -99,7 +107,7 @@ const uint8_t configDescriptor1[]={
     2,                      // Number of endpoints in this intf
     HID_INTF,               // Class code
     BOOT_INTF_SUBCLASS,     // Subclass code
-    HID_PROTOCOL_KEYBOARD,     // Protocol code
+    HID_PROTOCOL_KEYBOARD,  // Protocol code
     0,                      // Interface string index
 
     /* HID Class-Specific Descriptor */
