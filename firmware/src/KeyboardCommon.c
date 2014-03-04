@@ -24,10 +24,16 @@ __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 0, 0, 0, 0, 0);
 unsigned char os;
 unsigned char kana_led;
 
-static unsigned char const osKeys[2][4] =
+#define MAX_OS_KEY_NAME     5
+
+static unsigned char const osKeys[6][MAX_OS_KEY_NAME] =
 {
     {KEY_P, KEY_C, KEY_ENTER},
-    {KEY_M, KEY_A, KEY_C, KEY_ENTER}
+    {KEY_M, KEY_A, KEY_C, KEY_ENTER},
+    {KEY_1, KEY_0, KEY_9, KEY_A, KEY_ENTER},
+    {KEY_1, KEY_0, KEY_9, KEY_B, KEY_ENTER},
+    {KEY_A, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
+    {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
 };
 
 static unsigned char const matrixFn[8][12][4] =
@@ -83,7 +89,7 @@ unsigned char switchOS(unsigned char* report, unsigned char count)
         os = 0;
     eeprom_write(EEPROM_OS, os);
     const unsigned char* message = osKeys[os];
-    for (char i = 0; i < 4 && count < 8; ++i, ++count) {
+    for (char i = 0; i < MAX_OS_KEY_NAME && count < 8; ++i, ++count) {
         if (!osKeys[i])
             break;
         report[count] = message[i];
@@ -200,6 +206,83 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
     return xmit;
 }
 
+static void processOSMode(unsigned char* report)
+{
+    char i;
+    switch (os) {
+    case OS_PC:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+                report[i] = KEY_F13;
+                break;
+            case KEY_LANG2:
+                report[i] = KEY_F14;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case OS_109A:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+                report[i] = KEY_INTERNATIONAL4;
+                report[0] |= MOD_LEFTSHIFT | MOD_LEFTCONTROL;
+                break;
+            case KEY_LANG2:
+                report[i] = KEY_INTERNATIONAL5;
+                report[0] |= MOD_LEFTSHIFT | MOD_LEFTCONTROL;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case OS_109B:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+            case KEY_LANG2:
+                report[i] = KEY_GRAVE_ACCENT;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case OS_ALT_SP:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+            case KEY_LANG2:
+                report[i] = KEY_SPACEBAR;
+                report[0] |= MOD_LEFTALT;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case OS_SHIFT_SP:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_LANG1:
+            case KEY_LANG2:
+                report[i] = KEY_SPACEBAR;
+                report[0] |= MOD_LEFTSHIFT;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 char makeReport(unsigned char* report)
 {
     char xmit = XMIT_NONE;
@@ -235,20 +318,7 @@ char makeReport(unsigned char* report)
             }
         }
     }
-    if (os == OS_PC) {
-        for (char i = 2; i < 8; ++i) {
-            switch (report[i]) {
-            case KEY_LANG1:
-                report[i] = KEY_F13;
-                break;
-            case KEY_LANG2:
-                report[i] = KEY_F14;
-                break;
-            default:
-                break;
-            }
-        }
-    }
+    processOSMode(report);
     count = 2;
     modifiers = 0;
     current[1] = 0;

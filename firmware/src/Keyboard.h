@@ -303,7 +303,12 @@ unsigned char switchKana(unsigned char* report, unsigned char count);
 
 #define OS_PC           0   // Windows, Linux, etc.
 #define OS_MAC          1
-#define OS_MAX          1
+#define OS_109A         2   // OADG 109
+#define OS_109B         3   // OADG 109
+#define OS_ALT_SP       4   // Android
+#define OS_SHIFT_SP     5   // Android
+#define OS_MAX          5
+
 unsigned char switchOS(unsigned char* report, unsigned char count);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
