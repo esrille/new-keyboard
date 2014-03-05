@@ -16,10 +16,11 @@
 
 #include "Keyboard.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <xc.h>
 
-__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 0, 0, 0, 0, 0);
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5, 0, 0, 0, 0);
 
 unsigned char os;
 unsigned char kana_led;
@@ -38,7 +39,7 @@ static unsigned char const osKeys[6][MAX_OS_KEY_NAME] =
 
 static unsigned char const matrixFn[8][12][4] =
 {
-    {{0}, {KEY_KANA}, {KEY_OS}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
+    {{0}, {KEY_KANA}, {KEY_OS}, {KEY_DELAY}, {0}, {0}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
     {{KEY_INSERT}, {KEY_BASE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_Z}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_PRINTSCREEN}},
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEYPAD_NUM_LOCK}},
@@ -60,6 +61,32 @@ static unsigned char const matrixNumLock[8][12] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+#define MAX_DELAY           10
+#define MAX_DELAY_KEY_NAME  4
+
+static unsigned char const delayKeyNames[11][MAX_DELAY_KEY_NAME] =
+{
+    {KEY_D, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_5, KEY_ENTER},
+    {KEY_D, KEY_1, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_1, KEY_5, KEY_ENTER},
+    {KEY_D, KEY_2, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_2, KEY_5, KEY_ENTER},
+    {KEY_D, KEY_3, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_3, KEY_5, KEY_ENTER},
+    {KEY_D, KEY_4, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_4, KEY_5, KEY_ENTER},
+    {KEY_D, KEY_5, KEY_0, KEY_ENTER},
+};
+
+typedef struct Keys {
+    uint8_t keys[6];
+} Keys;
+
+static unsigned char currentDelay;
+static Keys keys[MAX_DELAY + 1];
+static char currentKey;
+
 static unsigned char tick;
 static unsigned char holding;
 static unsigned char hold[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
@@ -78,6 +105,9 @@ void initKeyboard(void)
     os = eeprom_read(EEPROM_OS);
     if (OS_MAX < os)
         os = 0;
+    currentDelay = eeprom_read(EEPROM_DELAY);
+    if (MAX_DELAY < currentDelay)
+        currentDelay = 0;
     initKeyboardBase();
     initKeyboardKana();
 }
@@ -90,6 +120,21 @@ unsigned char switchOS(unsigned char* report, unsigned char count)
     eeprom_write(EEPROM_OS, os);
     const unsigned char* message = osKeys[os];
     for (char i = 0; i < MAX_OS_KEY_NAME && count < 8; ++i, ++count) {
+        if (!message[i])
+            break;
+        report[count] = message[i];
+    }
+    return count;
+}
+
+unsigned char switchDelay(unsigned char* report, unsigned char count)
+{
+    ++currentDelay;
+    if (MAX_DELAY < currentDelay)
+        currentDelay = 0;
+    eeprom_write(EEPROM_DELAY, currentDelay);
+    const unsigned char* message = delayKeyNames[currentDelay];
+    for (char i = 0; i < MAX_DELAY_KEY_NAME && count < 8; ++i, ++count) {
         if (!message[i])
             break;
         report[count] = message[i];
@@ -171,6 +216,12 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case KEY_OS:
                     if (!memchr(processed + 2, code, 6)) {
                         count = switchOS(report, count);
+                        xmit = XMIT_IN_ORDER;
+                    }
+                    break;
+                case KEY_DELAY:
+                    if (!memchr(processed + 2, code, 6)) {
+                        count = switchDelay(report, count);
                         xmit = XMIT_IN_ORDER;
                     }
                     break;
@@ -286,36 +337,30 @@ static void processOSMode(unsigned char* report)
 char makeReport(unsigned char* report)
 {
     char xmit = XMIT_NONE;
+
     if (!detectGhost()) {
         while (count < 8)
             current[count++] = VOID_KEY;
+
+        memmove(keys[currentKey].keys, current + 2, 6);
+        if (currentDelay < ++currentKey)
+            currentKey = 0;
+
         current[0] = modifiers;
+        memmove(current + 2, keys[currentKey].keys, 6);
         if (led & LED_SCROLL_LOCK)
             current[1] |= MOD_FN;
-        if (!memcmp(current, hold, 8)) {
-            if (10 <= ++tick) {
+
+        if (memcmp(current, processed, 8)) {
+            if (memcmp(current + 2, processed + 2, 6) || current[2] == VOID_KEY || current[1] || (current[0] & MOD_SHIFT))
                 xmit = processKeys(current, processed, report);
-                tick = 0;
-                holding = 0;
-            }
-        } else if (memcmp(current + 2, hold + 2, 6)) {
-            if (current[1] || (current[0] & MOD_SHIFT))
-                holding |= (!processed[1] || !(processed[0] & MOD_SHIFT));
-            xmit = processKeys(holding ? current : hold, processed, report);
-            holding = 0;
-            tick = 0;
-            memmove(hold, current, 8);
-        } else {
-            tick = 0;
-            memmove(hold, current, 8);
-            if (current[1] || (current[0] & MOD_SHIFT)) {
-                holding = (!processed[1] || !(processed[0] & MOD_SHIFT));
+            else if (processed[1] && !current[1] ||
+                     (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
+                     (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT))
+            {
+                /* empty */
+            } else
                 xmit = processKeys(current, processed, report);
-            } else if (processed[1] && !current[1] ||
-                (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
-                (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT)) {
-                holding = 1;
-            }
         }
     }
     processOSMode(report);

@@ -265,6 +265,7 @@
 #define EEPROM_BASE         0
 #define EEPROM_KANA         1
 #define EEPROM_OS           2
+#define EEPROM_DELAY        3
 
 void initKeyboard(void);
 void initKeyboardBase(void);
@@ -278,6 +279,7 @@ void initKeyboardKana(void);
 #define KEY_BASE                0xF6
 #define KEY_KANA                0xF7
 #define KEY_OS                  0xF8
+#define KEY_DELAY               0xF9
 
 #define MOD_FN                  1u
 #define MOD_LEFT_ALTSHIFT       (1u << (KEY_LEFT_ALTSHIFT - KEY_FN))
@@ -310,6 +312,8 @@ unsigned char switchKana(unsigned char* report, unsigned char count);
 #define OS_MAX          5
 
 unsigned char switchOS(unsigned char* report, unsigned char count);
+
+unsigned char switchDelay(unsigned char* report, unsigned char count);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
 
