@@ -248,7 +248,7 @@ unsigned char switchKana(unsigned char* report, unsigned char count)
     eeprom_write(EEPROM_KANA, mode);
     const unsigned char* message = kanaKeys[mode];
     for (char i = 0; i < 6 && count < 8; ++i, ++count) {
-        if (!kanaKeys[i])
+        if (!message[i])
             break;
         report[count] = message[i];
     }

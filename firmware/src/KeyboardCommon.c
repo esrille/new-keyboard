@@ -90,7 +90,7 @@ unsigned char switchOS(unsigned char* report, unsigned char count)
     eeprom_write(EEPROM_OS, os);
     const unsigned char* message = osKeys[os];
     for (char i = 0; i < MAX_OS_KEY_NAME && count < 8; ++i, ++count) {
-        if (!osKeys[i])
+        if (!message[i])
             break;
         report[count] = message[i];
     }

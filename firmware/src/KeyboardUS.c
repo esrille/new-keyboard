@@ -133,7 +133,7 @@ unsigned char switchBase(unsigned char* report, unsigned char count)
     eeprom_write(EEPROM_BASE, mode);
     const unsigned char* message = baseKeys[mode];
     for (char i = 0; i < 5 && count < 8; ++i, ++count) {
-        if (!baseKeys[i])
+        if (!message[i])
             break;
         report[count] = message[i];
     }
