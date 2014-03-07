@@ -53,12 +53,12 @@ static unsigned char const matrixNumLock[8][12] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_DIVIDE, 0,
-    0, 0, 0, 0, 0, 0, 0, KEY_CALC, KEYPAD_7, KEYPAD_8, KEYPAD_9, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_4, KEYPAD_5, KEYPAD_6, KEYPAD_MULTIPLY,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_1, KEYPAD_2, KEYPAD_3, KEYPAD_SUBTRACT,
-    0, 0, 0, 0, 0, 0, KEYPAD_ENTER, 0, KEYPAD_0, 0, KEYPAD_DOT, KEYPAD_ADD,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_MULTIPLY, 0,
+    0, 0, 0, 0, 0, 0, 0, KEY_CALC, 0, KEYPAD_EQUAL, KEYPAD_DIVIDE, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_7, KEYPAD_8, KEYPAD_9, KEYPAD_SUBTRACT,
+    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_4, KEYPAD_5, KEYPAD_6, KEYPAD_ADD,
+    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_1, KEYPAD_2, KEYPAD_3, KEY_ENTER,
+    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_0, 0, KEYPAD_DOT, 0,
 };
 
 #define MAX_DELAY           10

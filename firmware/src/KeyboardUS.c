@@ -188,6 +188,9 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
 
 unsigned char getKeyBase(unsigned char code)
 {
+    unsigned char key = getKeyNumLock(code);
+    if (key)
+        return key;
     switch (mode) {
     case BASE_QWERTY:
         return matrixQwerty[code / 12][code % 12];
