@@ -32,7 +32,7 @@ static unsigned char const kanaKeys[6][6] =
 //
 // Stickney Next
 //
-static unsigned char const matrixStickney[8][12][3] =
+static unsigned char const matrixStickney[7][12][3] =
 {
     {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -41,10 +41,9 @@ static unsigned char const matrixStickney[8][12][3] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFT_BRACKET}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {KEY_LEFTSHIFT, KEY_0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_INTERNATIONAL3}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixStickneyShift[8][12][3] =
+static unsigned char const matrixStickneyShift[7][12][3] =
 {
     {{KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -53,13 +52,12 @@ static unsigned char const matrixStickneyShift[8][12][3] =
     {{0}, {0}, {0}, {KEY_C}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_RIGHT_BRACKET}},
     {{0}, {0}, {KEY_P}, {KEY_EQUAL}, {KEY_QUOTE}, {0}, {0}, {0}, {KEY_SLASH}, {KEY_1}, {KEY_INTERNATIONAL1}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // TRON
 //
-static unsigned char const matrixTron[8][12][3] =
+static unsigned char const matrixTron[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -68,10 +66,9 @@ static unsigned char const matrixTron[8][12][3] =
     {{KEY_R, KEY_A}, {KEY_R, KEY_U}, {KEY_K, KEY_O}, {KEY_H, KEY_A}, {KEY_X, KEY_Y, KEY_O}, {0}, {0}, {KEY_K, KEY_I}, {KEY_N, KEY_O}, {KEY_K, KEY_U}, {KEY_A}, {KEY_R, KEY_E}},
     {{KEY_T, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_A}, {KEY_T, KEY_E}, {KEY_M, KEY_O}, {0}, {0}, {KEY_W, KEY_O}, {KEY_I}, {KEY_U}, {KEY_S, KEY_I}, {KEY_N, KEY_N}},
     {{KEY_M, KEY_A}, {KEY_R, KEY_I}, {KEY_N, KEY_I}, {KEY_S, KEY_A}, {KEY_N, KEY_A}, {0}, {0}, {KEY_S, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}, {KEY_PERIOD}, {KEY_X, KEY_T, KEY_U}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronLeft[8][12][3] =
+static unsigned char const matrixTronLeft[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{KEY_Z, KEY_PERIOD}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -80,10 +77,9 @@ static unsigned char const matrixTronLeft[8][12][3] =
     {{KEY_H, KEY_I}, {KEY_S, KEY_O}, {KEY_Z, KEY_SLASH}, {KEY_X, KEY_Y, KEY_A}, {KEY_H, KEY_O}, {0}, {0}, {KEY_G, KEY_I}, {KEY_G, KEY_E}, {KEY_G, KEY_U}, {KEY_LEFTSHIFT, KEY_SLASH}, {KEY_W, KEY_Y, KEY_I}},
     {{KEY_N, KEY_U}, {KEY_N, KEY_E}, {KEY_X, KEY_Y, KEY_U}, {KEY_Y, KEY_O}, {KEY_H, KEY_U}, {0}, {0}, {KEY_DAKUTEN}, {KEY_D, KEY_I}, {KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_W, KEY_Y, KEY_E}},
     {{KEY_X, KEY_E}, {KEY_X, KEY_O}, {KEY_S, KEY_E}, {KEY_Y, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_Z, KEY_U}, {KEY_D, KEY_U}, {KEY_LEFTSHIFT, KEY_COMMA}, {KEY_LEFTSHIFT, KEY_PERIOD}, {KEY_X, KEY_W, KEY_A}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixTronRight[8][12][3] =
+static unsigned char const matrixTronRight[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -92,13 +88,12 @@ static unsigned char const matrixTronRight[8][12][3] =
     {{KEY_B, KEY_I}, {KEY_Z, KEY_O}, {KEY_G, KEY_O}, {KEY_B, KEY_A}, {KEY_B, KEY_O}, {0}, {0}, {KEY_E}, {KEY_K, KEY_E}, {KEY_M, KEY_E}, {KEY_M, KEY_U}, {KEY_R, KEY_O}},
     {{KEY_D, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_A}, {KEY_D, KEY_E}, {KEY_B, KEY_U}, {0}, {0}, {KEY_O}, {KEY_T, KEY_I}, {KEY_MINUS}, {KEY_M, KEY_I}, {KEY_Y, KEY_A}},
     {{KEY_X, KEY_K, KEY_A}, {KEY_X, KEY_K, KEY_E}, {KEY_Z, KEY_E}, {KEY_Z, KEY_A}, {KEY_B, KEY_E}, {0}, {0}, {KEY_W, KEY_A}, {KEY_X, KEY_I}, {KEY_X, KEY_A}, {KEY_HANDAKU}, {KEY_X, KEY_U}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // Nicola
 //
-static unsigned char const matrixNicola[8][12][3] =
+static unsigned char const matrixNicola[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -107,10 +102,9 @@ static unsigned char const matrixNicola[8][12][3] =
     {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
     {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_H, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_N, KEY_N}},
     {{KEY_PERIOD}, {KEY_H, KEY_I}, {KEY_S, KEY_U}, {KEY_H, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_H, KEY_O}, {KEY_Z, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaLeft[8][12][3] =
+static unsigned char const matrixNicolaLeft[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -119,10 +113,9 @@ static unsigned char const matrixNicolaLeft[8][12][3] =
     {{KEY_X, KEY_A}, {KEY_E}, {KEY_R, KEY_I}, {KEY_X, KEY_Y, KEY_A}, {KEY_R, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_D, KEY_I}, {KEY_G, KEY_U}, {KEY_D, KEY_U}, {KEY_P, KEY_I}},
     {{KEY_W, KEY_O}, {KEY_A}, {KEY_N, KEY_A}, {KEY_X, KEY_Y, KEY_U}, {KEY_M, KEY_O}, {0}, {0}, {KEY_B, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_I}, {KEY_P, KEY_O}, {KEY_N, KEY_N}},
     {{KEY_X, KEY_U}, {KEY_MINUS}, {KEY_R, KEY_O}, {KEY_Y, KEY_A}, {KEY_X, KEY_I}, {0}, {0}, {KEY_P, KEY_U}, {KEY_Z, KEY_O}, {KEY_P, KEY_E}, {KEY_B, KEY_O}, {KEY_LEFTSHIFT, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaRight[8][12][3] =
+static unsigned char const matrixNicolaRight[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -131,13 +124,12 @@ static unsigned char const matrixNicolaRight[8][12][3] =
     {{KEY_PERIOD}, {KEY_G, KEY_A}, {KEY_D, KEY_A}, {KEY_G, KEY_O}, {KEY_Z, KEY_A}, {0}, {0}, {KEY_Y, KEY_O}, {KEY_N, KEY_I}, {KEY_R, KEY_U}, {KEY_M, KEY_A}, {KEY_X, KEY_E}},
     {{KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_D, KEY_E}, {KEY_G, KEY_E}, {KEY_Z, KEY_E}, {0}, {0}, {KEY_M, KEY_I}, {KEY_O}, {KEY_N, KEY_O}, {KEY_X, KEY_Y, KEY_O}, {KEY_X, KEY_T, KEY_U}},
     {{KEY_PERIOD}, {KEY_B, KEY_I}, {KEY_Z, KEY_U}, {KEY_B, KEY_U}, {KEY_B, KEY_E}, {0}, {0}, {KEY_N, KEY_U}, {KEY_Y, KEY_U}, {KEY_M, KEY_U}, {KEY_W, KEY_A}, {KEY_X, KEY_O}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // Nicola F
 //
-static unsigned char const matrixNicolaF[8][12][3] =
+static unsigned char const matrixNicolaF[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -146,10 +138,9 @@ static unsigned char const matrixNicolaF[8][12][3] =
     {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
     {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_H, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_N, KEY_N}},
     {{KEY_PERIOD}, {KEY_H, KEY_I}, {KEY_S, KEY_U}, {KEY_H, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_H, KEY_O}, {KEY_Z, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFLeft[8][12][3] =
+static unsigned char const matrixNicolaFLeft[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_DAKUTEN}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -158,10 +149,9 @@ static unsigned char const matrixNicolaFLeft[8][12][3] =
     {{KEY_X, KEY_A}, {KEY_E}, {KEY_R, KEY_I}, {KEY_X, KEY_Y, KEY_A}, {KEY_R, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_D, KEY_I}, {KEY_G, KEY_U}, {KEY_D, KEY_U}, {KEY_P, KEY_I}},
     {{KEY_W, KEY_O}, {KEY_A}, {KEY_N, KEY_A}, {KEY_X, KEY_Y, KEY_U}, {KEY_M, KEY_O}, {0}, {0}, {KEY_B, KEY_A}, {KEY_D, KEY_O}, {KEY_G, KEY_I}, {KEY_P, KEY_O}, {KEY_N, KEY_N}},
     {{KEY_X, KEY_U}, {KEY_MINUS}, {KEY_R, KEY_O}, {KEY_Y, KEY_A}, {KEY_X, KEY_I}, {0}, {0}, {KEY_P, KEY_U}, {KEY_Z, KEY_O}, {KEY_P, KEY_E}, {KEY_B, KEY_O}, {KEY_LEFTSHIFT, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFRight[8][12][3] =
+static unsigned char const matrixNicolaFRight[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_HANDAKU}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -170,10 +160,9 @@ static unsigned char const matrixNicolaFRight[8][12][3] =
     {{KEY_PERIOD}, {KEY_G, KEY_A}, {KEY_D, KEY_A}, {KEY_G, KEY_O}, {KEY_Z, KEY_A}, {0}, {0}, {KEY_Y, KEY_O}, {KEY_N, KEY_I}, {KEY_R, KEY_U}, {KEY_M, KEY_A}, {KEY_X, KEY_E}},
     {{KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_D, KEY_E}, {KEY_G, KEY_E}, {KEY_Z, KEY_E}, {0}, {0}, {KEY_M, KEY_I}, {KEY_O}, {KEY_N, KEY_O}, {KEY_X, KEY_Y, KEY_O}, {KEY_X, KEY_T, KEY_U}},
     {{KEY_PERIOD}, {KEY_B, KEY_I}, {KEY_Z, KEY_U}, {KEY_B, KEY_U}, {KEY_B, KEY_E}, {0}, {0}, {KEY_N, KEY_U}, {KEY_Y, KEY_U}, {KEY_M, KEY_U}, {KEY_W, KEY_A}, {KEY_X, KEY_O}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixNicolaFHandaku[8][12][3] =
+static unsigned char const matrixNicolaFHandaku[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_Z, KEY_NON_US_HASH}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -182,13 +171,12 @@ static unsigned char const matrixNicolaFHandaku[8][12][3] =
     {{KEY_PERIOD}, {KEY_K, KEY_A}, {KEY_T, KEY_A}, {KEY_K, KEY_O}, {KEY_S, KEY_A}, {0}, {0}, {KEY_R, KEY_A}, {KEY_T, KEY_I}, {KEY_K, KEY_U}, {KEY_T, KEY_U}, {KEY_COMMA}},
     {{KEY_U}, {KEY_S, KEY_I}, {KEY_T, KEY_E}, {KEY_K, KEY_E}, {KEY_S, KEY_E}, {0}, {0}, {KEY_P, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_I}, {KEY_I}, {KEY_N, KEY_N}},
     {{KEY_PERIOD}, {KEY_P, KEY_I}, {KEY_S, KEY_U}, {KEY_P, KEY_U}, {KEY_P, KEY_E}, {0}, {0}, {KEY_M, KEY_E}, {KEY_S, KEY_O}, {KEY_N, KEY_E}, {KEY_P, KEY_O}, {KEY_Z, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 //
 // M type
 //
-static unsigned char const matrixMtype[8][12][3] =
+static unsigned char const matrixMtype[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -197,10 +185,9 @@ static unsigned char const matrixMtype[8][12][3] =
     {{KEY_Q}, {KEY_L}, {KEY_J}, {KEY_F}, {KEY_C}, {0}, {0}, {KEY_M}, {KEY_Y}, {KEY_R}, {KEY_W}, {KEY_P}},
     {{KEY_E}, {KEY_U}, {KEY_I}, {KEY_A}, {KEY_O}, {0}, {0}, {KEY_K}, {KEY_S}, {KEY_T}, {KEY_N}, {KEY_H}},
     {{KEY_E, KEY_I}, {KEY_X}, {KEY_V}, {KEY_A, KEY_I}, {KEY_O, KEY_U}, {0}, {0}, {KEY_G}, {KEY_Z}, {KEY_D}, {KEY_COMMA}, {KEY_B}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeLeft[8][12][3] =
+static unsigned char const matrixMtypeLeft[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -209,10 +196,9 @@ static unsigned char const matrixMtypeLeft[8][12][3] =
     {{KEY_Q}, {KEY_L}, {KEY_J}, {KEY_F}, {KEY_C}, {0}, {0}, {KEY_M, KEY_Y}, {KEY_L, KEY_T, KEY_U}, {KEY_R, KEY_Y}, {KEY_N, KEY_N}, {KEY_P, KEY_Y}},
     {{KEY_E}, {KEY_U}, {KEY_I}, {KEY_A}, {KEY_O}, {0}, {0}, {KEY_K, KEY_Y}, {KEY_S, KEY_Y}, {KEY_T, KEY_Y}, {KEY_N, KEY_Y}, {KEY_H, KEY_Y}},
     {{KEY_E, KEY_I}, {KEY_X}, {KEY_V}, {KEY_A, KEY_I}, {KEY_O, KEY_U}, {0}, {0}, {KEY_G, KEY_Y}, {KEY_Z, KEY_Y}, {KEY_D, KEY_Y}, {KEY_PERIOD}, {KEY_B, KEY_Y}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
-static unsigned char const matrixMtypeRight[8][12][3] =
+static unsigned char const matrixMtypeRight[7][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
@@ -221,7 +207,6 @@ static unsigned char const matrixMtypeRight[8][12][3] =
     {{KEY_E, KEY_K, KEY_I}, {KEY_U, KEY_K, KEY_U}, {KEY_I, KEY_K, KEY_U}, {KEY_A, KEY_K, KEY_U}, {KEY_O, KEY_K, KEY_U}, {0}, {0}, {KEY_M}, {KEY_Y}, {KEY_R}, {KEY_W}, {KEY_P}},
     {{KEY_E, KEY_N, KEY_N}, {KEY_U, KEY_N, KEY_N}, {KEY_I, KEY_N, KEY_N}, {KEY_A, KEY_N, KEY_N}, {KEY_O, KEY_N, KEY_N}, {0}, {0}, {KEY_K}, {KEY_S}, {KEY_T}, {KEY_N}, {KEY_RIGHTSHIFT, KEY_SLASH}},
     {{KEY_E, KEY_T, KEY_U}, {KEY_U, KEY_T, KEY_U}, {KEY_I, KEY_T, KEY_U}, {KEY_A, KEY_T, KEY_U}, {KEY_O, KEY_T, KEY_U}, {0}, {0}, {KEY_G}, {KEY_Z}, {KEY_RIGHTSHIFT, KEY_COMMA}, {KEY_RIGHTSHIFT, KEY_PERIOD}, {KEY_Z, KEY_SLASH}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
 };
 
 static unsigned char const dakuonFrom[] = { KEY_K, KEY_S, KEY_T, KEY_H };
@@ -293,7 +278,9 @@ static char processKana(const unsigned char* current, const unsigned char* proce
                 mod &= ~MOD_RIGHTSHIFT;
         }
 
-        if (mod & MOD_LEFTSHIFT)
+        if (7 <= code / 12)
+            a = 0;
+        else if (mod & MOD_LEFTSHIFT)
             a = left[code / 12][code % 12];
         else if (mod & MOD_RIGHTSHIFT)
             a = right[code / 12][code % 12];
@@ -301,7 +288,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             a = matrixNicolaFHandaku[code / 12][code % 12];
         else
             a = base[code / 12][code % 12];
-        if (!a[0]) {
+        if (!a || !a[0]) {
             key = getKeyBase(code);
             if (key) {
                 if (key == KEY_LANG1)
