@@ -78,6 +78,7 @@ static unsigned char const matrixColemak[8][12] =
 // no-convert   KEY_INTERNATIONAL5
 // convert      KEY_INTERNATIONAL4
 // hiragana     KEY_INTERNATIONAL2
+// zenkaku      KEY_GRAVE_ACCENT
 //
 
 static unsigned char const matrixJIS[8][12] =
@@ -89,7 +90,7 @@ static unsigned char const matrixJIS[8][12] =
     KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, 0, 0, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P,
     KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
-    KEY_LEFTCONTROL, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LANG2, KEY_LANG1, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
+    KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
 static unsigned char const matrixNicolaF[8][12] =
@@ -193,16 +194,23 @@ unsigned char getKeyBase(unsigned char code)
         return key;
     switch (mode) {
     case BASE_QWERTY:
-        return matrixQwerty[code / 12][code % 12];
+        key = matrixQwerty[code / 12][code % 12];
+        break;
     case BASE_DVORAK:
-        return matrixDvorak[code / 12][code % 12];
+        key = matrixDvorak[code / 12][code % 12];
+        break;
     case BASE_COLEMAK:
-        return matrixColemak[code / 12][code % 12];
+        key = matrixColemak[code / 12][code % 12];
+        break;
     case BASE_JIS:
-        return matrixJIS[code / 12][code % 12];
+        key = matrixJIS[code / 12][code % 12];
+        break;
     case BASE_NICOLA_F:
-        return matrixNicolaF[code / 12][code % 12];
+        key = matrixNicolaF[code / 12][code % 12];
+        break;
     default:
-        return matrixQwerty[code / 12][code % 12];
+        key = matrixQwerty[code / 12][code % 12];
+        break;
     }
+    return processModKey(key);
 }

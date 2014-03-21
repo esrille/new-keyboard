@@ -18,7 +18,7 @@
 #define KEYBOARD_H
 
 #define KEY_ERRORROLLOVER	0x01
-#define KEY_POSTFAIL	0x02
+#define KEY_POSTFAIL            0x02
 #define KEY_ERRORUNDEFINED	0x03
 #define KEY_A	0x04
 #define KEY_B	0x05
@@ -266,6 +266,7 @@
 #define EEPROM_KANA         1
 #define EEPROM_OS           2
 #define EEPROM_DELAY        3
+#define EEPROM_MOD          4
 
 void initKeyboard(void);
 void initKeyboardBase(void);
@@ -280,6 +281,8 @@ void initKeyboardKana(void);
 #define KEY_KANA                0xF7
 #define KEY_OS                  0xF8
 #define KEY_DELAY               0xF9
+#define KEY_MOD                 0xFA
+// 0xFB is used for KEY_CALC
 
 #define MOD_FN                  1u
 #define MOD_LEFT_ALTSHIFT       (1u << (KEY_LEFT_ALTSHIFT - KEY_FN))
@@ -312,6 +315,7 @@ unsigned char switchKana(unsigned char* report, unsigned char count);
 #define OS_MAX          5
 
 unsigned char switchOS(unsigned char* report, unsigned char count);
+unsigned char switchMod(unsigned char* report, unsigned char count);
 
 unsigned char switchDelay(unsigned char* report, unsigned char count);
 
@@ -324,6 +328,8 @@ unsigned char switchDelay(unsigned char* report, unsigned char count);
 
 void onPressed(signed char row, unsigned char column);
 char makeReport(unsigned char* report);
+
+unsigned char processModKey(unsigned char key);
 
 char isKanaMode(const unsigned char* current);
 

@@ -24,10 +24,11 @@ __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5, 0, 0, 0, 0);
 
 unsigned char os;
 unsigned char kana_led;
+unsigned char mod;
 
 #define MAX_OS_KEY_NAME     5
 
-static unsigned char const osKeys[6][MAX_OS_KEY_NAME] =
+static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 {
     {KEY_P, KEY_C, KEY_ENTER},
     {KEY_M, KEY_A, KEY_C, KEY_ENTER},
@@ -37,9 +38,37 @@ static unsigned char const osKeys[6][MAX_OS_KEY_NAME] =
     {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
 };
 
+#define MAX_MOD             7
+#define MAX_MOD_KEY_NAME    6
+#define MAX_MOD_KEYS        8
+
+static unsigned char const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
+{
+    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_APPLICATION, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
+    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
+    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_GRAVE_ACCENT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
+    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_LEFTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
+    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_APPLICATION, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_GRAVE_ACCENT, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_LEFTALT, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+};
+
+static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
+{
+    {KEY_C, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_1, KEY_0, KEY_9, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
+    {KEY_S, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_1, KEY_0, KEY_9, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
+};
+
 static unsigned char const matrixFn[8][12][4] =
 {
-    {{KEY_INSERT}, {KEY_KANA}, {KEY_OS}, {KEY_DELAY}, {0}, {0}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
+    {{KEY_INSERT}, {KEY_KANA}, {KEY_OS}, {KEY_DELAY}, {KEY_MOD}, {0}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
     {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_BASE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_Z}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_PRINTSCREEN}},
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEYPAD_NUM_LOCK}},
@@ -105,6 +134,9 @@ void initKeyboard(void)
     os = eeprom_read(EEPROM_OS);
     if (OS_MAX < os)
         os = 0;
+    mod = eeprom_read(EEPROM_MOD);
+    if (MAX_MOD < mod)
+        mod = 0;
     currentDelay = eeprom_read(EEPROM_DELAY);
     if (MAX_DELAY < currentDelay)
         currentDelay = 0;
@@ -120,6 +152,21 @@ unsigned char switchOS(unsigned char* report, unsigned char count)
     eeprom_write(EEPROM_OS, os);
     const unsigned char* message = osKeys[os];
     for (char i = 0; i < MAX_OS_KEY_NAME && count < 8; ++i, ++count) {
+        if (!message[i])
+            break;
+        report[count] = message[i];
+    }
+    return count;
+}
+
+unsigned char switchMod(unsigned char* report, unsigned char count)
+{
+    ++mod;
+    if (MAX_MOD < mod)
+        mod = 0;
+    eeprom_write(EEPROM_MOD, mod);
+    const unsigned char* message = modKeys[mod];
+    for (char i = 0; i < MAX_MOD_KEY_NAME && count < 8; ++i, ++count) {
         if (!message[i])
             break;
         report[count] = message[i];
@@ -222,6 +269,12 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case KEY_DELAY:
                     if (!memchr(processed + 2, code, 6)) {
                         count = switchDelay(report, count);
+                        xmit = XMIT_IN_ORDER;
+                    }
+                    break;
+                case KEY_MOD:
+                    if (!memchr(processed + 2, code, 6)) {
+                        count = switchMod(report, count);
                         xmit = XMIT_IN_ORDER;
                     }
                     break;
@@ -332,6 +385,16 @@ static void processOSMode(unsigned char* report)
     default:
         break;
     }
+}
+
+unsigned char processModKey(unsigned char key)
+{
+    const unsigned char* map = modMap[0];
+    for (char i = 0; i < MAX_MOD_KEYS; ++i) {
+        if (key == map[i])
+            return modMap[mod][i];
+    }
+    return key;
 }
 
 char makeReport(unsigned char* report)
