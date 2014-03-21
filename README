@@ -6,7 +6,7 @@ being developed at Esrille Inc. (http://www.esrille.com/keyboard/).
 
 The Esrille New Keyboard is an ergonomically designed USB keyboard. It has 76
 key switches (including two Fn keys), and is technically compatible with the
-104 key USB keyboard.
+104/109 key USB keyboard.
 
 The keyboard firmware of the Esrille New Keyboard currently supports the
 following logical keyboard layouts:
@@ -14,8 +14,10 @@ following logical keyboard layouts:
 English:
   * Qwerty
   * Dvorak
+  * Colemak
 
 Japanese:
+  * Stickney Next
   * Nicola
   * M type
   * TRON
