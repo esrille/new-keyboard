@@ -63,7 +63,7 @@ static unsigned char const matrixTron[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_SLASH}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{KEY_R, KEY_A}, {KEY_R, KEY_U}, {KEY_K, KEY_O}, {KEY_H, KEY_A}, {KEY_X, KEY_Y, KEY_O}, {0}, {0}, {KEY_K, KEY_I}, {KEY_N, KEY_O}, {KEY_K, KEY_U}, {KEY_A}, {KEY_R, KEY_E}},
     {{KEY_T, KEY_A}, {KEY_T, KEY_O}, {KEY_K, KEY_A}, {KEY_T, KEY_E}, {KEY_M, KEY_O}, {0}, {0}, {KEY_W, KEY_O}, {KEY_I}, {KEY_U}, {KEY_S, KEY_I}, {KEY_N, KEY_N}},
@@ -75,9 +75,9 @@ static unsigned char const matrixTronLeft[8][12][3] =
 {
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
     {{KEY_Z, KEY_PERIOD}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTSHIFT, KEY_SLASH}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{KEY_H, KEY_I}, {KEY_S, KEY_O}, {KEY_Z, KEY_SLASH}, {KEY_X, KEY_Y, KEY_A}, {KEY_H, KEY_O}, {0}, {0}, {KEY_G, KEY_I}, {KEY_G, KEY_E}, {KEY_G, KEY_U}, {KEY_A}, {KEY_W, KEY_Y, KEY_I}},
+    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    {{KEY_H, KEY_I}, {KEY_S, KEY_O}, {KEY_Z, KEY_SLASH}, {KEY_X, KEY_Y, KEY_A}, {KEY_H, KEY_O}, {0}, {0}, {KEY_G, KEY_I}, {KEY_G, KEY_E}, {KEY_G, KEY_U}, {KEY_LEFTSHIFT, KEY_SLASH}, {KEY_W, KEY_Y, KEY_I}},
     {{KEY_N, KEY_U}, {KEY_N, KEY_E}, {KEY_X, KEY_Y, KEY_U}, {KEY_Y, KEY_O}, {KEY_H, KEY_U}, {0}, {0}, {KEY_DAKUTEN}, {KEY_D, KEY_I}, {KEY_V, KEY_U}, {KEY_Z, KEY_I}, {KEY_W, KEY_Y, KEY_E}},
     {{KEY_X, KEY_E}, {KEY_X, KEY_O}, {KEY_S, KEY_E}, {KEY_Y, KEY_U}, {KEY_H, KEY_E}, {0}, {0}, {KEY_Z, KEY_U}, {KEY_D, KEY_U}, {KEY_LEFTSHIFT, KEY_COMMA}, {KEY_LEFTSHIFT, KEY_PERIOD}, {KEY_X, KEY_W, KEY_A}},
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
