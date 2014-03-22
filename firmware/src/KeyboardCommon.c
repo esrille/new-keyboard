@@ -323,6 +323,22 @@ static void processOSMode(unsigned char* report)
             case KEY_LANG2:
                 report[i] = KEY_F14;
                 break;
+            case KEY_INTERNATIONAL4:
+            case KEY_INTERNATIONAL5:
+                report[i] = KEY_SPACEBAR;
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    case OS_MAC:
+        for (i = 2; i < 8; ++i) {
+            switch (report[i]) {
+            case KEY_INTERNATIONAL4:
+            case KEY_INTERNATIONAL5:
+                report[i] = KEY_SPACEBAR;
+                break;
             default:
                 break;
             }
