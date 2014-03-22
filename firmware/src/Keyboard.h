@@ -273,8 +273,6 @@ void initKeyboardBase(void);
 void initKeyboardKana(void);
 
 #define KEY_FN                  0xF0
-#define KEY_LEFT_ALTSHIFT       0xF1    // Nicola F only
-#define KEY_RIGHT_ALTSHIFT      0xF2    // Nocola F only
 #define KEY_DAKUTEN             0xF3
 #define KEY_HANDAKU             0xF4
 #define KEY_BASE                0xF6
@@ -285,9 +283,6 @@ void initKeyboardKana(void);
 // 0xFB is used for KEY_CALC
 
 #define MOD_FN                  1u
-#define MOD_LEFT_ALTSHIFT       (1u << (KEY_LEFT_ALTSHIFT - KEY_FN))
-#define MOD_RIGHT_ALTSHIFT      (1u << (KEY_RIGHT_ALTSHIFT - KEY_FN))
-#define MOD_ALTSHIFT            (MOD_LEFT_ALTSHIFT | MOD_RIGHT_ALTSHIFT)
 
 #define BASE_QWERTY     0
 #define BASE_DVORAK     1
@@ -297,13 +292,15 @@ void initKeyboardKana(void);
 #define BASE_MAX        4
 unsigned char switchBase(unsigned char* report, unsigned char count);
 
+char isDigit(unsigned char code);
+char isJP();
+
 #define KANA_ROMAJI     0
 #define KANA_NICOLA     1
-#define KANA_NICOLA_F   2
-#define KANA_MTYPE      3
-#define KANA_TRON       4
-#define KANA_STICKNEY   5
-#define KANA_MAX        5
+#define KANA_MTYPE      2
+#define KANA_TRON       3
+#define KANA_STICKNEY   4
+#define KANA_MAX        4
 unsigned char switchKana(unsigned char* report, unsigned char count);
 
 #define OS_PC           0   // Windows, Linux, etc.

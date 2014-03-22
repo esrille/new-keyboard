@@ -95,26 +95,14 @@ static unsigned char const matrixJIS[8][12] =
 
 static unsigned char const matrixNicolaF[8][12] =
 {
-    KEY_INTERNATIONAL3, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_MINUS,
-    KEY_CAPS_LOCK, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_LEFT_BRACKET,
-    KEY_EQUAL, KEY_1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_0, KEY_QUOTE,
-    KEY_LEFTCONTROL, KEY_2, KEY_3, KEY_4, KEY_5, 0, 0, KEY_6, KEY_7, KEY_8, KEY_9, KEY_BACKSPACE,
+    KEY_RIGHT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_MINUS,
+    KEY_INTERNATIONAL3, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_LEFT_BRACKET,
+    KEY_NON_US_HASH, KEY_1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_0, KEY_QUOTE,
+    KEY_EQUAL, KEY_2, KEY_3, KEY_4, KEY_5, 0, 0, KEY_6, KEY_7, KEY_8, KEY_9, KEY_BACKSPACE,
     KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, 0, 0, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P,
     KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_H, KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
-    KEY_LEFT_ALTSHIFT, KEY_LEFTALT, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_LANG2, KEY_LANG1, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHT_ALTSHIFT
-};
-
-static unsigned char const matrixNicolaFShift[8][12][2] =
-{
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {KEY_LEFTSHIFT, KEY_SLASH}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {KEY_SLASH}, {KEY_LEFTSHIFT, KEY_EQUAL}, {KEY_LEFTSHIFT, KEY_RIGHT_BRACKET}, {KEY_LEFTSHIFT, KEY_NON_US_HASH}, {0}, {0}, {KEY_RIGHT_BRACKET}, {KEY_NON_US_HASH}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
-    {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}},
+    KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_INTERNATIONAL5, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
 static unsigned char mode;
@@ -141,7 +129,12 @@ unsigned char switchBase(unsigned char* report, unsigned char count)
     return count;
 }
 
-static char isJP()
+char isDigit(unsigned char code)
+{
+    return code == 25 || code == 34 || (37 <= code && code <= 46);
+}
+
+char isJP()
 {
     return mode == BASE_JIS || mode == BASE_NICOLA_F;
 }
@@ -153,26 +146,8 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
     for (char i = 2; i < 8; ++i) {
         unsigned char code = current[i];
         unsigned char key = getKeyNumLock(code);
-        if (!key) {
-            if (mode == BASE_NICOLA_F) {
-                if (current[0] & MOD_SHIFT) {
-                    const unsigned char* a = matrixNicolaFShift[code / 12][code % 12];
-                    if (a[0]) {
-                        key = a[0];
-                        if (key == KEY_LEFTSHIFT) {
-                            modifiers |= (current[0] & MOD_SHIFT);
-                            key = a[1];
-                        } else
-                            modifiers &= ~MOD_SHIFT;
-                    }
-                } else if (current[1] & MOD_LEFT_ALTSHIFT)
-                    modifiers |= MOD_LEFTSHIFT;
-                else if (current[1] & MOD_RIGHT_ALTSHIFT)
-                    modifiers |= MOD_RIGHTSHIFT;
-            }
-            if (!key)
-                key = getKeyBase(code);
-        }
+        if (!key)
+            key = getKeyBase(code);
         if (key && count < 8) {
             if (key == KEY_LANG1)
                 kana_led = 1;

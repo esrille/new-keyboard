@@ -200,8 +200,8 @@ void onPressed(signed char row, unsigned char column)
         modifiers |= 1u << (key - KEY_LEFTCONTROL);
         return;
     }
-    if (KEY_FN <= key && key <= KEY_RIGHT_ALTSHIFT) {
-        current[1] |= 1u << (key - KEY_FN);
+    if (KEY_FN == key) {
+        current[1] |= MOD_FN;
         return;
     }
     if (count < 8)
