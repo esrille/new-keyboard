@@ -201,6 +201,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
     unsigned char count = 2;
     const unsigned char* a;
     const unsigned char* dakuon;
+    char xmit = XMIT_NORMAL;
 
     modifiers = current[0] & ~MOD_SHIFT;
     report[0] = modifiers;
@@ -266,6 +267,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
                 }
             }
         }
+        xmit = XMIT_IN_ORDER;
         for (char i = 0; i < 3 && a[i] && count < 8; ++i) {
             key = a[i];
             switch (key) {
@@ -304,7 +306,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
     }
     sent = (2 < count) ? last : 0;
     report[0] = modifiers;
-    return XMIT_IN_ORDER;
+    return xmit;
 }
 
 char isKanaMode(const unsigned char* current)
