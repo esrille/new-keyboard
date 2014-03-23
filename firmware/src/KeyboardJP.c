@@ -332,7 +332,7 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
 
 unsigned char controlKanaLED(unsigned char report)
 {
-    if (kana_led && mode != KANA_ROMAJI)
-        report |= 0x02u;
+    if (kana_led && mode != KANA_ROMAJI) 
+        report |= LED_CAPS_LOCK;
     return report;
 }
