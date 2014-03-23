@@ -267,6 +267,7 @@
 #define EEPROM_OS	2
 #define EEPROM_DELAY	3
 #define EEPROM_MOD	4
+#define EEPROM_LED	5
 
 void initKeyboard(void);
 void initKeyboardBase(void);
@@ -281,6 +282,7 @@ void initKeyboardKana(void);
 #define KEY_DELAY               0xF9
 #define KEY_MOD                 0xFA
 // 0xFB is used for KEY_CALC
+#define KEY_LED                 0xFC
 
 #define MOD_FN                  1u
 
@@ -315,6 +317,19 @@ unsigned char switchOS(unsigned char* report, unsigned char count);
 unsigned char switchMod(unsigned char* report, unsigned char count);
 
 unsigned char switchDelay(unsigned char* report, unsigned char count);
+
+#define LED_LEFT            0
+#define LED_CENTER          1
+#define LED_RIGHT           2
+#define LED_LEFT_NUM        3
+#define LED_CENTER_CAPS     4
+#define LED_RIGHT_SCROLL    5
+#define LED_OFF             6
+#define LED_MAX             6
+
+#define LED_DEFAULT         LED_CENTER_CAPS
+
+unsigned char switchLED(unsigned char* report, unsigned char count);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
 

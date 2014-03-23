@@ -28,6 +28,19 @@ static unsigned char const kanaKeys[KANA_MAX + 1][6] =
     {KEY_S, KEY_T, KEY_I, KEY_C, KEY_K, KEY_ENTER},
 };
 
+#define MAX_LED_KEY_NAME    4
+
+static unsigned char const ledKeyNames[LED_MAX + 1][MAX_LED_KEY_NAME] =
+{
+    {KEY_L, KEY_ENTER},
+    {KEY_C, KEY_ENTER},
+    {KEY_R, KEY_ENTER},
+    {KEY_L, KEY_MINUS, KEY_N, KEY_ENTER},
+    {KEY_C, KEY_MINUS, KEY_C, KEY_ENTER},
+    {KEY_R, KEY_MINUS, KEY_S, KEY_ENTER},
+    {KEY_O, KEY_F, KEY_F, KEY_ENTER},
+};
+
 //
 // Stickney Next
 //
@@ -165,6 +178,7 @@ static unsigned char const dakuonFrom[] = { KEY_K, KEY_S, KEY_T, KEY_H };
 static unsigned char const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
 
 static unsigned char mode;
+static unsigned char led;
 
 static const unsigned char* sent;
 static const unsigned char* last;
@@ -175,6 +189,25 @@ void initKeyboardKana(void)
     mode = eeprom_read(EEPROM_KANA);
     if (KANA_MAX < mode)
         mode = 0;
+
+    led = eeprom_read(EEPROM_LED);
+    if (LED_MAX < led)
+        led = LED_DEFAULT;
+}
+
+unsigned char switchLED(unsigned char* report, unsigned char count)
+{
+    ++led;
+    if (LED_MAX < led)
+        led = 0;
+    eeprom_write(EEPROM_LED, led);
+    const unsigned char* message = ledKeyNames[led];
+    for (char i = 0; i < MAX_LED_KEY_NAME && count < 8; ++i, ++count) {
+        if (!message[i])
+            break;
+        report[count] = message[i];
+    }
+    return count;
 }
 
 unsigned char switchKana(unsigned char* report, unsigned char count)
@@ -332,7 +365,22 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
 
 unsigned char controlKanaLED(unsigned char report)
 {
-    if (kana_led && mode != KANA_ROMAJI) 
-        report |= LED_CAPS_LOCK;
+    if (mode != KANA_ROMAJI) {
+        switch (led) {
+        case LED_LEFT:
+        case LED_CENTER:
+        case LED_RIGHT:
+            report &= ~(1u << led);
+            report |= (kana_led << led);
+            break;
+        case LED_LEFT_NUM:
+        case LED_CENTER_CAPS:
+        case LED_RIGHT_SCROLL:
+            report |= (kana_led << (led - LED_LEFT_NUM));
+            break;
+        default:
+            break;
+        }
+    }
     return report;
 }
