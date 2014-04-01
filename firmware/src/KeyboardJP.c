@@ -19,7 +19,9 @@
 #include <string.h>
 #include <xc.h>
 
-static unsigned char const kanaKeys[KANA_MAX + 1][6] =
+#define MAX_KANA_KEY_NAME    6
+
+static unsigned char const kanaKeys[KANA_MAX + 1][MAX_KANA_KEY_NAME] =
 {
     {KEY_R, KEY_O, KEY_M, KEY_A, KEY_ENTER},
     {KEY_N, KEY_I, KEY_C, KEY_O, KEY_ENTER},
@@ -195,34 +197,42 @@ void initKeyboardKana(void)
         led = LED_DEFAULT;
 }
 
-unsigned char switchLED(unsigned char* report, unsigned char count)
+void emitLEDName(void)
+{
+    const unsigned char* message = ledKeyNames[led];
+    for (char i = 0; i < MAX_LED_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchLED(void)
 {
     ++led;
     if (LED_MAX < led)
         led = 0;
     eeprom_write(EEPROM_LED, led);
-    const unsigned char* message = ledKeyNames[led];
-    for (char i = 0; i < MAX_LED_KEY_NAME && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitLEDName();
 }
 
-unsigned char switchKana(unsigned char* report, unsigned char count)
+void emitKanaName(void)
+{
+    const unsigned char* message = kanaKeys[mode];
+    for (char i = 0; i < MAX_KANA_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchKana(void)
 {
     ++mode;
     if (KANA_MAX < mode)
         mode = 0;
     eeprom_write(EEPROM_KANA, mode);
-    const unsigned char* message = kanaKeys[mode];
-    for (char i = 0; i < 6 && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitKanaName();
 }
 
 static char processKana(const unsigned char* current, const unsigned char* processed, unsigned char* report,

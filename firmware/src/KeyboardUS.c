@@ -19,7 +19,7 @@
 #include <string.h>
 #include <xc.h>
 
-static unsigned char const baseKeys[5][5] =
+static unsigned char const baseKeys[BASE_MAX + 1][5] =
 {
     {KEY_U, KEY_S, KEY_ENTER},
     {KEY_U, KEY_S, KEY_MINUS, KEY_D, KEY_ENTER},
@@ -114,19 +114,23 @@ void initKeyboardBase(void)
         mode = 0;
 }
 
-unsigned char switchBase(unsigned char* report, unsigned char count)
+void emitBaseName(void)
+{
+    const unsigned char* message = baseKeys[mode];
+    for (char i = 0; i < 5; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchBase(void)
 {
     ++mode;
     if (BASE_MAX < mode)
         mode = 0;
     eeprom_write(EEPROM_BASE, mode);
-    const unsigned char* message = baseKeys[mode];
-    for (char i = 0; i < 5 && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitBaseName();
 }
 
 char isDigit(unsigned char code)
@@ -134,7 +138,7 @@ char isDigit(unsigned char code)
     return code == 25 || code == 34 || (37 <= code && code <= 46);
 }
 
-char isJP()
+char isJP(void)
 {
     return mode == BASE_JIS || mode == BASE_NICOLA_F;
 }

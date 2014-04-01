@@ -283,6 +283,7 @@ void initKeyboardKana(void);
 #define KEY_MOD                 0xFA
 // 0xFB is used for KEY_CALC
 #define KEY_LED                 0xFC
+#define KEY_ABOUT               0xFD
 
 #define MOD_FN                  1u
 
@@ -292,10 +293,11 @@ void initKeyboardKana(void);
 #define BASE_JIS        3
 #define BASE_NICOLA_F   4
 #define BASE_MAX        4
-unsigned char switchBase(unsigned char* report, unsigned char count);
+void emitBaseName(void);
+void switchBase(void);
 
 char isDigit(unsigned char code);
-char isJP();
+char isJP(void);
 
 #define KANA_ROMAJI     0
 #define KANA_NICOLA     1
@@ -303,7 +305,8 @@ char isJP();
 #define KANA_TRON       3
 #define KANA_STICKNEY   4
 #define KANA_MAX        4
-unsigned char switchKana(unsigned char* report, unsigned char count);
+void emitKanaName(void);
+void switchKana(void);
 
 #define OS_PC           0   // Windows, Linux, etc.
 #define OS_MAC          1
@@ -312,11 +315,14 @@ unsigned char switchKana(unsigned char* report, unsigned char count);
 #define OS_ALT_SP       4   // Android
 #define OS_SHIFT_SP     5   // Android
 #define OS_MAX          5
+void emitOSName(void);
+void switchOS(void);
 
-unsigned char switchOS(unsigned char* report, unsigned char count);
-unsigned char switchMod(unsigned char* report, unsigned char count);
+void emitModName(void);
+void switchMod(void);
 
-unsigned char switchDelay(unsigned char* report, unsigned char count);
+void emitDelayName(void);
+void switchDelay(void);
 
 #define LED_LEFT            0
 #define LED_CENTER          1
@@ -329,7 +335,8 @@ unsigned char switchDelay(unsigned char* report, unsigned char count);
 
 #define LED_DEFAULT         LED_CENTER_CAPS
 
-unsigned char switchLED(unsigned char* report, unsigned char count);
+void emitLEDName(void);
+void switchLED(void);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
 
@@ -337,6 +344,7 @@ unsigned char switchLED(unsigned char* report, unsigned char count);
 #define XMIT_NORMAL     1
 #define XMIT_BRK        2
 #define XMIT_IN_ORDER   3
+#define XMIT_MACRO      4
 
 void onPressed(signed char row, unsigned char column);
 char makeReport(unsigned char* report);
@@ -351,10 +359,19 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
 unsigned char controlLED(unsigned char report);
 unsigned char controlKanaLED(unsigned char report);
 
-const unsigned char* getKeyFn(unsigned char code);
 unsigned char getKeyNumLock(unsigned char code);
 unsigned char getKeyBase(unsigned char code);
 
+unsigned char beginMacro(unsigned char max);
+unsigned char peekMacro(void);
+unsigned char getMacro(void);
+void emitKey(unsigned char key);
+
 extern unsigned char kana_led;
+
+//
+// Esrille New Keyboard
+//
+#define BOARD_REV_ADDRESS                       0x17FE
 
 #endif  // #ifndef KEYBOARD_H

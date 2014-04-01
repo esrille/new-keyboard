@@ -20,6 +20,8 @@
 #include <string.h>
 #include <xc.h>
 
+#include <system.h>
+
 __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_DEFAULT, 0, 0);
 
 unsigned char os;
@@ -66,10 +68,10 @@ static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
     {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
 };
 
-static unsigned char const matrixFn[8][12][4] =
+static unsigned char const matrixFn[8][12][3] =
 {
-    {{KEY_INSERT}, {KEY_KANA}, {KEY_OS}, {KEY_DELAY}, {KEY_MOD}, {KEY_LED}, {0}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
-    {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_BASE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
+    {{KEY_INSERT}, {KEY_OS}, {KEY_BASE}, {KEY_KANA}, {KEY_DELAY}, {KEY_MOD}, {KEY_LED}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
+    {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_ABOUT}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_Z}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_PRINTSCREEN}},
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEYPAD_NUM_LOCK}},
     {{KEY_LEFTCONTROL, KEY_Q}, {KEY_LEFTCONTROL, KEY_W}, {KEY_PAGEUP}, {KEY_LEFTCONTROL, KEY_R}, {KEY_LEFTCONTROL, KEY_T}, {0}, {0}, {KEY_LEFTCONTROL, KEY_HOME}, {KEY_LEFTCONTROL, KEY_LEFTARROW}, {KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_RIGHTARROW}, {KEY_LEFTCONTROL, KEY_END}},
@@ -112,6 +114,10 @@ typedef struct Keys {
     uint8_t keys[6];
 } Keys;
 
+static unsigned char ordered_keys[128];
+static unsigned char ordered_pos = 0;
+static uint8_t ordered_max;
+
 static unsigned char currentDelay;
 static Keys keys[MAX_DELAY + 1];
 static char currentKey;
@@ -144,49 +150,61 @@ void initKeyboard(void)
     initKeyboardKana();
 }
 
-unsigned char switchOS(unsigned char* report, unsigned char count)
+void emitOSName(void)
+{
+    const unsigned char* message = osKeys[os];
+    for (char i = 0; i < MAX_OS_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchOS(void)
 {
     ++os;
     if (OS_MAX < os)
         os = 0;
     eeprom_write(EEPROM_OS, os);
-    const unsigned char* message = osKeys[os];
-    for (char i = 0; i < MAX_OS_KEY_NAME && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitOSName();
 }
 
-unsigned char switchMod(unsigned char* report, unsigned char count)
+void emitModName(void)
+{
+    const unsigned char* message = modKeys[mod];
+    for (char i = 0; i < MAX_MOD_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchMod(void)
 {
     ++mod;
     if (MAX_MOD < mod)
         mod = 0;
     eeprom_write(EEPROM_MOD, mod);
-    const unsigned char* message = modKeys[mod];
-    for (char i = 0; i < MAX_MOD_KEY_NAME && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitModName();
 }
 
-unsigned char switchDelay(unsigned char* report, unsigned char count)
+void emitDelayName(void)
+{
+    const unsigned char* message = delayKeyNames[currentDelay];
+    for (char i = 0; i < MAX_DELAY_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchDelay(void)
 {
     ++currentDelay;
     if (MAX_DELAY < currentDelay)
         currentDelay = 0;
     eeprom_write(EEPROM_DELAY, currentDelay);
-    const unsigned char* message = delayKeyNames[currentDelay];
-    for (char i = 0; i < MAX_DELAY_KEY_NAME && count < 8; ++i, ++count) {
-        if (!message[i])
-            break;
-        report[count] = message[i];
-    }
-    return count;
+    emitDelayName();
 }
 
 void onPressed(signed char row, unsigned char column)
@@ -229,6 +247,127 @@ static char detectGhost(void)
     return detected;
 }
 
+unsigned char beginMacro(unsigned char max)
+{
+    ordered_pos = 1;
+    ordered_max = max;
+    return ordered_keys[0];
+}
+
+unsigned char peekMacro(void)
+{
+    if (ordered_max <= ordered_pos)
+        return 0;
+    return ordered_keys[ordered_pos];
+}
+
+unsigned char getMacro(void)
+{
+    if (ordered_max <= ordered_pos) {
+        ordered_pos = 0;
+        return 0;
+    }
+    unsigned char key = ordered_keys[ordered_pos++];
+    if (key == 0)
+        ordered_pos = 0;
+    return key;
+}
+
+void emitKey(unsigned char c)
+{
+    if (ordered_pos < sizeof ordered_keys)
+        ordered_keys[ordered_pos++] = c;
+    if (ordered_pos < sizeof ordered_keys)
+        ordered_keys[ordered_pos] = 0;
+}
+
+static void emitString(const unsigned char s[])
+{
+    unsigned char i = 0;
+    unsigned char c;
+    for (c = s[i]; c; c = s[++i])
+        emitKey(c);
+}
+
+static unsigned char getNumKeycode(unsigned int n)
+{
+    if (n == 0)
+        return KEY_0;
+    if (1 <= n && n <= 9)
+        return KEY_1 - 1 + n;
+    return KEY_SPACEBAR;
+}
+
+static const unsigned char about1[] = {
+    KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_N, KEY_E, KEY_W, KEY_SPACEBAR, KEY_K, KEY_E, KEY_Y, KEY_B, KEY_O, KEY_A, KEY_R, KEY_D, KEY_ENTER,
+    KEY_R, KEY_E, KEY_V, KEY_PERIOD, KEY_SPACEBAR, 0
+};
+static const unsigned char about2[] = {
+    KEY_V, KEY_E, KEY_R, KEY_PERIOD, KEY_SPACEBAR, 0
+};
+static const unsigned char about3[] = {
+    KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_COMMA, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_4, KEY_SPACEBAR,
+    KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_I, KEY_N, KEY_C, KEY_PERIOD, KEY_ENTER,
+    KEY_F, KEY_2, KEY_SPACEBAR, 0
+};
+static const unsigned char about4[] = {
+    KEY_F, KEY_3, KEY_SPACEBAR, 0
+};
+static const unsigned char about5[] = {
+    KEY_F, KEY_4, KEY_SPACEBAR, 0
+};
+static const unsigned char about6[] = {
+    KEY_F, KEY_5, KEY_SPACEBAR, 0
+};
+static const unsigned char about7[] = {
+    KEY_F, KEY_6, KEY_SPACEBAR, 0
+};
+static const unsigned char about8[] = {
+    KEY_F, KEY_7, KEY_SPACEBAR, 0
+};
+
+static void about(void)
+{
+    unsigned int ver = *(const unsigned int*) APP_VERSION_ADDRESS;
+
+    // REV.
+    emitString(about1);
+    emitKey(getNumKeycode(*(const unsigned int*) BOARD_REV_ADDRESS));
+    emitKey(KEY_ENTER);
+
+    // VER.
+    emitString(about2);
+    emitKey(getNumKeycode((ver >> 8) & 0xf));
+    emitKey(KEY_PERIOD);
+    emitKey(getNumKeycode((ver >> 4) & 0xf));
+    emitKey(getNumKeycode(ver & 0xf));
+    emitKey(KEY_ENTER);
+
+    // F2 OS
+    emitString(about3);
+    emitOSName();
+
+    // F3 Layout
+    emitString(about4);
+    emitBaseName();
+
+    // F4 Kana Layout
+    emitString(about5);
+    emitKanaName();
+
+    // F5 Delay
+    emitString(about6);
+    emitDelayName();
+
+    // F6 Modifiers
+    emitString(about7);
+    emitModName();
+
+    // F7 LED
+    emitString(about8);
+    emitLEDName();
+}
+
 static char processKeys(const unsigned char* current, const unsigned char* processed, unsigned char* report)
 {
     char xmit;
@@ -240,48 +379,54 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
         unsigned char modifiers = current[0];
         unsigned char count = 2;
         xmit = XMIT_NORMAL;
-        for (char i = 2; i < 8; ++i) {
+        for (char i = 2; i < 8 && xmit != XMIT_MACRO; ++i) {
             unsigned char code = current[i];
-            const unsigned char* a = getKeyFn(code);
-            for (char j = 0; a[j] && count < 8; ++j) {
+            const unsigned char* a = matrixFn[code / 12][code % 12];
+            for (char j = 0; j < 3 && count < 8; ++j) {
                 unsigned char key = a[j];
                 switch (key) {
                 case 0:
                     break;
                 case KEY_BASE:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchBase(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchBase();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_KANA:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchKana(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchKana();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_OS:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchOS(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchOS();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_DELAY:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchDelay(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchDelay();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_MOD:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchMod(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchMod();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_LED:
                     if (!memchr(processed + 2, code, 6)) {
-                        count = switchLED(report, count);
-                        xmit = XMIT_IN_ORDER;
+                        switchLED();
+                        xmit = XMIT_MACRO;
+                    }
+                    break;
+                case KEY_ABOUT:
+                    if (!memchr(processed + 2, code, 6)) {
+                        about();
+                        xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_LEFTCONTROL:
@@ -311,7 +456,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);
-    if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER)
+    if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER || xmit == XMIT_MACRO)
         memmove(processed, current, 8);
     return xmit;
 }
@@ -459,11 +604,6 @@ unsigned char controlLED(unsigned char report)
 {
     led = report;
     return controlKanaLED(report);
-}
-
-const unsigned char* getKeyFn(unsigned char code)
-{
-    return matrixFn[code / 12][code % 12];
 }
 
 unsigned char getKeyNumLock(unsigned char code)
