@@ -259,6 +259,226 @@
 #define LED_SCROLL_LOCK 0x04
 
 //
+// Kana
+//
+
+#define ROMA_NONE	0
+
+#define ROMA_A		1
+#define ROMA_I		2
+#define ROMA_U		3
+#define ROMA_E		4
+#define ROMA_O		5
+
+#define ROMA_K		7
+#define ROMA_KA		8
+#define ROMA_KI		9
+#define ROMA_KU		10
+#define ROMA_KE		11
+#define ROMA_KO		12
+#define ROMA_KY		13
+
+#define ROMA_S		14
+#define ROMA_SA		15
+#define ROMA_SI		16
+#define ROMA_SU		17
+#define ROMA_SE		18
+#define ROMA_SO		19
+#define ROMA_SY		20
+
+#define ROMA_T		21
+#define ROMA_TA		22
+#define ROMA_TI		23
+#define ROMA_TU		24
+#define ROMA_TE		25
+#define ROMA_TO		26
+#define ROMA_TY		27
+
+#define ROMA_N		28
+#define ROMA_NA		29
+#define ROMA_NI		30
+#define ROMA_NU		31
+#define ROMA_NE		32
+#define ROMA_NO		33
+#define ROMA_NY		34
+
+#define ROMA_H		35
+#define ROMA_HA		36
+#define ROMA_HI		37
+#define ROMA_HU		38
+#define ROMA_HE		39
+#define ROMA_HO		40
+#define ROMA_HY		41
+
+#define ROMA_M		42
+#define ROMA_MA		43
+#define ROMA_MI		44
+#define ROMA_MU		45
+#define ROMA_ME		46
+#define ROMA_MO		47
+#define ROMA_MY		48
+
+#define ROMA_Y		49
+#define ROMA_YA		50
+#define ROMA_YU		52
+#define ROMA_YO		54
+
+#define ROMA_R		56
+#define ROMA_RA		57
+#define ROMA_RI		58
+#define ROMA_RU		59
+#define ROMA_RE		60
+#define ROMA_RO		61
+#define ROMA_RY		62
+
+#define ROMA_W		63
+#define ROMA_WA		64
+#define ROMA_WO		68
+
+#define ROMA_P		70
+#define ROMA_PA		71
+#define ROMA_PI		72
+#define ROMA_PU		73
+#define ROMA_PE		74
+#define ROMA_PO		75
+#define ROMA_PY		76
+
+#define ROMA_G		77
+#define ROMA_GA		78
+#define ROMA_GI		79
+#define ROMA_GU		80
+#define ROMA_GE		81
+#define ROMA_GO		82
+#define ROMA_GY		83
+
+#define ROMA_Z		84
+#define ROMA_ZA		85
+#define ROMA_ZI		86
+#define ROMA_ZU		87
+#define ROMA_ZE		88
+#define ROMA_ZO		89
+#define ROMA_ZY		90
+
+#define ROMA_D		91
+#define ROMA_DA		92
+#define ROMA_DI		93
+#define ROMA_DU		94
+#define ROMA_DE		95
+#define ROMA_DO		96
+#define ROMA_DY		97
+
+#define ROMA_B		98
+#define ROMA_BA		99
+#define ROMA_BI		100
+#define ROMA_BU		101
+#define ROMA_BE		102
+#define ROMA_BO		103
+#define ROMA_BY		104
+
+#define ROMA_X		105
+#define ROMA_XA		106
+#define ROMA_XI		107
+#define ROMA_XU		108
+#define ROMA_XE		109
+#define ROMA_XO		110
+
+#define ROMA_XK		112
+#define ROMA_XKA	113
+#define ROMA_XKE	116
+
+#define ROMA_XT		119
+#define ROMA_XTU	122
+
+#define ROMA_XY		126
+#define ROMA_XYA	127
+#define ROMA_XYU	129
+#define ROMA_XYO	131
+
+#define ROMA_XW		133
+#define ROMA_XWA	134
+
+#define ROMA_WY		140
+#define ROMA_WYI	142
+#define ROMA_WYE	144
+
+#define ROMA_V		147
+#define ROMA_VU		150
+
+#define ROMA_L		154
+#define ROMA_LA		155
+#define ROMA_LI		156
+#define ROMA_LU		157
+#define ROMA_LE		158
+#define ROMA_LO		159
+
+// M-type
+#define ROMA_ANN	161
+#define ROMA_AKU	162
+#define ROMA_ATU	163
+#define ROMA_AI		164
+#define ROMA_INN	165
+#define ROMA_IKU	166
+#define ROMA_ITU	167
+#define ROMA_UNN	168
+#define ROMA_UKU	169
+#define ROMA_UTU	170
+#define ROMA_ENN	171
+#define ROMA_EKI	172
+#define ROMA_ETU	173
+#define ROMA_EI		174
+#define ROMA_ONN	175
+#define ROMA_OKU	176
+#define ROMA_OTU	177
+#define ROMA_OU		178
+#define ROMA_C		179
+#define ROMA_F		180
+#define ROMA_J		181
+#define ROMA_Q		182
+
+// Common
+#define ROMA_NN		200
+#define ROMA_CHOUON	201
+#define ROMA_DAKUTEN	202
+#define ROMA_HANDAKU	203
+#define ROMA_QUESTION	204
+#define ROMA_TOUTEN	205     // 、
+#define ROMA_KUTEN	206     // 。
+#define ROMA_LAB	207	// <
+#define ROMA_RAB	208	// >
+
+// Stickney Next
+#define KANA_DAKUTEN    209
+#define KANA_HANDAKU    210
+#define KANA_LCB        211
+#define KANA_RCB        212
+#define KANA_KE         213     // '
+#define KANA_SE         ROMA_P
+#define KANA_SO         ROMA_C
+#define KANA_HE         214     // =
+#define KANA_HO         215     // -
+#define KANA_NU         216     // 1
+#define KANA_ME         217     // /
+#define KANA_MU         218     //KEY_NON_US_HASH
+#define KANA_WO         219
+#define KANA_RO         220     // KEY_INTERNATIONAL1
+#define KANA_TOUTEN     221
+#define KANA_KUTEN      222
+#define KANA_NAKAGURO   223
+#define KANA_CHOUON     224
+
+// Non-common (US, JP, IME)
+#define ROMA_NAKAGURO	230	// ・
+#define ROMA_SLASH	231	// ／
+#define ROMA_SANTEN	232	// …
+#define ROMA_LCB	233	// 「
+#define ROMA_RCB	234	// 」
+#define ROMA_LSB	235	// [
+#define ROMA_RSB	236	// ]
+#define ROMA_COMMA      237
+#define ROMA_PERIOD     238
+#define ROMA_NAMI       239     // 〜
+
+//
 //
 //
 
