@@ -128,32 +128,32 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             //Initialize all of the LED pins and key matrix ports
             // PORT A (0~5, input initially)
             LATA &= 0xC0;
-            TRISA |= 0x3F;
+            TRISA = 0x3F;
 
             // PORT B (0~7, input)
-            TRISB |= 0xFF;
+            TRISB = 0xFF;
             LATB |= 0xFF;
             INTCON2bits.RBPU = 0;   // Enable pull up
 
             // TODO: Check INT
 
-            // PORT C (2, output)
-            LATC &= 0xFB;
-            LATC |= 0x04;   // Default HI
-            TRISC &= 0xFB;
+            // PORT C (0-2, 6-7 output)
+            LATC &= 0x38;
+            LATC |= 0xC7;   // Default HI
+            TRISC = 0x38;
             // TODO: Check timer
 
             // PORT D (0~1, output; 2~7, input)
             LATD &= 0xFC;
             LATD |= 0x03;   // Default HI
-            TRISD &= 0xFC;
-            TRISD |= 0xFC;
+            TRISD = 0xFC;
             LATD |= 0xFC;
             PORTEbits.RDPU = 1;     // Enable pull up
 
             // PORT E (0~1, input initially)
-            LATE &= 0xFC;
-            TRISE |= 0x03;
+            LATE &= 0xFB;
+            LATE |= 0x04;   // Default HI
+            TRISE = 0x03;
 
             initKeyboard();
             break;

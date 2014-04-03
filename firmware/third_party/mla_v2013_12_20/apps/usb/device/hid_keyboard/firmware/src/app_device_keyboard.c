@@ -470,8 +470,8 @@ void APP_Suspend()
 
     PORTA &= 0xC0;
     PORTE &= 0xFC;
-    TRISA |= 0x3F;
-    TRISE |= 0x03;
+    TRISA = 0x3F;
+    TRISE = 0x03;
 
     OSCCON = 0x13;	//Sleep on sleep, 125kHz selected as microcontroller clock source
 }
