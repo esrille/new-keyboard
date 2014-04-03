@@ -81,6 +81,14 @@ static unsigned char const matrixFn[8][12][3] =
     {{0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}}
 };
 
+static unsigned char const matrixFn109[4][3] =
+{
+    {KEY_INTERNATIONAL5},   // no-convert
+    {KEY_INTERNATIONAL4},   // convert
+    {KEY_INTERNATIONAL2},   // hiragana
+    {KEY_GRAVE_ACCENT}      // zenkaku
+};
+
 static unsigned char const matrixNumLock[8][12] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -369,6 +377,15 @@ static void about(void)
     emitLEDName();
 }
 
+static const unsigned char* getKeyFn(unsigned char code)
+{
+    if (os == OS_109A || os == OS_109B) {
+        if (12 * 6 + 8 <= code && code <= 12 * 6 + 11)
+            return matrixFn109[code - (12 * 6 + 8)];
+    }
+    return matrixFn[code / 12][code % 12];
+}
+
 static char processKeys(const unsigned char* current, const unsigned char* processed, unsigned char* report)
 {
     char xmit;
@@ -382,7 +399,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
         xmit = XMIT_NORMAL;
         for (char i = 2; i < 8 && xmit != XMIT_MACRO; ++i) {
             unsigned char code = current[i];
-            const unsigned char* a = matrixFn[code / 12][code % 12];
+            const unsigned char* a = getKeyFn(code);
             for (char j = 0; j < 3 && count < 8; ++j) {
                 unsigned char key = a[j];
                 switch (key) {
