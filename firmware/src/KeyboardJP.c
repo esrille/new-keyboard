@@ -421,13 +421,11 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         if (!roma || !a[0]) {
             key = getKeyBase(code);
             if (key) {
-                if (key == KEY_LANG1) {
+                if (key == KEY_LANG1)
                     kana_led = 1;
-                    eisuu_mode = 0;
-                } else if (key == KEY_LANG2) {
+                else if (key == KEY_LANG2)
                     kana_led = 0;
-                    eisuu_mode = 1;
-                } else if (key == KEY_CAPS_LOCK) {
+                else if (key == KEY_CAPS_LOCK) {
                     if (!memchr(processed + 2, key, 6) && isJP())
                         eisuu_mode ^= 1;
                 } else if (key == KEY_0 && (mod & MOD_SHIFT) && isJP())
