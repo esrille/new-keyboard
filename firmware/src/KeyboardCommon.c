@@ -25,8 +25,9 @@
 __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_DEFAULT, 0, 0);
 
 unsigned char os;
-unsigned char kana_led;
 unsigned char mod;
+unsigned char kana_led;
+unsigned char eisuu_mode;
 
 #define MAX_OS_KEY_NAME     5
 
@@ -442,17 +443,20 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     modifiers |= MOD_RIGHTSHIFT;
                     break;
                 default:
-                    if (key == KEY_LANG1)
+                    if (key == KEY_LANG1) {
                         kana_led = 1;
-                    else if (key == KEY_LANG2)
+                        eisuu_mode = 0;
+                    } else if (key == KEY_LANG2) {
                         kana_led = 0;
+                        eisuu_mode = 1;
+                    }
                     report[count++] = key;
                     break;
                 }
             }
         }
         report[0] = modifiers;
-    } else if (isKanaMode(current))
+    } else if (isKanaMode(current) && (!eisuu_mode || os != OS_109A && os != OS_109B))
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);

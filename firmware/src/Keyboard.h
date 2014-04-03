@@ -588,6 +588,7 @@ unsigned char getMacro(void);
 void emitKey(unsigned char key);
 
 extern unsigned char kana_led;
+extern unsigned char eisuu_mode;
 
 //
 // Esrille New Keyboard
