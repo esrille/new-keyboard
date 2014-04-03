@@ -27,7 +27,7 @@ __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_D
 unsigned char os;
 unsigned char mod;
 unsigned char kana_led;
-unsigned char eisuu_mode = 1;
+unsigned char eisuu_mode = 0;
 
 #define MAX_OS_KEY_NAME     5
 
