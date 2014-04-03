@@ -104,7 +104,7 @@ static unsigned char const matrixNumLock[8][12] =
 #define MAX_DELAY           10
 #define MAX_DELAY_KEY_NAME  4
 
-static unsigned char const delayKeyNames[11][MAX_DELAY_KEY_NAME] =
+static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
 {
     {KEY_D, KEY_0, KEY_ENTER},
     {KEY_D, KEY_5, KEY_ENTER},
@@ -146,6 +146,8 @@ static unsigned char led;
 
 void initKeyboard(void)
 {
+    memset(keys, VOID_KEY, sizeof keys);
+
     os = eeprom_read(EEPROM_OS);
     if (OS_MAX < os)
         os = 0;
