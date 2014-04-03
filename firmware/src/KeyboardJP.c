@@ -481,11 +481,13 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         memcpy(last, a, 3);
         lastMod = current[0];
     }
-    if (2 < count)
+    if (2 < count) {
         memcpy(sent, last, 3);
-    else
+        report[0] = modifiers;
+    } else {
         memset(sent, 0, 3);
-    report[0] = modifiers;
+        report[0] = current[0];
+    }
     return xmit;
 }
 
