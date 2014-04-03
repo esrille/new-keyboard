@@ -290,7 +290,11 @@ void APP_KeyboardInit(void)
     //initialize the variable holding the handle for the last
     // transmission
     keyboard.lastINTransmission = 0;
-    
+
+    //initialize the variable holding the keyboard LED state data.
+    //Note OS X assumes every LED is turned off by default.
+    outputReport.value = 0;
+
     //enable the HID endpoint
     USBEnableEndpoint(HID_EP, USB_IN_ENABLED|USB_OUT_ENABLED|USB_HANDSHAKE_ENABLED|USB_DISALLOW_SETUP);
 
