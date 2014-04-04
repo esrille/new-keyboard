@@ -180,6 +180,11 @@ void switchOS(void)
     emitOSName();
 }
 
+char is109(void)
+{
+    return os == OS_109A || os == OS_109B;
+}
+
 void emitModName(void)
 {
     const unsigned char* message = modKeys[mod];
@@ -381,7 +386,7 @@ static void about(void)
 
 static const unsigned char* getKeyFn(unsigned char code)
 {
-    if (os == OS_109A || os == OS_109B) {
+    if (is109()) {
         if (12 * 6 + 8 <= code && code <= 12 * 6 + 11)
             return matrixFn109[code - (12 * 6 + 8)];
     }
@@ -472,7 +477,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
             }
         }
         report[0] = modifiers;
-    } else if (isKanaMode(current) && (!eisuu_mode || os != OS_109A && os != OS_109B))
+    } else if (isKanaMode(current) && (!eisuu_mode || !is109()))
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);
