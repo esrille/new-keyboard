@@ -139,20 +139,40 @@ static unsigned char const commonSet[][2] =
     {KEY_INTERNATIONAL3},
 };
 
-// ROMA_NAKAGURO - ROMA_NAMI
+// ROMA_LCB - ROMA_NAMI
+#if 0
 static unsigned char const nonCommonSet[][2] =
 {
+    {KEY_RIGHT_BRACKET},
+    {KEY_NON_US_HASH},
+    {KEY_RIGHT_BRACKET},
+    {KEY_NON_US_HASH},
+    {KEY_RIGHT_BRACKET},
+    {KEY_NON_US_HASH},
     {KEY_Z, KEY_SLASH},
     {KEY_SLASH},
     {KEY_Z, KEY_PERIOD},
-    {KEY_RIGHT_BRACKET},
-    {KEY_NON_US_HASH},
-    {KEY_RIGHT_BRACKET},
-    {KEY_NON_US_HASH},
     {KEY_COMMA},
     {KEY_PERIOD},
     {KEY_LEFTSHIFT, KEY_EQUAL},
 };
+#else
+static unsigned char const nonCommonSet[][3] =
+{
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_Z, KEY_LEFT_BRACKET},
+    {KEY_Z, KEY_RIGHT_BRACKET},
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_Z, KEY_SLASH},
+    {KEY_SLASH},
+    {KEY_Z, KEY_PERIOD},
+    {KEY_COMMA},
+    {KEY_PERIOD},
+    {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
+};
+#endif
 
 //
 // Stickney Next
@@ -206,9 +226,9 @@ static unsigned char const matrixTronLeft[7][12] =
 
 static unsigned char const matrixTronRight[7][12] =
 {
+    {ROMA_LWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {ROMA_BI, ROMA_ZO, ROMA_GO, ROMA_BA, ROMA_BO, 0, 0, ROMA_E, ROMA_KE, ROMA_ME, ROMA_MU, ROMA_RO},
     {ROMA_DA, ROMA_DO, ROMA_GA, ROMA_DE, ROMA_BU, 0, 0, ROMA_O, ROMA_TI, ROMA_CHOUON, ROMA_MI, ROMA_YA},
@@ -242,9 +262,9 @@ static unsigned char const matrixNicolaLeft[7][12] =
 
 static unsigned char const matrixNicolaRight[7][12] =
 {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_HANDAKU},
+    {ROMA_LWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_HANDAKU},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RWCB, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, ROMA_SLASH, ROMA_NAMI, ROMA_LCB, ROMA_RCB, 0, 0, ROMA_LSB, ROMA_RSB, 0, 0, 0},
     {ROMA_KUTEN, ROMA_GA, ROMA_DA, ROMA_GO, ROMA_ZA, 0, 0, ROMA_YO, ROMA_NI, ROMA_RU, ROMA_MA, ROMA_XE},
     {ROMA_VU, ROMA_ZI, ROMA_DE, ROMA_GE, ROMA_ZE, 0, 0, ROMA_MI, ROMA_O, ROMA_NO, ROMA_XYO, ROMA_XTU},
@@ -358,9 +378,26 @@ static void processRomaji(unsigned char roma, unsigned char a[])
         a[2] = 0;
         return;
     }
-    if (ROMA_NAKAGURO <= roma && roma <= ROMA_NAMI) {
-        memcpy(a, nonCommonSet[roma - ROMA_NAKAGURO], 2);
-        a[2] = 0;
+    if (ROMA_LCB <= roma && roma <= ROMA_NAMI) {
+        c = nonCommonSet[roma - ROMA_LCB];
+        for (i = 0; i < 3; ++i) {
+            unsigned char key = c[i];
+            if (is109()) {
+                switch (key) {
+                case KEY_LEFT_BRACKET:
+                    key = KEY_RIGHT_BRACKET;
+                    break;
+                case KEY_RIGHT_BRACKET:
+                    key = KEY_NON_US_HASH;
+                    break;
+                case KEY_GRAVE_ACCENT:
+                    key = KEY_EQUAL;
+                default:
+                    break;
+                }
+            }
+            a[i] = key;
+        }
         return;
     }
     memset(a, 0, 3);

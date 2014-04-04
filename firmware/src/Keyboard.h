@@ -467,16 +467,18 @@
 #define KANA_CHOUON     224
 
 // Non-common (US, JP, IME)
-#define ROMA_NAKAGURO	230	// ・
-#define ROMA_SLASH	231	// ／
-#define ROMA_SANTEN	232	// …
-#define ROMA_LCB	233	// 「
-#define ROMA_RCB	234	// 」
-#define ROMA_LSB	235	// [
-#define ROMA_RSB	236	// ]
-#define ROMA_COMMA      237
-#define ROMA_PERIOD     238
-#define ROMA_NAMI       239     // 〜
+#define ROMA_LCB	230	// 「
+#define ROMA_RCB	231	// 」
+#define ROMA_LWCB	232	// 『
+#define ROMA_RWCB	233	// 』
+#define ROMA_LSB	234	// [
+#define ROMA_RSB	235	// ]
+#define ROMA_NAKAGURO	236	// ・
+#define ROMA_SLASH	237	// ／
+#define ROMA_SANTEN	238	// …
+#define ROMA_COMMA      239
+#define ROMA_PERIOD     240
+#define ROMA_NAMI       241     // 〜
 
 //
 //
