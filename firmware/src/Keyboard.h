@@ -476,8 +476,8 @@
 #define ROMA_NAKAGURO	236	// ・
 #define ROMA_SLASH	237	// ／
 #define ROMA_SANTEN	238	// …
-#define ROMA_COMMA      239
-#define ROMA_PERIOD     240
+#define ROMA_COMMA      239     // ，
+#define ROMA_PERIOD     240     // ．
 #define ROMA_NAMI       241     // 〜
 
 //

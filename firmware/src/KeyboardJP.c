@@ -462,7 +462,7 @@ static void processRomaji(unsigned char roma, unsigned char a[])
         }
         for (i = 0; i < 3; ++i) {
             unsigned char key = c[i];
-            if (is109()) {
+            if (isJP()) {
                 switch (key) {
                 case KEY_LEFT_BRACKET:
                     key = KEY_RIGHT_BRACKET;
@@ -472,10 +472,13 @@ static void processRomaji(unsigned char roma, unsigned char a[])
                     break;
                 case KEY_GRAVE_ACCENT:
                     key = KEY_EQUAL;
+                    break;
                 case KEY_9:
                     key = KEY_8;
+                    break;
                 case KEY_0:
                     key = KEY_9;
+                    break;
                 default:
                     break;
                 }
