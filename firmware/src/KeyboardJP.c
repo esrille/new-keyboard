@@ -43,6 +43,16 @@ static unsigned char const ledKeyNames[LED_MAX + 1][MAX_LED_KEY_NAME] =
     {KEY_O, KEY_F, KEY_F, KEY_ENTER},
 };
 
+#define MAX_IME_KEY_NAME     5
+
+static unsigned char const imeKeyNames[IME_MAX + 1][MAX_IME_KEY_NAME] =
+{
+    {KEY_M, KEY_S, KEY_ENTER},
+    {KEY_A, KEY_T, KEY_O, KEY_K, KEY_ENTER},
+    {KEY_G, KEY_O, KEY_O, KEY_G, KEY_ENTER},
+    {KEY_A, KEY_P, KEY_P, KEY_L, KEY_ENTER},
+};
+
 static unsigned char const consonantSet[][2] =
 {
     {0},
@@ -139,25 +149,26 @@ static unsigned char const commonSet[][2] =
     {KEY_INTERNATIONAL3},
 };
 
+//
 // ROMA_LCB - ROMA_NAMI
-#if 0
-static unsigned char const nonCommonSet[][2] =
+//
+static unsigned char const msSet[][3] =
 {
+    {KEY_LEFT_BRACKET},
     {KEY_RIGHT_BRACKET},
-    {KEY_NON_US_HASH},
+    {KEY_LEFT_BRACKET},
     {KEY_RIGHT_BRACKET},
-    {KEY_NON_US_HASH},
+    {KEY_LEFT_BRACKET},
     {KEY_RIGHT_BRACKET},
-    {KEY_NON_US_HASH},
-    {KEY_Z, KEY_SLASH},
     {KEY_SLASH},
-    {KEY_Z, KEY_PERIOD},
+    {KEY_SLASH},
+    {KEY_SLASH, KEY_SLASH, KEY_SLASH},
     {KEY_COMMA},
     {KEY_PERIOD},
-    {KEY_LEFTSHIFT, KEY_EQUAL},
+    {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
 };
-#else
-static unsigned char const nonCommonSet[][3] =
+
+static unsigned char const googleSet[][3] =
 {
     {KEY_LEFT_BRACKET},
     {KEY_RIGHT_BRACKET},
@@ -172,7 +183,38 @@ static unsigned char const nonCommonSet[][3] =
     {KEY_PERIOD},
     {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
 };
-#endif
+
+static unsigned char const atokSet[][3] =
+{
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_SLASH},
+    {KEY_SLASH},
+    {KEY_SLASH, KEY_SLASH, KEY_SLASH},
+    {KEY_COMMA},
+    {KEY_PERIOD},
+    {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
+};
+
+static unsigned char const appleSet[][3] =
+{
+    {KEY_LEFT_BRACKET},
+    {KEY_RIGHT_BRACKET},
+    {KEY_LEFTSHIFT, KEY_LEFT_BRACKET},
+    {KEY_LEFTSHIFT, KEY_RIGHT_BRACKET},
+    {KEY_LEFTALT, KEY_LEFTSHIFT, KEY_9},
+    {KEY_LEFTALT, KEY_LEFTSHIFT, KEY_0},
+    {KEY_SLASH},
+    {KEY_SLASH},
+    {KEY_SLASH, KEY_SLASH, KEY_SLASH},
+    {KEY_COMMA},
+    {KEY_PERIOD},
+    {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
+};
 
 //
 // Stickney Next
@@ -301,6 +343,7 @@ static unsigned char const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
 
 static unsigned char mode;
 static unsigned char led;
+static unsigned char ime;
 
 static unsigned char sent[3];
 static unsigned char last[3];
@@ -315,6 +358,10 @@ void initKeyboardKana(void)
     led = eeprom_read(EEPROM_LED);
     if (LED_MAX < led)
         led = LED_DEFAULT;
+
+    ime = eeprom_read(EEPROM_IME);
+    if (IME_MAX < ime)
+        ime = 0;
 }
 
 void emitLEDName(void)
@@ -355,6 +402,25 @@ void switchKana(void)
     emitKanaName();
 }
 
+void emitIMEName(void)
+{
+    const unsigned char* message = imeKeyNames[ime];
+    for (char i = 0; i < MAX_IME_KEY_NAME; ++i) {
+        if (!message[i])
+            break;
+        emitKey(message[i]);
+    }
+}
+
+void switchIME(void)
+{
+    ++ime;
+    if (IME_MAX < ime)
+        ime = 0;
+    eeprom_write(EEPROM_IME, ime);
+    emitIMEName();
+}
+
 static void processRomaji(unsigned char roma, unsigned char a[])
 {
     unsigned char const* c;
@@ -379,7 +445,21 @@ static void processRomaji(unsigned char roma, unsigned char a[])
         return;
     }
     if (ROMA_LCB <= roma && roma <= ROMA_NAMI) {
-        c = nonCommonSet[roma - ROMA_LCB];
+        switch (ime) {
+        case IME_GOOGLE:
+            c = googleSet[roma - ROMA_LCB];
+            break;
+        case IME_APPLE:
+            c = appleSet[roma - ROMA_LCB];
+            break;
+        case IME_ATOK:
+            c = atokSet[roma - ROMA_LCB];
+            break;
+        case IME_MS:
+        default:
+            c = msSet[roma - ROMA_LCB];
+            break;
+        }
         for (i = 0; i < 3; ++i) {
             unsigned char key = c[i];
             if (is109()) {
@@ -392,6 +472,10 @@ static void processRomaji(unsigned char roma, unsigned char a[])
                     break;
                 case KEY_GRAVE_ACCENT:
                     key = KEY_EQUAL;
+                case KEY_9:
+                    key = KEY_8;
+                case KEY_0:
+                    key = KEY_9;
                 default:
                     break;
                 }
@@ -450,8 +534,6 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         else if (mod & MOD_RIGHTSHIFT)
             roma = right[code / 12][code % 12];
         else
-            roma = base[code / 12][code % 12];
-        if (mode == KANA_NICOLA && !isJP() && isDigit(code))
             roma = base[code / 12][code % 12];
         if (roma)
             processRomaji(roma, a);

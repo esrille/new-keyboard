@@ -22,7 +22,7 @@
 
 #include <system.h>
 
-__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_DEFAULT, 0, 0);
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
 
 unsigned char os;
 unsigned char mod;
@@ -71,7 +71,7 @@ static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
 
 static unsigned char const matrixFn[8][12][3] =
 {
-    {{KEY_INSERT}, {KEY_OS}, {KEY_BASE}, {KEY_KANA}, {KEY_DELAY}, {KEY_MOD}, {KEY_LED}, {0}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
+    {{KEY_INSERT}, {KEY_OS}, {KEY_BASE}, {KEY_KANA}, {KEY_DELAY}, {KEY_MOD}, {KEY_IME}, {KEY_LED}, {0}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
     {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_ABOUT}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
     {{KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_Z}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_PRINTSCREEN}},
     {{KEY_DELETE}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEYPAD_NUM_LOCK}},
@@ -341,6 +341,9 @@ static const unsigned char about7[] = {
 static const unsigned char about8[] = {
     KEY_F, KEY_7, KEY_SPACEBAR, 0
 };
+static const unsigned char about9[] = {
+    KEY_F, KEY_8, KEY_SPACEBAR, 0
+};
 
 static void about(void)
 {
@@ -379,8 +382,12 @@ static void about(void)
     emitString(about7);
     emitModName();
 
-    // F7 LED
+    // F7 IME
     emitString(about8);
+    emitIMEName();
+
+    // F8 LED
+    emitString(about9);
     emitLEDName();
 }
 
@@ -445,6 +452,12 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case KEY_LED:
                     if (!memchr(processed + 2, code, 6)) {
                         switchLED();
+                        xmit = XMIT_MACRO;
+                    }
+                    break;
+                case KEY_IME:
+                    if (!memchr(processed + 2, code, 6)) {
+                        switchIME();
                         xmit = XMIT_MACRO;
                     }
                     break;

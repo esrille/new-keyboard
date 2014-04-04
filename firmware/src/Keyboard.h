@@ -490,6 +490,7 @@
 #define EEPROM_DELAY	3
 #define EEPROM_MOD	4
 #define EEPROM_LED	5
+#define EEPROM_IME	6
 
 void initKeyboard(void);
 void initKeyboardBase(void);
@@ -506,6 +507,7 @@ void initKeyboardKana(void);
 // 0xFB is used for KEY_CALC
 #define KEY_LED                 0xFC
 #define KEY_ABOUT               0xFD
+#define KEY_IME                 0xFE
 
 #define MOD_FN                  1u
 
@@ -560,6 +562,14 @@ void switchDelay(void);
 
 void emitLEDName(void);
 void switchLED(void);
+
+#define IME_MS          0
+#define IME_ATOK        1
+#define IME_GOOGLE      2
+#define IME_APPLE       3
+#define IME_MAX         3
+void emitIMEName(void);
+void switchIME(void);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
 
