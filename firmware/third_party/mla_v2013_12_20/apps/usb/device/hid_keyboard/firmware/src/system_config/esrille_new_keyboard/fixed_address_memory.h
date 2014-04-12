@@ -39,4 +39,7 @@
 #define APP_VERSION_ADDRESS     0x1826  // The application image firmware version number address
 #define APP_VERSION_VALUE       0x0004  // BCD
 
+#define BOARD_REV_ADDRESS       0x17FE
+#define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
+
 #endif //FIXED_MEMORY_ADDRESS

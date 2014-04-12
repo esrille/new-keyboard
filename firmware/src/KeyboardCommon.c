@@ -347,19 +347,17 @@ static const unsigned char about9[] = {
 
 static void about(void)
 {
-    unsigned int ver = *(const unsigned int*) APP_VERSION_ADDRESS;
-
     // REV.
     emitString(about1);
-    emitKey(getNumKeycode(*(const unsigned int*) BOARD_REV_ADDRESS));
+    emitKey(getNumKeycode(BOARD_REV_VALUE));
     emitKey(KEY_ENTER);
 
     // VER.
     emitString(about2);
-    emitKey(getNumKeycode((ver >> 8) & 0xf));
+    emitKey(getNumKeycode((APP_VERSION_VALUE >> 8) & 0xf));
     emitKey(KEY_PERIOD);
-    emitKey(getNumKeycode((ver >> 4) & 0xf));
-    emitKey(getNumKeycode(ver & 0xf));
+    emitKey(getNumKeycode((APP_VERSION_VALUE >> 4) & 0xf));
+    emitKey(getNumKeycode(APP_VERSION_VALUE & 0xf));
     emitKey(KEY_ENTER);
 
     // F2 OS
