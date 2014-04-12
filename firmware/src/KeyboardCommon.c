@@ -503,10 +503,9 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
 
 static void processOSMode(unsigned char* report)
 {
-    char i;
-    switch (os) {
-    case OS_PC:
-        for (i = 2; i < 8; ++i) {
+    for (char i = 2; i < 8; ++i) {
+        switch (os) {
+        case OS_PC:
             switch (report[i]) {
             case KEY_LANG1:
                 report[i] = KEY_F13;
@@ -521,10 +520,8 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
-        }
-        break;
-    case OS_MAC:
-        for (i = 2; i < 8; ++i) {
+            break;
+        case OS_MAC:
             switch (report[i]) {
             case KEY_INTERNATIONAL4:
             case KEY_INTERNATIONAL5:
@@ -533,10 +530,8 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
-        }
-        break;
-    case OS_109A:
-        for (i = 2; i < 8; ++i) {
+            break;
+        case OS_109A:
             switch (report[i]) {
             case KEY_LANG1:
                 report[i] = KEY_INTERNATIONAL4;
@@ -549,10 +544,8 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
-        }
-        break;
-    case OS_109B:
-        for (i = 2; i < 8; ++i) {
+            break;
+        case OS_109B:
             switch (report[i]) {
             case KEY_LANG1:
             case KEY_LANG2:
@@ -561,10 +554,8 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
-        }
-        break;
-    case OS_ALT_SP:
-        for (i = 2; i < 8; ++i) {
+            break;
+        case OS_ALT_SP:
             switch (report[i]) {
             case KEY_LANG1:
             case KEY_LANG2:
@@ -574,10 +565,8 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
-        }
-        break;
-    case OS_SHIFT_SP:
-        for (i = 2; i < 8; ++i) {
+            break;
+        case OS_SHIFT_SP:
             switch (report[i]) {
             case KEY_LANG1:
             case KEY_LANG2:
@@ -587,10 +576,10 @@ static void processOSMode(unsigned char* report)
             default:
                 break;
             }
+            break;
+        default:
+            break;
         }
-        break;
-    default:
-        break;
     }
 }
 
