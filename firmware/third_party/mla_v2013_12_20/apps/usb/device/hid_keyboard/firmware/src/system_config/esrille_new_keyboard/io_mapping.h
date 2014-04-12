@@ -28,6 +28,3 @@
 
 #define BUTTON_USB_DEVICE_HID_KEYBOARD_KEY              BUTTON_S2
 #define BUTTON_USB_DEVICE_REMOTE_WAKEUP                 BUTTON_S2
-
-/* USB Stack I/O options. */
-#define self_power                                      1
