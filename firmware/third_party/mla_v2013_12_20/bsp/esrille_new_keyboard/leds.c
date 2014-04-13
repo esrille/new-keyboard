@@ -52,10 +52,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdbool.h>
-
-#include <leds.h>
-#include <xc.h>
+#include <system.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -70,8 +67,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #define LED_D2_TRIS TRISDbits.TRISD0
 #define LED_D3_TRIS TRISCbits.TRISC2
 
-#define LED_ON  0
-#define LED_OFF 1
+#define LED_ON  ((2 <= BOARD_REV_VALUE) ? 1 : 0)
+#define LED_OFF ((2 <= BOARD_REV_VALUE) ? 0 : 1)
 
 #define INPUT  1
 #define OUTPUT 0
@@ -101,18 +98,19 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 ********************************************************************/
 void LED_On(LED led)
 {
+    unsigned char on = LED_ON;
     switch(led)
     {
         case LED_D1:
-            LED_D1_LAT = LED_ON;
+            LED_D1_LAT = on;
             break;
 
         case LED_D2:
-            LED_D2_LAT = LED_ON;
+            LED_D2_LAT = on;
             break;
 			
         case LED_D3:
-            LED_D3_LAT = LED_ON;
+            LED_D3_LAT = on;
             break;
 
         case LED_NONE:
@@ -138,18 +136,19 @@ void LED_On(LED led)
 ********************************************************************/
 void LED_Off(LED led)
 {
+    unsigned char off = LED_OFF;
     switch(led)
     {
         case LED_D1:
-            LED_D1_LAT = LED_OFF;
+            LED_D1_LAT = off;
             break;
 
         case LED_D2:
-            LED_D2_LAT = LED_OFF;
+            LED_D2_LAT = off;
             break;
 			
         case LED_D3:
-            LED_D3_LAT = LED_OFF;
+            LED_D3_LAT = off;
             break;
 			
         case LED_NONE:

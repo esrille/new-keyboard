@@ -119,6 +119,18 @@ static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
     {KEY_D, KEY_5, KEY_0, KEY_ENTER},
 };
 
+static unsigned char const codeRev2[8][12] =
+{
+    13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 22,
+    36, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, 11, 47,
+    84, 24, VOID_KEY, VOID_KEY, VOID_KEY, 65, 66, VOID_KEY, VOID_KEY, VOID_KEY, 35, 95,
+    85, 12, VOID_KEY, VOID_KEY, VOID_KEY, 77, 78, VOID_KEY, VOID_KEY, VOID_KEY, 23, 94,
+    86, 25, 37, 38, 39, 40, 43, 44, 45, 46, 34, 93,
+    87, 48, 49, 50, 51, 52, 55, 56, 57, 58, 59, 92,
+    88, 60, 61, 62, 63, 64, 67, 68, 69, 70, 71, 91,
+    89, 72, 73, 74, 75, 76, 79, 80, 81, 82, 83, 90,
+};
+
 typedef struct Keys {
     uint8_t keys[6];
 } Keys;
@@ -226,7 +238,12 @@ void switchDelay(void)
 void onPressed(signed char row, unsigned char column)
 {
     unsigned char key;
-    unsigned char code = 12 * row + column;
+    unsigned char code;
+
+    if (2 <= BOARD_REV_VALUE)
+        code = codeRev2[row][column];
+    else
+        code = 12 * row + column;
     ++columnCount[column];
     ++rowCount[row];
     key = getKeyBase(code);
