@@ -70,6 +70,6 @@ void DisableUSBandExecuteLongDelay(void);
 // Esrille New Keyboard
 //
 #define BOARD_REV_ADDRESS                       0x17FE
-#define BOARD_REV_VALUE                         0x0001
+#define BOARD_REV_VALUE                         ESRILLE_NEW_KEYBOARD
 
 #endif //BOOTPIC18NONJ_H

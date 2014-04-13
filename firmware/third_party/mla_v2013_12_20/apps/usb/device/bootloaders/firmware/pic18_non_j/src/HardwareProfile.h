@@ -45,7 +45,6 @@
 
 //Make sure board/platform specific definitions (like config bit settings and
 //I/O pin definitions are correct for your hardware platform).
-#define ESRILLE_NEW_KEYBOARD
 #ifndef ESRILLE_NEW_KEYBOARD
 #if defined(__18F4550)
     #define PIC18F4550_PICDEM_FS_USB
@@ -144,7 +143,11 @@
     #define mLED1       LATDbits.LATD1
     #define mLED1Tris   TRISDbits.TRISD1
     /** SWITCH *********************************************************/
-    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA5 = 0;}
+#if ESRILLE_NEW_KEYBOARD == 1
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA5 = 0; TRISC = 0x38; LATC = 0xC7; TRISD = 0xFC; LATD = 3; }
+#else
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA2 = 0; TRISC = 0x38; LATC = 0xC3; TRISD = 0xFC; LATD = 0; }
+#endif
     #define sw2                 (PORTDbits.RD3)
     #define mDeInitSwitch2()    {ADCON1 = 0x07;}
 
