@@ -133,7 +133,7 @@ int main(void)
         {
             //Check if we should assert a remote wakeup request to the USB host,
             //when the user presses the pushbutton.
-            if (BUTTON_IsPressed(BUTTON_USB_DEVICE_REMOTE_WAKEUP))
+            if (BUTTON_IsPressed())
             {
                 USBCBSendResume();  //Does nothing unless we are in USB suspend with remote wakeup armed.
             }

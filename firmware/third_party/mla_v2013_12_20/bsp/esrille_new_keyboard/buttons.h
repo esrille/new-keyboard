@@ -36,21 +36,15 @@ typedef enum
 
 
 /*********************************************************************
-* Function: bool BUTTON_IsPressed(BUTTON button);
+* Function: bool BUTTON_IsPressed();
 *
 * Overview: Returns the current state of the requested button
 *
 * PreCondition: button configured via BUTTON_SetConfiguration()
 *
-* Input: BUTTON button - enumeration of the buttons available in
-*        this demo.  They should be meaningful names and not the names 
-*        of the buttons on the silkscreen on the board (as the demo 
-*        code may be ported to other boards).
-*         i.e. - ButtonIsPressed(BUTTON_SEND_MESSAGE);
-*
-* Output: TRUE if pressed; FALSE if not pressed.
+* Output: TRUE if any one of keys is pressed; FALSE if not pressed.
 *
 ********************************************************************/
-bool BUTTON_IsPressed(BUTTON button);
+bool BUTTON_IsPressed();
 
 #endif //BUTTONS_H
