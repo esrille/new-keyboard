@@ -321,114 +321,110 @@ void APP_KeyboardTasks(void)
                 inputReport.keys[0] = 0;    // BRK
             else {
                 inputReport.keys[0] = getMacro();
-                if (!inputReport.keys[0]) {
-                    xmit = XMIT_NORMAL;
-                    return;
-                }
+                if (!inputReport.keys[0])
+                    xmit = XMIT_NONE;
             }
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
-            return;
-        }
-
-        for (row = 7; 0 <= row; --row) {
-            PORTA &= 0xC0;
-            PORTE &= 0xFC;
-            TRISA |= 0x3F;
-            TRISE |= 0x03;
-            switch (row) {
-            case 0:
-                TRISAbits.TRISA0 = 0;
-                break;
-            case 1:
-                TRISAbits.TRISA1 = 0;
-                break;
-            case 2:
-                TRISAbits.TRISA2 = 0;
-                break;
-            case 3:
-                TRISAbits.TRISA3 = 0;
-                break;
-            case 4:
-                TRISAbits.TRISA4 = 0;
-                break;
-            case 5:
-                TRISAbits.TRISA5 = 0;
-                break;
-            case 6:
-                TRISEbits.TRISE0 = 0;
-                break;
-            case 7:
-                TRISEbits.TRISE1 = 0;
-                break;
-            }
-            for (column = 0; column < 12; ++column) {
-                switch (column) {
+        } else {
+            for (row = 7; 0 <= row; --row) {
+                PORTA &= 0xC0;
+                PORTE &= 0xFC;
+                TRISA |= 0x3F;
+                TRISE |= 0x03;
+                switch (row) {
                 case 0:
-                    on = !PORTDbits.RD4;
+                    TRISAbits.TRISA0 = 0;
                     break;
                 case 1:
-                    on = !PORTDbits.RD5;
+                    TRISAbits.TRISA1 = 0;
                     break;
                 case 2:
-                    on = !PORTDbits.RD6;
+                    TRISAbits.TRISA2 = 0;
                     break;
                 case 3:
-                    on = !PORTDbits.RD7;
+                    TRISAbits.TRISA3 = 0;
                     break;
                 case 4:
-                    on = !PORTDbits.RD2;
+                    TRISAbits.TRISA4 = 0;
                     break;
                 case 5:
-                    on = !PORTDbits.RD3;
+                    TRISAbits.TRISA5 = 0;
                     break;
                 case 6:
-                    on = !PORTBbits.RB5;
+                    TRISEbits.TRISE0 = 0;
                     break;
                 case 7:
-                    on = !PORTBbits.RB4;
-                    break;
-                case 8:
-                    on = !PORTBbits.RB1;
-                    break;
-                case 9:
-                    on = !PORTBbits.RB0;
-                    break;
-                case 10:
-                    on = !PORTBbits.RB2;
-                    break;
-                case 11:
-                    on = !PORTBbits.RB3;
+                    TRISEbits.TRISE1 = 0;
                     break;
                 }
-                if (on)
-                    onPressed(row, column);
+                for (column = 0; column < 12; ++column) {
+                    switch (column) {
+                    case 0:
+                        on = !PORTDbits.RD4;
+                        break;
+                    case 1:
+                        on = !PORTDbits.RD5;
+                        break;
+                    case 2:
+                        on = !PORTDbits.RD6;
+                        break;
+                    case 3:
+                        on = !PORTDbits.RD7;
+                        break;
+                    case 4:
+                        on = !PORTDbits.RD2;
+                        break;
+                    case 5:
+                        on = !PORTDbits.RD3;
+                        break;
+                    case 6:
+                        on = !PORTBbits.RB5;
+                        break;
+                    case 7:
+                        on = !PORTBbits.RB4;
+                        break;
+                    case 8:
+                        on = !PORTBbits.RB1;
+                        break;
+                    case 9:
+                        on = !PORTBbits.RB0;
+                        break;
+                    case 10:
+                        on = !PORTBbits.RB2;
+                        break;
+                    case 11:
+                        on = !PORTBbits.RB3;
+                        break;
+                    }
+                    if (on)
+                        onPressed(row, column);
+                }
+            }
+
+            xmit = makeReport((uint8_t*) &inputReport);
+            switch (xmit) {
+            case XMIT_BRK:
+                memset(&inputReport + 2, 0, 6);
+                break;
+            case XMIT_NORMAL:
+                break;
+            case XMIT_IN_ORDER:
+                for (char i = 0; i < 6; ++i)
+                    emitKey(inputReport.keys[i]);
+                inputReport.keys[0] = beginMacro(6);
+                memset(inputReport.keys + 1, 0, 5);
+                break;
+            case XMIT_MACRO:
+                xmit = XMIT_IN_ORDER;
+                inputReport.modifiers.value = 0;
+                inputReport.keys[0] = beginMacro(128);
+                memset(inputReport.keys + 1, 0, 5);
+                break;
+            default:
+                break;
             }
         }
-
-        xmit = makeReport((uint8_t*) &inputReport);
-        switch (xmit) {
-        case XMIT_BRK:
-            memset(&inputReport + 2, 0, 6);
+        if (xmit)
             keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
-            break;
-        case XMIT_NORMAL:
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
-            break;
-        case XMIT_IN_ORDER:
-            for (char i = 0; i < 6; ++i)
-                emitKey(inputReport.keys[i]);
-            inputReport.keys[0] = beginMacro(6);
-            memset(inputReport.keys + 1, 0, 5);
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
-            break;
-        case XMIT_MACRO:
-            xmit = XMIT_IN_ORDER;
-            inputReport.modifiers.value = 0;
-            inputReport.keys[0] = beginMacro(128);
-            memset(inputReport.keys + 1, 0, 5);
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
-            break;
-        }
     }
 
     /* Check if any data was sent from the PC to the keyboard device.  Report
