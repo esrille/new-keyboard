@@ -57,7 +57,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <system.h>
 #include <usb/usb.h>
 #include <usb/usb_device_hid.h>
-#include <plib/delays.h>
+#include <plib/timers.h>
 
 #include "app_device_keyboard.h"
 #include "app_led_usb_status.h"
@@ -273,6 +273,8 @@ static KEYBOARD_INPUT_REPORT inputReport KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRE
 #endif
 static volatile KEYBOARD_OUTPUT_REPORT outputReport KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG;
 
+static int tick;
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Private Prototypes
@@ -300,6 +302,9 @@ void APP_KeyboardInit(void)
 
     //Arm OUT endpoint so we can receive caps lock, num lock, etc. info from host
     keyboard.lastOUTTransmission = HIDRxPacket(HID_EP, (uint8_t*) &outputReport, sizeof(outputReport));
+
+    OpenTimer0(TIMER_INT_OFF & T0_16BIT & T0_SOURCE_INT & T0_PS_1_256);
+    tick = (int) ReadTimer0();
 }
 
 void APP_KeyboardTasks(void)
@@ -309,8 +314,12 @@ void APP_KeyboardTasks(void)
     uint8_t column;
     uint8_t on;
 
-    if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER)
-        Delay10KTCYx(3);   // 5msec at 24MHz
+    if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER) {
+        while (((int) ReadTimer0()) - tick < 281)   // 12msec at 24MHz
+            ;
+        tick = (int) ReadTimer0();
+        APP_LEDUpdateUSBStatus();
+    }
 
     /* Check if the IN endpoint is busy, and if it isn't check if we want to send
      * keystroke data to the host. */
@@ -437,8 +446,6 @@ void APP_KeyboardTasks(void)
     {
         keyboard.lastOUTTransmission = HIDRxPacket(HID_EP,(uint8_t*)&outputReport,sizeof(outputReport));
     }
-    
-    APP_LEDUpdateUSBStatus();
 }
 
 void APP_KeyboardProcessOutputReport(void)

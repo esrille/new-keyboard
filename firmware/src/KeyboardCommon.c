@@ -22,7 +22,7 @@
 
 #include <system.h>
 
-__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 5 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 2 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
 
 unsigned char os;
 unsigned char mod;
@@ -101,22 +101,16 @@ static unsigned char const matrixNumLock[8][12] =
     0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_0, 0, KEYPAD_DOT, 0,
 };
 
-#define MAX_DELAY           10
+#define MAX_DELAY           4
 #define MAX_DELAY_KEY_NAME  4
 
 static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
 {
     {KEY_D, KEY_0, KEY_ENTER},
-    {KEY_D, KEY_5, KEY_ENTER},
-    {KEY_D, KEY_1, KEY_0, KEY_ENTER},
-    {KEY_D, KEY_1, KEY_5, KEY_ENTER},
-    {KEY_D, KEY_2, KEY_0, KEY_ENTER},
-    {KEY_D, KEY_2, KEY_5, KEY_ENTER},
-    {KEY_D, KEY_3, KEY_0, KEY_ENTER},
-    {KEY_D, KEY_3, KEY_5, KEY_ENTER},
-    {KEY_D, KEY_4, KEY_0, KEY_ENTER},
-    {KEY_D, KEY_4, KEY_5, KEY_ENTER},
-    {KEY_D, KEY_5, KEY_0, KEY_ENTER},
+    {KEY_D, KEY_1, KEY_2, KEY_ENTER},
+    {KEY_D, KEY_2, KEY_4, KEY_ENTER},
+    {KEY_D, KEY_3, KEY_6, KEY_ENTER},
+    {KEY_D, KEY_4, KEY_8, KEY_ENTER},
 };
 
 static unsigned char const codeRev2[8][12] =
@@ -648,8 +642,13 @@ char makeReport(unsigned char* report)
 
 unsigned char controlLED(unsigned char report)
 {
+    static char tick;
+
     led = report;
-    return controlKanaLED(report);
+    report = controlKanaLED(report);
+    if (++tick & 1)
+        report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
+    return report;
 }
 
 unsigned char getKeyNumLock(unsigned char code)
