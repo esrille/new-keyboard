@@ -646,7 +646,9 @@ unsigned char controlLED(unsigned char report)
 
     led = report;
     report = controlKanaLED(report);
-    if (++tick & 1)
+    if (3 <= ++tick)
+        tick = 0;
+    else
         report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
     return report;
 }

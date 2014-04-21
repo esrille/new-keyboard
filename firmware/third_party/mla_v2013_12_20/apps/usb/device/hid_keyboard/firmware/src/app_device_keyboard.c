@@ -315,16 +315,19 @@ void APP_KeyboardTasks(void)
     uint8_t on;
 
     if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER) {
-        while (((int) ReadTimer0()) - tick < 281)   // 12msec at 24MHz
+        static int8_t cnt;
+        
+        while (((int) ReadTimer0()) - tick < 141)   // 281: 12msec at 24MHz
             ;
         tick = (int) ReadTimer0();
         APP_LEDUpdateUSBStatus();
+        if (++cnt & 1)
+            return;
     }
 
     /* Check if the IN endpoint is busy, and if it isn't check if we want to send
      * keystroke data to the host. */
-    if(!HIDTxHandleBusy(keyboard.lastINTransmission))
-    {
+    if (!HIDTxHandleBusy(keyboard.lastINTransmission)) {
         if (xmit == XMIT_IN_ORDER) {
             if (inputReport.keys[0] && inputReport.keys[0] == peekMacro())
                 inputReport.keys[0] = 0;    // BRK
@@ -442,10 +445,8 @@ void APP_KeyboardTasks(void)
      * report data through the HID OUT endpoint (EP1 OUT), or, alternatively,
      * the host may try to send LED state information by sending a SET_REPORT
      * control transfer on EP0.  See the USBHIDCBSetReportHandler() function. */
-    if(HIDRxHandleBusy(keyboard.lastOUTTransmission) == false)
-    {
+    if (HIDRxHandleBusy(keyboard.lastOUTTransmission) == false)
         keyboard.lastOUTTransmission = HIDRxPacket(HID_EP,(uint8_t*)&outputReport,sizeof(outputReport));
-    }
 }
 
 void APP_KeyboardProcessOutputReport(void)
