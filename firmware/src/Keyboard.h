@@ -541,7 +541,6 @@ void switchKana(void);
 #define OS_MAX          5
 void emitOSName(void);
 void switchOS(void);
-char is109(void);
 
 void emitModName(void);
 void switchMod(void);

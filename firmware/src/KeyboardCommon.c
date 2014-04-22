@@ -31,6 +31,8 @@ unsigned char eisuu_mode = 0;
 
 #define MAX_OS_KEY_NAME     5
 
+#define is109()     (os == OS_109A || os == OS_109B)
+
 static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 {
     {KEY_P, KEY_C, KEY_ENTER},
@@ -45,16 +47,18 @@ static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 #define MAX_MOD_KEY_NAME    6
 #define MAX_MOD_KEYS        8
 
+#define isMacMod()  (mod == 3 || mod == 7)
+
 static unsigned char const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
 {
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_APPLICATION, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_GRAVE_ACCENT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
-    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_LEFTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
+    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
     {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_APPLICATION, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
     {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
     {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_GRAVE_ACCENT, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
-    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_LEFTALT, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_APPLICATION, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
 };
 
 static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
@@ -184,11 +188,6 @@ void switchOS(void)
         os = 0;
     eeprom_write(EEPROM_OS, os);
     emitOSName();
-}
-
-char is109(void)
-{
-    return os == OS_109A || os == OS_109B;
 }
 
 void emitModName(void)
@@ -537,6 +536,14 @@ static void processOSMode(unsigned char* report)
             case KEY_INTERNATIONAL4:
             case KEY_INTERNATIONAL5:
                 report[i] = KEY_SPACEBAR;
+                break;
+            case KEY_APPLICATION:
+                if (isMacMod()) {
+                    report[0] |= MOD_LEFTALT;
+                    memmove(report + i, report + i + 1, 7 - i);
+                    report[7] = 0;
+                    --i;
+                }
                 break;
             default:
                 break;
