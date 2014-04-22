@@ -89,16 +89,16 @@ static unsigned char const matrixFn109[4][3] =
     {KEY_GRAVE_ACCENT}      // zenkaku
 };
 
-static unsigned char const matrixNumLock[8][12] =
+static unsigned char const matrixNumLock[8][5] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_MULTIPLY, 0,
-    0, 0, 0, 0, 0, 0, 0, KEY_CALC, 0, KEYPAD_EQUAL, KEYPAD_DIVIDE, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_7, KEYPAD_8, KEYPAD_9, KEYPAD_SUBTRACT,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_4, KEYPAD_5, KEYPAD_6, KEYPAD_ADD,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_1, KEYPAD_2, KEYPAD_3, KEY_ENTER,
-    0, 0, 0, 0, 0, 0, 0, 0, KEYPAD_0, 0, KEYPAD_DOT, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, KEYPAD_MULTIPLY, 0,
+    KEY_CALC, 0, KEYPAD_EQUAL, KEYPAD_DIVIDE, 0,
+    0, KEYPAD_7, KEYPAD_8, KEYPAD_9, KEYPAD_SUBTRACT,
+    0, KEYPAD_4, KEYPAD_5, KEYPAD_6, KEYPAD_ADD,
+    0, KEYPAD_1, KEYPAD_2, KEYPAD_3, KEY_ENTER,
+    0, KEYPAD_0, 0, KEYPAD_DOT, 0,
 };
 
 #define MAX_DELAY           4
@@ -655,7 +655,11 @@ unsigned char controlLED(unsigned char report)
 
 unsigned char getKeyNumLock(unsigned char code)
 {
-    if (led & LED_NUM_LOCK)
-        return matrixNumLock[code / 12][code % 12];
+    unsigned char col = code % 12;
+
+    if ((led & LED_NUM_LOCK) && 7 <= col) {
+        col -= 7;
+        return matrixNumLock[code / 12][col];
+    }
     return 0;
 }
