@@ -639,8 +639,8 @@ char makeReport(unsigned char* report)
             } else
                 xmit = processKeys(current, processed, report);
         }
+        processOSMode(report);
     }
-    processOSMode(report);
     count = 2;
     modifiers = 0;
     current[1] = 0;
