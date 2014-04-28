@@ -611,17 +611,35 @@ unsigned char processModKey(unsigned char key)
 char makeReport(unsigned char* report)
 {
     char xmit = XMIT_NONE;
+    char at;
+    char prev;
 
     if (!detectGhost()) {
         while (count < 8)
             current[count++] = VOID_KEY;
 
         memmove(keys[currentKey].keys, current + 2, 6);
-        if (currentDelay < ++currentKey)
+        if (MAX_DELAY < ++currentKey)
             currentKey = 0;
 
         current[0] = modifiers;
-        memmove(current + 2, keys[currentKey].keys, 6);
+
+        // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
+        at = currentKey + MAX_DELAY - currentDelay;
+        if (MAX_DELAY < at)
+                at -= MAX_DELAY + 1;
+        prev = at + MAX_DELAY;
+        if (MAX_DELAY < prev)
+                prev -= MAX_DELAY + 1;
+        count = 2;
+        for (char i = 0; i < 6; ++i) {
+            unsigned char key = keys[at].keys[i];
+            if (memchr(keys[prev].keys, key, 6))
+                current[count++] = key;
+        }
+        while (count < 8)
+            current[count++] = VOID_KEY;
+
         if (led & LED_SCROLL_LOCK)
             current[1] |= MOD_FN;
 
