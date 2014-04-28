@@ -420,53 +420,54 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
             const unsigned char* a = getKeyFn(code);
             for (char j = 0; j < 3 && count < 8; ++j) {
                 unsigned char key = a[j];
+                char make = !memchr(processed + 2, code, 6);
                 switch (key) {
                 case 0:
                     break;
                 case KEY_BASE:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchBase();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_KANA:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchKana();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_OS:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchOS();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_DELAY:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchDelay();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_MOD:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchMod();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_LED:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchLED();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_IME:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         switchIME();
                         xmit = XMIT_MACRO;
                     }
                     break;
                 case KEY_ABOUT:
-                    if (!memchr(processed + 2, code, 6)) {
+                    if (make) {
                         about();
                         xmit = XMIT_MACRO;
                     }
