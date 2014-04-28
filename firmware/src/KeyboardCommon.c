@@ -22,7 +22,7 @@
 
 #include <system.h>
 
-__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 2 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
 
 unsigned char os;
 unsigned char mod;
