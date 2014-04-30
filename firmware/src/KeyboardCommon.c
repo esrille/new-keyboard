@@ -617,15 +617,11 @@ char makeReport(unsigned char* report)
     if (!detectGhost()) {
         while (count < 8)
             current[count++] = VOID_KEY;
-
         memmove(keys[currentKey].keys, current + 2, 6);
-        if (MAX_DELAY < ++currentKey)
-            currentKey = 0;
-
         current[0] = modifiers;
 
         // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
-        at = currentKey + MAX_DELAY - currentDelay;
+        at = currentKey + MAX_DELAY + 1 - currentDelay;
         if (MAX_DELAY < at)
                 at -= MAX_DELAY + 1;
         prev = at + MAX_DELAY;
@@ -655,7 +651,15 @@ char makeReport(unsigned char* report)
                 xmit = processKeys(current, processed, report);
         }
         processOSMode(report);
+    } else {
+        prev = currentKey + MAX_DELAY;
+        if (MAX_DELAY < prev)
+                prev -= MAX_DELAY + 1;
+        memmove(keys[currentKey].keys, keys[prev].keys, 6);
     }
+
+    if (MAX_DELAY < ++currentKey)
+        currentKey = 0;
     count = 2;
     modifiers = 0;
     current[1] = 0;
