@@ -490,7 +490,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     else if (key == KEY_LANG2)
                         kana_led = 0;
                     else if (key == KEY_CAPS_LOCK) {
-                        if (!memchr(processed + 2, key, 6) && isJP())
+                        if (make && isJP())
                             eisuu_mode ^= 1;
                     }
                     report[count++] = key;
