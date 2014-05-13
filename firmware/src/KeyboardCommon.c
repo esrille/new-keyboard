@@ -41,6 +41,7 @@ static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
     {KEY_1, KEY_0, KEY_9, KEY_B, KEY_ENTER},
     {KEY_A, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
     {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
+    {KEY_U, KEY_S, KEY_ENTER},
 };
 
 #define MAX_MOD             5
@@ -575,6 +576,17 @@ static void processOSMode(unsigned char* report)
             case KEY_LANG1:
             case KEY_LANG2:
                 report[i] = KEY_SPACEBAR;
+                report[0] |= MOD_LEFTALT;
+                break;
+            default:
+                break;
+            }
+            break;
+        case OS_US:
+            switch (report[i]) {
+            case KEY_LANG1:
+            case KEY_LANG2:
+                report[i] = KEY_GRAVE_ACCENT;
                 report[0] |= MOD_LEFTALT;
                 break;
             default:

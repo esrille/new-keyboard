@@ -538,7 +538,8 @@ void switchKana(void);
 #define OS_109B         3   // OADG 109
 #define OS_ALT_SP       4   // Android
 #define OS_SHIFT_SP     5   // Android
-#define OS_MAX          5
+#define OS_US           6   // Alt-`
+#define OS_MAX          6
 void emitOSName(void);
 void switchOS(void);
 
