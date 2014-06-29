@@ -52,8 +52,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdbool.h>
-#include <xc.h>
+#include <system.h>
 #include <buttons.h>
 
 // *****************************************************************************
@@ -61,21 +60,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
-//      S1       MCLR reset
-#define S2_PORT  PORTBbits.RB4      //AN11
-#define S3_PORT  PORTBbits.RB5      
-
-#define S2_TRIS  TRISBbits.TRISB4
-#define S3_TRIS  TRISBbits.TRISB5
-
-#define BUTTON_PRESSED      0
-#define BUTTON_NOT_PRESSED  1
-
-#define PIN_INPUT           1
-#define PIN_OUTPUT          0
-
-#define PIN_DIGITAL         1
-#define PIN_ANALOG          0
 
 
 // *****************************************************************************
@@ -96,11 +80,23 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 ********************************************************************/
 bool BUTTON_IsPressed()
 {
-    LATA &= 0xC0;
-    LATE &= 0xFC;
-    TRISA = 0x00;
+    bool result;
+    unsigned char trisA;
+    unsigned char trisE;
+
+    if (BOARD_REV_VALUE < 3) {
+        trisA = 0x00;
+        trisE = 0x03;
+    } else {
+        trisA = 0x01;
+        trisE = 0x07;
+    }
+    TRISA = trisA;
     TRISE = 0x00;
-    return (~PORTD & 0xFC) || (~PORTB & 0x3F);
+    result = (~PORTD & 0xFC) || (~PORTB & 0x3F);
+    TRISA = 0x3F;
+    TRISE = trisE;
+    return result;
 }
 
 

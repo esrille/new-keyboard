@@ -273,6 +273,86 @@ static KEYBOARD_INPUT_REPORT inputReport KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRE
 #endif
 static volatile KEYBOARD_OUTPUT_REPORT outputReport KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG;
 
+static volatile unsigned char* rowPorts[8] = {
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISE,
+    &TRISE
+};
+
+static unsigned char rowBits[8] = {
+    1u << 0,
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 4,
+    1u << 5,
+    1u << 0,
+    1u << 1
+};
+
+// Ref 3
+static unsigned char rowBits2[8] = {
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 4,
+    1u << 5,
+    1u << 0,
+    1u << 1,
+    1u << 2
+};
+
+static volatile unsigned char* columnPorts[12] = {
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+};
+
+static unsigned char columnBits[12] = {
+    1u << 4,
+    1u << 5,
+    1u << 6,
+    1u << 7,
+    1u << 2,
+    1u << 3,
+    1u << 5,
+    1u << 4,
+    1u << 1,
+    1u << 0,
+    1u << 2,
+    1u << 3,
+};
+
+// Rev 3
+static unsigned char columnBits2[12] = {
+    1u << 7,
+    1u << 6,
+    1u << 5,
+    1u << 4,
+    1u << 3,
+    1u << 2,
+    1u << 5,
+    1u << 4,
+    1u << 3,
+    1u << 2,
+    1u << 0,
+    1u << 1,
+};
+
 static int tick;
 
 // *****************************************************************************
@@ -303,6 +383,14 @@ void APP_KeyboardInit(void)
     //Arm OUT endpoint so we can receive caps lock, num lock, etc. info from host
     keyboard.lastOUTTransmission = HIDRxPacket(HID_EP, (uint8_t*) &outputReport, sizeof(outputReport));
 
+    if (3 <= BOARD_REV_VALUE) {
+        rowPorts[5] = &TRISE;
+        for (char i = 0; i < 8; ++i)
+            rowBits[i] = rowBits2[i];
+        for (char i = 0; i < 12; ++i)
+            columnBits[i] = columnBits2[i];
+    }
+
     OpenTimer0(TIMER_INT_OFF & T0_16BIT & T0_SOURCE_INT & T0_PS_1_256);
     tick = (int) ReadTimer0();
 }
@@ -312,7 +400,6 @@ void APP_KeyboardTasks(void)
     static int8_t xmit = XMIT_NORMAL;
     int8_t row;
     uint8_t column;
-    uint8_t on;
 
     if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER) {
         static int8_t cnt;
@@ -338,78 +425,12 @@ void APP_KeyboardTasks(void)
             }
         } else {
             for (row = 7; 0 <= row; --row) {
-                PORTA &= 0xC0;
-                PORTE &= 0xFC;
-                TRISA |= 0x3F;
-                TRISE |= 0x03;
-                switch (row) {
-                case 0:
-                    TRISAbits.TRISA0 = 0;
-                    break;
-                case 1:
-                    TRISAbits.TRISA1 = 0;
-                    break;
-                case 2:
-                    TRISAbits.TRISA2 = 0;
-                    break;
-                case 3:
-                    TRISAbits.TRISA3 = 0;
-                    break;
-                case 4:
-                    TRISAbits.TRISA4 = 0;
-                    break;
-                case 5:
-                    TRISAbits.TRISA5 = 0;
-                    break;
-                case 6:
-                    TRISEbits.TRISE0 = 0;
-                    break;
-                case 7:
-                    TRISEbits.TRISE1 = 0;
-                    break;
-                }
+                *rowPorts[row] &= ~rowBits[row];
                 for (column = 0; column < 12; ++column) {
-                    switch (column) {
-                    case 0:
-                        on = !PORTDbits.RD4;
-                        break;
-                    case 1:
-                        on = !PORTDbits.RD5;
-                        break;
-                    case 2:
-                        on = !PORTDbits.RD6;
-                        break;
-                    case 3:
-                        on = !PORTDbits.RD7;
-                        break;
-                    case 4:
-                        on = !PORTDbits.RD2;
-                        break;
-                    case 5:
-                        on = !PORTDbits.RD3;
-                        break;
-                    case 6:
-                        on = !PORTBbits.RB5;
-                        break;
-                    case 7:
-                        on = !PORTBbits.RB4;
-                        break;
-                    case 8:
-                        on = !PORTBbits.RB1;
-                        break;
-                    case 9:
-                        on = !PORTBbits.RB0;
-                        break;
-                    case 10:
-                        on = !PORTBbits.RB2;
-                        break;
-                    case 11:
-                        on = !PORTBbits.RB3;
-                        break;
-                    }
-                    if (on)
+                    if (!(*columnPorts[column] & columnBits[column]))
                         onPressed(row, column);
                 }
+                *rowPorts[row] |= rowBits[row];
             }
 
             xmit = makeReport((uint8_t*) &inputReport);
@@ -471,29 +492,12 @@ void APP_KeyboardProcessOutputReport(void)
 void APP_Suspend()
 {
     APP_LEDUpdateUSBStatus();
-
-    PORTA &= 0xC0;
-    PORTE &= 0xFC;
-    TRISA = 0x3F;
-    TRISE = 0x03;
-
-    OSCCON = 0x13;	//Sleep on sleep, 125kHz selected as microcontroller clock source
+    SYSTEM_Initialize(SYSTEM_STATE_USB_SUSPEND);
 }
 
 void APP_WakeFromSuspend()
 {
-    OSCCON = 0x60;      //Primary clock source selected.
-
-    //Adding a software start up delay will ensure
-    //that the primary oscillator and PLL are running before executing any other
-    //code.  If the PLL isn't being used, (ex: primary osc = 48MHz externally applied EC)
-    //then this code adds a small unnecessary delay, but it is harmless to execute anyway.
-    {
-        unsigned int pll_startup_counter = 800;	//Long delay at 31kHz, but ~0.8ms at 48MHz
-        while (pll_startup_counter--)
-            ;                                   //Clock will switch over while executing this delay loop
-    }
-
+    SYSTEM_Initialize(SYSTEM_STATE_USB_RESUME);
     APP_LEDUpdateUSBStatus();
 }
 

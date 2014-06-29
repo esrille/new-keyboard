@@ -111,6 +111,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 const unsigned int VersionWord @ APP_VERSION_ADDRESS = APP_VERSION_VALUE;
 
+static unsigned char trisD = 0xfc;  // 0~1, output; 2~7, input
+static unsigned char trisE = 0x03;  // 0~1, input initially
+
 // *****************************************************************************
 // *****************************************************************************
 // Section: Macros or Functions
@@ -123,45 +126,58 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
         case SYSTEM_STATE_USB_START:
             CCP1CON = 0;
             CCP2CON = 0;
-            ADCON1 |= 0x0F; // Digital I/O
+            ADCON1 = 0x0F; // Digital I/O
+
+            if (3 <= BOARD_REV_VALUE) {
+                ADCON0 = 0x00;
+                ADCON1 = 0x0E;  // Enable AN0
+                ADCON2 = 0x9E;  // 6 Tad, Fosc/64 10 011 110
+                trisD = 0xfe;   // 0, output; 1~7, input
+                trisE = 0x07;   // 0~2, input initially
+            }
 
             //Initialize all of the LED pins and key matrix ports
             // PORT A (0~5, input initially)
-            LATA &= 0xC0;
+            LATA = 0x00;
             TRISA = 0x3F;
 
             // PORT B (0~7, input)
+            LATB = 0x00;
             TRISB = 0xFF;
-            LATB |= 0xFF;
             INTCON2bits.RBPU = 0;   // Enable pull up
 
-            // TODO: Check INT
-
             // PORT C (0-2, 6-7 output)
-            LATC &= 0x38;
-            LATC |= 0xC7;   // Default HI
+            LATC = 0x00;
             TRISC = 0x38;
-            // TODO: Check timer
 
-            // PORT D (0~1, output; 2~7, input)
-            LATD &= 0xFC;
-            LATD |= 0x03;   // Default HI
-            TRISD = 0xFC;
-            LATD |= 0xFC;
+            // PORT D
+            LATD = 0x00;
+            TRISD = trisD;
             PORTEbits.RDPU = 1;     // Enable pull up
 
-            // PORT E (0~1, input initially)
-            LATE &= 0xFB;
-            LATE |= 0x04;   // Default HI
-            TRISE = 0x03;
+            // PORT E
+            LATE = 0x00;
+            TRISE = trisE;
 
             initKeyboard();
             break;
 			
-        case SYSTEM_STATE_USB_SUSPEND: 
+        case SYSTEM_STATE_USB_SUSPEND:
+            OSCCON = 0x13;	//Sleep on sleep, 125kHz selected as microcontroller clock source
             break;
             
         case SYSTEM_STATE_USB_RESUME:
+            OSCCON = 0x60;      //Primary clock source selected.
+
+            //Adding a software start up delay will ensure
+            //that the primary oscillator and PLL are running before executing any other
+            //code.  If the PLL isn't being used, (ex: primary osc = 48MHz externally applied EC)
+            //then this code adds a small unnecessary delay, but it is harmless to execute anyway.
+            {
+                unsigned int pll_startup_counter = 800;	//Long delay at 31kHz, but ~0.8ms at 48MHz
+                while (pll_startup_counter--)
+                    ;                                   //Clock will switch over while executing this delay loop
+            }
             break;
     }
 }
@@ -178,4 +194,3 @@ void interrupt SYS_InterruptHigh(void)
 /*******************************************************************************
  End of File
 */
-
