@@ -59,19 +59,14 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
-#define LED_D1_LAT LATDbits.LATD1
-#define LED_D2_LAT LATDbits.LATD0
-#define LED_D3_LAT LATCbits.LATC2
 
-#define LED_D1_TRIS TRISDbits.TRISD1
-#define LED_D2_TRIS TRISDbits.TRISD0
-#define LED_D3_TRIS TRISCbits.TRISC2
+unsigned char led1Bit = 1u << 1;
+unsigned char led2Bit = 1u << 0;
+unsigned char led3Bit = 1u << 2;
 
-#define LED_ON  ((2 <= BOARD_REV_VALUE) ? 1 : 0)
-#define LED_OFF ((2 <= BOARD_REV_VALUE) ? 0 : 1)
-
-#define INPUT  1
-#define OUTPUT 0
+volatile unsigned char* led1Port = &LATD;
+volatile unsigned char* led2Port = &LATD;
+volatile unsigned char* led3Port = &LATC;
 
 
 // *****************************************************************************
@@ -79,6 +74,52 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Macros or Functions
 // *****************************************************************************
 // *****************************************************************************
+
+void LED_Initialize(void)
+{
+    if (3 <= BOARD_REV_VALUE) {
+        led1Port = led2Port = &LATC;
+        led1Bit = 1u << 0;
+        led2Bit = 1u << 1;
+    }
+    LED_On(LED_D1);
+    LED_On(LED_D2);
+    LED_On(LED_D3);
+}
+
+static void LED_Set(LED led)
+{
+    switch (led) {
+    case LED_D1:
+        *led1Port |= led1Bit;
+        break;
+    case LED_D2:
+        *led2Port |= led2Bit;
+        break;
+    case LED_D3:
+        *led3Port |= led3Bit;
+        break;
+    default:
+        break;
+    }
+}
+
+static void LED_Clear(LED led)
+{
+    switch (led) {
+    case LED_D1:
+        *led1Port &= ~led1Bit;
+        break;
+    case LED_D2:
+        *led2Port &= ~led2Bit;
+        break;
+    case LED_D3:
+        *led3Port &= ~led3Bit;
+        break;
+    default:
+        break;
+    }
+}
 
 /*********************************************************************
 * Function: void LED_On(LED led);
@@ -98,24 +139,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 ********************************************************************/
 void LED_On(LED led)
 {
-    unsigned char on = LED_ON;
-    switch(led)
-    {
-        case LED_D1:
-            LED_D1_LAT = on;
-            break;
-
-        case LED_D2:
-            LED_D2_LAT = on;
-            break;
-			
-        case LED_D3:
-            LED_D3_LAT = on;
-            break;
-
-        case LED_NONE:
-            break;
-    }
+    if (2 <= BOARD_REV_VALUE)
+        LED_Set(led);
+    else
+        LED_Clear(led);
 }
 
 /*********************************************************************
@@ -136,98 +163,12 @@ void LED_On(LED led)
 ********************************************************************/
 void LED_Off(LED led)
 {
-    unsigned char off = LED_OFF;
-    switch(led)
-    {
-        case LED_D1:
-            LED_D1_LAT = off;
-            break;
-
-        case LED_D2:
-            LED_D2_LAT = off;
-            break;
-			
-        case LED_D3:
-            LED_D3_LAT = off;
-            break;
-			
-        case LED_NONE:
-            break;
-    }
+    if (2 <= BOARD_REV_VALUE)
+        LED_Clear(led);
+    else
+        LED_Set(led);
 }
 
-/*********************************************************************
-* Function: void LED_Toggle(LED led);
-*
-* Overview: Toggles the state of the requested LED
-*
-* PreCondition: LED configured via LEDConfigure()
-*
-* Input: LED led - enumeration of the LEDs available in this
-*        demo.  They should be meaningful names and not the names of
-*        the LEDs on the silkscreen on the board (as the demo code may
-*        be ported to other boards).
-*         i.e. - LED_Toggle(LED_CONNECTION_DETECTED);
-*
-* Output: none
-*
-********************************************************************/
-void LED_Toggle(LED led)
-{
-    switch(led)
-    {
-        case LED_D1:
-            LED_D1_LAT ^= 1;
-            break;
-
-        case LED_D2:
-            LED_D2_LAT ^= 1;
-            break;
-			
-        case LED_D3:
-            LED_D3_LAT ^= 1;
-            break;
-			
-        case LED_NONE:
-            break;
-    }
-}
-
-/*********************************************************************
-* Function: bool LED_Get(LED led);
-*
-* Overview: Returns the current state of the requested LED
-*
-* PreCondition: LED configured via LEDConfigure()
-*
-* Input: LED led - enumeration of the LEDs available in this
-*        demo.  They should be meaningful names and not the names of
-*        the LEDs on the silkscreen on the board (as the demo code may
-*        be ported to other boards).
-*         i.e. - LED_Get(LED_CONNECTION_DETECTED);
-*
-* Output: true if on, false if off
-*
-********************************************************************/
-bool LED_Get(LED led)
-{
-    switch(led)
-    {
-        case LED_D1:
-            return ( (LED_D1_LAT == LED_ON) ? true : false );
-
-        case LED_D2:
-            return ( (LED_D2_LAT == LED_ON) ? true : false );
-			
-        case LED_D3:
-            return ( (LED_D3_LAT == LED_ON) ? true : false );
-			
-        case LED_NONE:
-            return false;
-    }
-    
-    return false;
-}
 
 /*******************************************************************************
  End of File

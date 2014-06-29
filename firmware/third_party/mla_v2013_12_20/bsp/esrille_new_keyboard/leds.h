@@ -44,6 +44,8 @@ typedef enum
 
 #define LED_COUNT 3
 
+void LED_Initialize(void);
+
 /*********************************************************************
 * Function: void LED_On(LED led);
 *
@@ -80,40 +82,5 @@ void LED_On(LED led);
 ********************************************************************/
 void LED_Off(LED led);
 
-/*********************************************************************
-* Function: void LED_Toggle(LED led);
-*
-* Overview: Toggles the state of the requested LED
-*
-* PreCondition: LED configured via LEDConfigure()
-*
-* Input: LED led - enumeration of the LEDs available in this
-*        demo.  They should be meaningful names and not the names of 
-*        the LEDs on the silkscreen on the board (as the demo code may 
-*        be ported to other boards).
-*         i.e. - LED_Toggle(LED_CONNECTION_DETECTED);
-*
-* Output: none
-*
-********************************************************************/
-void LED_Toggle(LED led);
-
-/*********************************************************************
-* Function: bool LED_Get(LED led);
-*
-* Overview: Returns the current state of the requested LED
-*
-* PreCondition: LED configured via LEDConfigure()
-*
-* Input: LED led - enumeration of the LEDs available in this
-*        demo.  They should be meaningful names and not the names of 
-*        the LEDs on the silkscreen on the board (as the demo code may 
-*        be ported to other boards).
-*         i.e. - LED_Get(LED_CONNECTION_DETECTED);
-*
-* Output: true if on, false if off
-*
-********************************************************************/
-bool LED_Get(LED led);
 
 #endif //LEDS_H

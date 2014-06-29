@@ -93,6 +93,7 @@ static void USBCBSendResume(void);
 int main(void)
 {
     SYSTEM_Initialize(SYSTEM_STATE_USB_START);
+    LED_Initialize();
 
     USBDeviceInit();
     USBDeviceAttach();
