@@ -599,6 +599,7 @@ unsigned char beginMacro(unsigned char max);
 unsigned char peekMacro(void);
 unsigned char getMacro(void);
 void emitKey(unsigned char key);
+void emitStringN(const unsigned char s[], unsigned char len);
 
 extern unsigned char kana_led;
 extern unsigned char eisuu_mode;

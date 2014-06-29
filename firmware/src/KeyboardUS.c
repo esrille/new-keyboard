@@ -116,12 +116,7 @@ void initKeyboardBase(void)
 
 void emitBaseName(void)
 {
-    const unsigned char* message = baseKeys[mode];
-    for (char i = 0; i < 5; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(baseKeys[mode], 5);
 }
 
 void switchBase(void)

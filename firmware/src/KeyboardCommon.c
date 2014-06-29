@@ -170,12 +170,7 @@ void initKeyboard(void)
 
 void emitOSName(void)
 {
-    const unsigned char* message = osKeys[os];
-    for (char i = 0; i < MAX_OS_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(osKeys[os], MAX_OS_KEY_NAME);
 }
 
 void switchOS(void)
@@ -189,12 +184,7 @@ void switchOS(void)
 
 void emitModName(void)
 {
-    const unsigned char* message = modKeys[mod];
-    for (char i = 0; i < MAX_MOD_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(modKeys[mod], MAX_MOD_KEY_NAME);
 }
 
 void switchMod(void)
@@ -208,12 +198,7 @@ void switchMod(void)
 
 void emitDelayName(void)
 {
-    const unsigned char* message = delayKeyNames[currentDelay];
-    for (char i = 0; i < MAX_DELAY_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(delayKeyNames[currentDelay], MAX_DELAY_KEY_NAME);
 }
 
 void switchDelay(void)
@@ -309,6 +294,14 @@ static void emitString(const unsigned char s[])
     unsigned char i = 0;
     unsigned char c;
     for (c = s[i]; c; c = s[++i])
+        emitKey(c);
+}
+
+void emitStringN(const unsigned char s[], unsigned char len)
+{
+    unsigned char i = 0;
+    unsigned char c;
+    for (c = s[i]; i < len && c; c = s[++i])
         emitKey(c);
 }
 

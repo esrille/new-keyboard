@@ -366,12 +366,7 @@ void initKeyboardKana(void)
 
 void emitLEDName(void)
 {
-    const unsigned char* message = ledKeyNames[led];
-    for (char i = 0; i < MAX_LED_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(ledKeyNames[led], MAX_LED_KEY_NAME);
 }
 
 void switchLED(void)
@@ -385,12 +380,7 @@ void switchLED(void)
 
 void emitKanaName(void)
 {
-    const unsigned char* message = kanaKeys[mode];
-    for (char i = 0; i < MAX_KANA_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(kanaKeys[mode], MAX_KANA_KEY_NAME);
 }
 
 void switchKana(void)
@@ -404,12 +394,7 @@ void switchKana(void)
 
 void emitIMEName(void)
 {
-    const unsigned char* message = imeKeyNames[ime];
-    for (char i = 0; i < MAX_IME_KEY_NAME; ++i) {
-        if (!message[i])
-            break;
-        emitKey(message[i]);
-    }
+    emitStringN(imeKeyNames[ime], MAX_IME_KEY_NAME);
 }
 
 void switchIME(void)
