@@ -167,26 +167,28 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
 unsigned char getKeyBase(unsigned char code)
 {
     unsigned char key = getKeyNumLock(code);
+    unsigned char row = code / 12;
+    unsigned char column = code % 12;
     if (key)
         return key;
     switch (mode) {
     case BASE_QWERTY:
-        key = matrixQwerty[code / 12][code % 12];
+        key = matrixQwerty[row][column];
         break;
     case BASE_DVORAK:
-        key = matrixDvorak[code / 12][code % 12];
+        key = matrixDvorak[row][column];
         break;
     case BASE_COLEMAK:
-        key = matrixColemak[code / 12][code % 12];
+        key = matrixColemak[row][column];
         break;
     case BASE_JIS:
-        key = matrixJIS[code / 12][code % 12];
+        key = matrixJIS[row][column];
         break;
     case BASE_NICOLA_F:
-        key = matrixNicolaF[code / 12][code % 12];
+        key = matrixNicolaF[row][column];
         break;
     default:
-        key = matrixQwerty[code / 12][code % 12];
+        key = matrixQwerty[row][column];
         break;
     }
     return processModKey(key);
