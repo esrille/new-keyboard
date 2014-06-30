@@ -673,14 +673,16 @@ char makeReport(unsigned char* report)
 
 unsigned char controlLED(unsigned char report)
 {
-    static char tick;
-
     led = report;
     report = controlKanaLED(report);
-    if (3 <= ++tick)
-        tick = 0;
-    else
-        report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
+    if (BOARD_REV_VALUE < 3) {
+        static char tick;
+
+        if (3 <= ++tick)
+            tick = 0;
+        else
+            report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
+    }
     return report;
 }
 
