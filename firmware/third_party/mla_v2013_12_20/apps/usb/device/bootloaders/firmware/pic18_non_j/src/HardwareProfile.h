@@ -140,15 +140,29 @@
     #endif
 
     //LED definition, applicable if using ENABLE_USB_LED_BLINK_STATUS option in usb_config.h
-    #define mLED1       LATDbits.LATD1
-    #define mLED1Tris   TRISDbits.TRISD1
     /** SWITCH *********************************************************/
 #if ESRILLE_NEW_KEYBOARD == 1
-    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA5 = 0; TRISC = 0x38; LATC = 0xC7; TRISD = 0xFC; LATD = 3; }
-#else
-    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; PORTA &= 0xC0; PORTE &= 0xFC; TRISA |= 0x3F; TRISE |= 0x03; TRISAbits.TRISA2 = 0; TRISC = 0x38; LATC = 0xC3; TRISD = 0xFC; LATD = 0; }
-#endif
+    #define mLED1       LATDbits.LATD1
+    #define mLED1Tris   TRISDbits.TRISD1
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
+                                 LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x03; TRISAbits.TRISA5 = 0; \
+                                 LATC = 0x04; TRISC = 0x38; LATD = 0x03; TRISD = 0xFC; }
     #define sw2                 (PORTDbits.RD3)
+#elif ESRILLE_NEW_KEYBOARD == 2
+    #define mLED1       LATDbits.LATD1
+    #define mLED1Tris   TRISDbits.TRISD1
+    #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
+                                 LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x03; TRISAbits.TRISA2 = 0; \
+                                 LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFC; }
+    #define sw2                 (PORTDbits.RD3)
+#else
+    #define mLED1       LATCbits.LATC0
+    #define mLED1Tris   TRISCbits.TRISC0
+    #define mInitSwitch2()      {ADCON0 = 0x00; ADCON1 = 0x0E; ADCON2 = 0x9E; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
+                                 LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x07; TRISAbits.TRISA3 = 0; \
+                                 LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFE; }
+    #define sw2                 (PORTDbits.RD2)
+#endif
     #define mDeInitSwitch2()    {ADCON1 = 0x07;}
 
 
