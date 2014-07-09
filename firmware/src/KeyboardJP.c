@@ -491,6 +491,8 @@ static char processKana(const unsigned char* current, const unsigned char* proce
     report[0] = modifiers;
     for (char i = 2; i < 8 && count < 8; ++i) {
         unsigned char code = current[i];
+        unsigned char row = code / 12;
+        unsigned char column = code % 12;
 
         key = getKeyNumLock(code);
         if (key) {
@@ -501,10 +503,12 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             continue;
         }
 
-        unsigned char no_repeat = 12 * 4 <= code && code < 12 * 7  && code % 12 != 5 && code % 12 != 6;
+        unsigned char no_repeat = 4 <= row && row < 7 && column != 5 && column != 6;
         for (char j = 2; j < 8; ++j) {
             if (no_repeat && code == processed[j]) {
                 code = VOID_KEY;
+                row = VOID_KEY / 12;
+                column = VOID_KEY % 12;
                 break;
             }
         }
@@ -515,14 +519,14 @@ static char processKana(const unsigned char* current, const unsigned char* proce
                 mod &= ~MOD_RIGHTSHIFT;
         }
 
-        if (7 <= code / 12)
+        if (7 <= row)
             roma = 0;
         else if (mod & MOD_LEFTSHIFT)
-            roma = left[code / 12][code % 12];
+            roma = left[row][column];
         else if (mod & MOD_RIGHTSHIFT)
-            roma = right[code / 12][code % 12];
+            roma = right[row][column];
         else
-            roma = base[code / 12][code % 12];
+            roma = base[row][column];
         if (roma)
             processRomaji(roma, a);
         if (!roma || !a[0]) {
