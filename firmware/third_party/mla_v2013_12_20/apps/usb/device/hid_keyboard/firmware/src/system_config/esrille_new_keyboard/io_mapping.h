@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of io_mapping.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /********************************************************************
  Software License Agreement:
 
