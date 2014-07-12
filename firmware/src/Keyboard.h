@@ -532,14 +532,15 @@ char isJP(void);
 void emitKanaName(void);
 void switchKana(void);
 
-#define OS_PC           0   // Windows, Linux, etc.
-#define OS_MAC          1
-#define OS_109A         2   // OADG 109
-#define OS_109B         3   // OADG 109
-#define OS_ALT_SP       4   // Android
-#define OS_SHIFT_SP     5   // Android
-#define OS_US           6   // Alt-`
-#define OS_MAX          6
+#define OS_PC           0   // F13 / F14
+#define OS_MAC          1   // Kana / Eisuu
+#define OS_104A         2   // Shift-Ctrl-Space / Shift-Ctlr-Backspace
+#define OS_104B         3   // Alt-`
+#define OS_109A         4   // Shift-Ctrl-Henkan / Shift-Ctlr-Muhenkan
+#define OS_109B         5   // `
+#define OS_ALT_SP       6   // Alt-Space
+#define OS_SHIFT_SP     7   // Shift-Space
+#define OS_MAX          7
 void emitOSName(void);
 void switchOS(void);
 
