@@ -22,6 +22,8 @@
 
 #include <system.h>
 
+#include <plib/adc.h>
+
 __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0);
 
 unsigned char os;
@@ -316,7 +318,11 @@ static unsigned char getNumKeycode(unsigned int n)
 }
 
 static const unsigned char about1[] = {
-    KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_N, KEY_E, KEY_W, KEY_SPACEBAR, KEY_K, KEY_E, KEY_Y, KEY_B, KEY_O, KEY_A, KEY_R, KEY_D, KEY_ENTER,
+    KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_N, KEY_I, KEY_S, KEY_S, KEY_E,
+#ifdef BLUETOOTH
+    KEY_SPACEBAR, KEY_B, KEY_T,
+#endif
+    KEY_ENTER,
     KEY_R, KEY_E, KEY_V, KEY_PERIOD, KEY_SPACEBAR, 0
 };
 static const unsigned char about2[] = {
@@ -388,6 +394,28 @@ static void about(void)
     // F8 LED
     emitString(about9);
     emitLEDName();
+
+#ifdef BLUETOOTH
+    {
+        unsigned int volt;
+
+        CloseADC();
+        OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_6_TAD,
+                ADC_CH0 & ADC_INT_OFF & ADC_REF_VDD_VSS,
+                ADC_1ANA);
+        SetChanADC(ADC_CH0);
+        ConvertADC();
+        while (BusyADC())
+            ;
+        volt = ((unsigned int) ReadADC() * 50) / 1024;
+        emitKey(getNumKeycode(volt / 10));
+        emitKey(KEY_PERIOD);
+        emitKey(getNumKeycode(volt % 10));
+        emitKey(KEY_V);
+        emitKey(KEY_ENTER);
+        CloseADC();
+    }
+#endif
 }
 
 static const unsigned char* getKeyFn(unsigned char code)
@@ -479,6 +507,14 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case KEY_RIGHTSHIFT:
                     modifiers |= MOD_RIGHTSHIFT;
                     break;
+#ifdef BLUETOOTH
+                case KEY_DISCONNECT:
+                    if (make) {
+                        SYSTEM_Disconnect();
+                        xmit = XMIT_NONE;
+                    }
+                    break;
+#endif
                 default:
                     if (key == KEY_LANG1)
                         kana_led = 1;

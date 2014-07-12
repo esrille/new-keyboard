@@ -509,6 +509,10 @@ void initKeyboardKana(void);
 #define KEY_ABOUT               0xFD
 #define KEY_IME                 0xFE
 
+#ifdef BLUETOOTH
+#define KEY_DISCONNECT          KEY_ESCAPE
+#endif
+
 #define MOD_FN                  1u
 
 #define BASE_QWERTY     0
