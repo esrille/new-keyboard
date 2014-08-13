@@ -30,7 +30,7 @@
  * civil liability for the breach of the terms and conditions of this
  * license.
  *
- * THIS SOFTWARE IS PROVIDED IN AN "AS IS"” CONDITION. NO WARRANTIES,
+ * THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
  * WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  * TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -347,8 +347,13 @@ must be shared between the bootloader and application firmware.
     #pragma config EBTRB  = OFF
 
 #elif defined(ESRILLE_NEW_KEYBOARD)     // Configuration bits for Esrille New Keybard (PIC18F4550)
-    #pragma config PLLDIV   = 4         // (16 MHz resonator on esrille new keyboard)
-    #pragma config CPUDIV   = OSC3_PLL4 // USB Low Speed
+#if ESRILLE_NEW_KEYBOARD <= 3
+    #pragma config PLLDIV   = 4         // 16 MHz resonator
+
+#else
+    #pragma config PLLDIV   = 1         // 4 MHz resonator
+#endif
+    #pragma config CPUDIV   = OSC3_PLL4
     #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
     #pragma config FOSC     = HSPLL_HS
     #pragma config FCMEN    = OFF

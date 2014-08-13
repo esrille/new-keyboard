@@ -146,22 +146,29 @@
     #define mLED1Tris   TRISDbits.TRISD1
     #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
                                  LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x03; TRISAbits.TRISA5 = 0; \
-                                 LATC = 0x04; TRISC = 0x38; LATD = 0x03; TRISD = 0xFC; }
+                                 LATB = 0x00; TRISB = 0xFF; LATC = 0x04; TRISC = 0x38; LATD = 0x03; TRISD = 0xFC; }
     #define sw2                 (PORTDbits.RD3)
 #elif ESRILLE_NEW_KEYBOARD == 2
     #define mLED1       LATDbits.LATD1
     #define mLED1Tris   TRISDbits.TRISD1
     #define mInitSwitch2()      {ADCON1 = 0x0F; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
                                  LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x03; TRISAbits.TRISA2 = 0; \
-                                 LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFC; }
+                                 LATB = 0x00; TRISB = 0xFF; LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFC; }
     #define sw2                 (PORTDbits.RD3)
-#else
+#elif ESRILLE_NEW_KEYBOARD == 3
     #define mLED1       LATCbits.LATC0
     #define mLED1Tris   TRISCbits.TRISC0
     #define mInitSwitch2()      {ADCON0 = 0x00; ADCON1 = 0x0E; ADCON2 = 0x9E; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
                                  LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x07; TRISAbits.TRISA3 = 0; \
-                                 LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFE; }
+                                 LATB = 0x00; TRISB = 0xFF; LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xFE; }
     #define sw2                 (PORTDbits.RD2)
+#else
+    #define mLED1       LATCbits.LATC0
+    #define mLED1Tris   TRISCbits.TRISC0
+    #define mInitSwitch2()      {ADCON0 = 0x00; ADCON1 = 0x0E; ADCON2 = 0x9E; INTCON2bits.RBPU = 0; PORTEbits.RDPU = 1; \
+                                 LATA = 0x00; TRISA = 0x3F; LATE = 0x00; TRISE = 0x07; TRISEbits.TRISE0 = 0; \
+                                 LATB = 0x00; TRISB = 0xFF; LATC = 0x00; TRISC = 0x38; LATD = 0x00; TRISD = 0xF3; }
+    #define sw2                 (PORTBbits.RB5)
 #endif
     #define mDeInitSwitch2()    {ADCON1 = 0x07;}
 
