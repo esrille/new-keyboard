@@ -491,6 +491,8 @@
 #define EEPROM_MOD	4
 #define EEPROM_LED	5
 #define EEPROM_IME	6
+// 7 is used by bluetooth edition
+#define EEPROM_PREFIX   8
 
 void initKeyboard(void);
 void initKeyboardBase(void);
@@ -499,15 +501,6 @@ void initKeyboardKana(void);
 #define KEY_FN                  0xF0
 #define KEY_DAKUTEN             0xF3
 #define KEY_HANDAKU             0xF4
-#define KEY_BASE                0xF6
-#define KEY_KANA                0xF7
-#define KEY_OS                  0xF8
-#define KEY_DELAY               0xF9
-#define KEY_MOD                 0xFA
-// 0xFB is used for KEY_CALC
-#define KEY_LED                 0xFC
-#define KEY_ABOUT               0xFD
-#define KEY_IME                 0xFE
 
 #ifdef BLUETOOTH
 #define KEY_DISCONNECT          KEY_ESCAPE
@@ -532,7 +525,8 @@ char isJP(void);
 #define KANA_MTYPE      2
 #define KANA_TRON       3
 #define KANA_STICKNEY   4
-#define KANA_MAX        4
+#define KANA_X6004      5
+#define KANA_MAX        5
 void emitKanaName(void);
 void switchKana(void);
 
@@ -575,6 +569,9 @@ void switchLED(void);
 #define IME_MAX         3
 void emitIMEName(void);
 void switchIME(void);
+
+void emitPrefixShift(void);
+void switchPrefixShift(void);
 
 #define VOID_KEY        14  // A key matrix index at which no key is assigned
 

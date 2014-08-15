@@ -28,6 +28,7 @@ static unsigned char const kanaKeys[KANA_MAX + 1][MAX_KANA_KEY_NAME] =
     {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
     {KEY_T, KEY_R, KEY_O, KEY_N, KEY_ENTER},
     {KEY_S, KEY_T, KEY_I, KEY_C, KEY_K, KEY_ENTER},
+    {KEY_X, KEY_6, KEY_0, KEY_0, KEY_4, KEY_ENTER},
 };
 
 #define MAX_LED_KEY_NAME    4
@@ -338,6 +339,31 @@ static unsigned char const matrixMtypeShift[7][12] =
     {ROMA_ETU, ROMA_UTU, ROMA_ITU, ROMA_ATU, ROMA_OTU, 0, 0, ROMA_GY, ROMA_ZY, ROMA_DY, ROMA_KUTEN, ROMA_BY},
 };
 
+//
+// JIS X 6004
+//
+static unsigned char const matrixX6004[7][12] =
+{
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TI},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_NA},
+    {ROMA_SO, ROMA_KE, ROMA_SE, ROMA_TE, ROMA_XYO, 0, 0, ROMA_TU, ROMA_NN, ROMA_NO, ROMA_WO, ROMA_RI},
+    {ROMA_HA, ROMA_KA, ROMA_SI, ROMA_TO, ROMA_TA, 0, 0, ROMA_KU, ROMA_U, ROMA_I, ROMA_DAKUTEN, ROMA_KI},
+    {ROMA_SU, ROMA_KO, ROMA_NI, ROMA_SA, ROMA_A, 0, 0, ROMA_XTU, ROMA_RU, ROMA_TOUTEN, ROMA_KUTEN, ROMA_RE},
+};
+
+static unsigned char const matrixX6004Shift[7][12] =
+{
+    {ROMA_LWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_LCB},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_RCB},
+    {ROMA_XA, ROMA_HANDAKU, ROMA_HO, ROMA_HU, ROMA_ME, 0, 0, ROMA_HI, ROMA_E, ROMA_MI, ROMA_YA, ROMA_NU},
+    {ROMA_XI, ROMA_HE, ROMA_RA, ROMA_XYU, ROMA_YO, 0, 0, ROMA_MA, ROMA_O, ROMA_MO, ROMA_WA, ROMA_YU},
+    {ROMA_XU, ROMA_XE, ROMA_XO, ROMA_NE, ROMA_XYA, 0, 0, ROMA_MU, ROMA_RO, ROMA_NAKAGURO, ROMA_CHOUON, ROMA_QUESTION},
+};
+
 static unsigned char const dakuonFrom[] = { KEY_K, KEY_S, KEY_T, KEY_H };
 static unsigned char const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
 
@@ -621,6 +647,8 @@ char processKeysKana(const unsigned char* current, const unsigned char* processe
         return processKana(current, processed, report, matrixMtype, matrixMtypeShift, matrixMtypeShift);
     case KANA_STICKNEY:
         return processKana(current, processed, report, matrixStickney, matrixStickneyShift, matrixStickneyShift);
+    case KANA_X6004:
+        return processKana(current, processed, report, matrixX6004, matrixX6004Shift, matrixX6004Shift);
     default:
         return processKeysBase(current, processed, report);
     }
