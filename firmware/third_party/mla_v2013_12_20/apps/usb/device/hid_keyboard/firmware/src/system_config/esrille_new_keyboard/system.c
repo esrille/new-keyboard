@@ -132,7 +132,10 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
                 ADCON0 = 0x00;
                 ADCON1 = 0x0E;  // Enable AN0
                 ADCON2 = 0x9E;  // 6 Tad, Fosc/64 10 011 110
-                trisD = 0xfe;   // 0, output; 1~7, input
+                if (BOARD_REV_VALUE == 3)
+                    trisD = 0xfe;   // 0, output; 1~7, input
+                else
+                    trisD = 0xf3;   // 2,3, output; 0, 1, 4~7, input
                 trisE = 0x07;   // 0~2, input initially
             }
 

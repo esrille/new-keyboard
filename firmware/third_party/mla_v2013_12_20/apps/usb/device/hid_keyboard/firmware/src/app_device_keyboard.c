@@ -284,6 +284,17 @@ static volatile unsigned char* rowPorts[8] = {
     &TRISE
 };
 
+static volatile unsigned char* rowPorts4[8] = {
+    &TRISE,
+    &TRISE,
+    &TRISE,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+};
+
 static unsigned char rowBits[8] = {
     1u << 0,
     1u << 1,
@@ -295,8 +306,8 @@ static unsigned char rowBits[8] = {
     1u << 1
 };
 
-// Ref 3
-static unsigned char rowBits2[8] = {
+// Rev 3
+static unsigned char rowBits3[8] = {
     1u << 1,
     1u << 2,
     1u << 3,
@@ -305,6 +316,18 @@ static unsigned char rowBits2[8] = {
     1u << 0,
     1u << 1,
     1u << 2
+};
+
+// Rev 4
+static unsigned char rowBits4[8] = {
+    1u << 2,
+    1u << 1,
+    1u << 0,
+    1u << 5,
+    1u << 4,
+    1u << 3,
+    1u << 2,
+    1u << 1
 };
 
 static volatile unsigned char* columnPorts[12] = {
@@ -320,6 +343,22 @@ static volatile unsigned char* columnPorts[12] = {
     &PORTB,
     &PORTB,
     &PORTB,
+};
+
+// Rev 4
+static volatile unsigned char* columnPorts4[12] = {
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTD,
 };
 
 static unsigned char columnBits[12] = {
@@ -338,7 +377,7 @@ static unsigned char columnBits[12] = {
 };
 
 // Rev 3
-static unsigned char columnBits2[12] = {
+static unsigned char columnBits3[12] = {
     1u << 7,
     1u << 6,
     1u << 5,
@@ -351,6 +390,22 @@ static unsigned char columnBits2[12] = {
     1u << 2,
     1u << 0,
     1u << 1,
+};
+
+// Rev 4
+static unsigned char columnBits4[12] = {
+    1u << 0,
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 4,
+    1u << 5,
+    1u << 7,
+    1u << 6,
+    1u << 5,
+    1u << 4,
+    1u << 1,
+    1u << 0,
 };
 
 static int tick;
@@ -383,12 +438,22 @@ void APP_KeyboardInit(void)
     //Arm OUT endpoint so we can receive caps lock, num lock, etc. info from host
     keyboard.lastOUTTransmission = HIDRxPacket(HID_EP, (uint8_t*) &outputReport, sizeof(outputReport));
 
-    if (3 <= BOARD_REV_VALUE) {
+    if (BOARD_REV_VALUE == 3) {
         rowPorts[5] = &TRISE;
         for (char i = 0; i < 8; ++i)
-            rowBits[i] = rowBits2[i];
+            rowBits[i] = rowBits3[i];
         for (char i = 0; i < 12; ++i)
-            columnBits[i] = columnBits2[i];
+            columnBits[i] = columnBits3[i];
+    }
+    if (4 <= BOARD_REV_VALUE) {
+        for (char i = 0; i < 8; ++i) {
+            rowPorts[i] = rowPorts4[i];
+            rowBits[i] = rowBits4[i];
+        }
+        for (char i = 0; i < 12; ++i) {
+            columnPorts[i] = columnPorts4[i];
+            columnBits[i] = columnBits4[i];
+        }
     }
 
     OpenTimer0(TIMER_INT_OFF & T0_16BIT & T0_SOURCE_INT & T0_PS_1_256);

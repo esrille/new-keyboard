@@ -61,6 +61,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
+static unsigned char trisA = 0x00;
+static unsigned char trisE = 0x03;
+static unsigned char portD = 0xFC;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -81,19 +84,16 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 bool BUTTON_IsPressed()
 {
     bool result;
-    unsigned char trisA;
-    unsigned char trisE;
 
-    if (BOARD_REV_VALUE < 3) {
-        trisA = 0x00;
-        trisE = 0x03;
-    } else {
+    if (3 <= BOARD_REV_VALUE) {
         trisA = 0x01;
         trisE = 0x07;
     }
+    if (4 <= BOARD_REV_VALUE)
+        portD = 0xF3;
     TRISA = trisA;
     TRISE = 0x00;
-    result = (~PORTD & 0xFC) || (~PORTB & 0x3F);
+    result = (~PORTD & portD) || (~PORTB & 0x3F);
     TRISA = 0x3F;
     TRISE = trisE;
     return result;

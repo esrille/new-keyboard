@@ -60,13 +60,13 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-unsigned char led1Bit = 1u << 1;
-unsigned char led2Bit = 1u << 0;
-unsigned char led3Bit = 1u << 2;
+static unsigned char led1Bit = 1u << 1;
+static unsigned char led2Bit = 1u << 0;
+static unsigned char led3Bit = 1u << 2;
 
-volatile unsigned char* led1Port = &LATD;
-volatile unsigned char* led2Port = &LATD;
-volatile unsigned char* led3Port = &LATC;
+static volatile unsigned char* led1Port = &LATD;
+static volatile unsigned char* led2Port = &LATD;
+static volatile unsigned char* led3Port = &LATC;
 
 
 // *****************************************************************************
