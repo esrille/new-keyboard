@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014 Esrille Inc.
+ *
+ * This file is a modified version of usb_device.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the Software License Agreement below for the License.
+ */
+
 /*******************************************************************************
   USB Device Layer
 
@@ -480,6 +488,7 @@ void USBDeviceInit(void)
     the USBDeviceAttach() and USBDeviceDetach() API documentation for additional 
     considerations.
     ***************************************************************************/
+
 void USBDeviceTasks(void)
 {
     uint8_t i;
@@ -684,7 +693,7 @@ void USBDeviceTasks(void)
      * Task C: Service other USB interrupts
      */
     if(USBIdleIF && USBIdleIE)
-    { 
+    {
         #ifdef  USB_SUPPORT_OTG 
             //If Suspended, Try to switch to Host
             USBOTGSelectRole(ROLE_HOST);
@@ -2314,6 +2323,19 @@ static void USBWakeFromSuspend(void)
 
 
     USBActivityIE = 0;
+
+    /********************************************************************
+    Sep 14, 2014 by Esrille Inc.
+    *********************************************************************
+    Clear UIRbits.IDLEIF here!
+
+    If both IDLEIF and ACTIF are set and IDLEIF not cleared here,
+    USBSuspend() will be called just after USBWakeFromSuspend() is processed.
+    ********************************************************************/
+    if (USBIdleIF && USBIdleIE)
+    {
+        USBClearInterruptFlag(USBIdleIFReg,USBIdleIFBitNum);
+    }
 
     /********************************************************************
     Bug Fix: Feb 26, 2007 v2.1
