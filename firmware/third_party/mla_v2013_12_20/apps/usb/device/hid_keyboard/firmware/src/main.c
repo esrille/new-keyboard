@@ -143,13 +143,13 @@ int main(void)
             continue;
         }
 
-        if (USBSuspendControl == 1)
+        if (USBIsBusSuspended())
         {
             /* Jump back to the top of the while loop. */
             continue;
         }
 
-        /* Run the keyboard demo tasks. */
+        /* Run the keyboard tasks. */
         APP_KeyboardTasks();
     }//end while
 }//end main
@@ -243,8 +243,6 @@ int main(void)
  *******************************************************************/
 static void USBCBSendResume(void)
 {
-    static uint16_t delay_count;
-
     //First verify that the host has armed us to perform remote wakeup.
     //It does this by sending a SET_FEATURE request to enable remote wakeup,
     //usually just before the host goes to standby mode (note: it will only
@@ -264,8 +262,7 @@ static void USBCBSendResume(void)
 
             //Clock switch to settings consistent with normal USB operation.
             APP_WakeFromSuspend();
-            USBSuspendControl = 0;
-            USBBusIsSuspended = false;  //So we don't execute this code again,
+            USBSuspendControl = 0;      //So we don't execute this code again,
                                         //until a new suspend condition is detected.
 
             //Section 7.1.7.7 of the USB 2.0 specifications indicates a USB
@@ -274,20 +271,12 @@ static void USBCBSendResume(void)
             //gets met, is to add a 2ms+ blocking delay here (2ms plus at
             //least 3ms from bus idle to USBIsBusSuspended() == TRUE, yeilds
             //5ms+ total delay since start of idle).
-            delay_count = 3600U;
-            do
-            {
-                delay_count--;
-            }while(delay_count);
+            __delay_ms(3);
 
             //Now drive the resume K-state signalling onto the USB bus.
             USBResumeControl = 1;       // Start RESUME signaling
-            delay_count = 1800U;        // Set RESUME line for 1-13 ms
-            do
-            {
-                delay_count--;
-            }while(delay_count);
-            USBResumeControl = 0;       //Finished driving resume signalling
+            __delay_ms(2);              // Set RESUME line for 1-13 ms
+            USBResumeControl = 0;       // Finished driving resume signalling
 
             USBUnmaskInterrupts();
         }

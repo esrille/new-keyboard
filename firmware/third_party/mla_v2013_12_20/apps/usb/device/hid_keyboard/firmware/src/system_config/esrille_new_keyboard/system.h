@@ -35,7 +35,7 @@
 
 #include <usb_config.h>
 
-#define MAIN_RETURN void
+#define _XTAL_FREQ  24000000u
 
 /*** System States **************************************************/
 typedef enum

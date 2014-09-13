@@ -176,11 +176,7 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             //that the primary oscillator and PLL are running before executing any other
             //code.  If the PLL isn't being used, (ex: primary osc = 48MHz externally applied EC)
             //then this code adds a small unnecessary delay, but it is harmless to execute anyway.
-            {
-                unsigned int pll_startup_counter = 800;	//Long delay at 31kHz, but ~0.8ms at 48MHz
-                while (pll_startup_counter--)
-                    ;                                   //Clock will switch over while executing this delay loop
-            }
+            __delay_ms(2);
             break;
     }
 }
