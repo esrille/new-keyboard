@@ -472,7 +472,6 @@ void APP_KeyboardTasks(void)
         while (((int) ReadTimer0()) - tick < 141)   // 281: 12msec at 24MHz
             ;
         tick = (int) ReadTimer0();
-        APP_LEDUpdateUSBStatus();
         if (++cnt & 1)
             return;
     }
@@ -556,14 +555,12 @@ void APP_KeyboardProcessOutputReport(void)
 
 void APP_Suspend()
 {
-    APP_LEDUpdateUSBStatus();
     SYSTEM_Initialize(SYSTEM_STATE_USB_SUSPEND);
 }
 
 void APP_WakeFromSuspend()
 {
     SYSTEM_Initialize(SYSTEM_STATE_USB_RESUME);
-    APP_LEDUpdateUSBStatus();
 }
 
 static void USBHIDCBSetReportComplete(void)
@@ -571,9 +568,6 @@ static void USBHIDCBSetReportComplete(void)
     /* 1 byte of LED state data should now be in the CtrlTrfData buffer.  Copy
      * it to the OUTPUT report buffer for processing */
     outputReport.value = CtrlTrfData[0];
-
-    /* Process the OUTPUT report. */
-    APP_LEDUpdateUSBStatus();
 }
 
 void USBHIDCBSetReportHandler(void)

@@ -83,25 +83,22 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 void APP_LEDUpdateUSBStatus(void)
 {
-    if(USBIsDeviceSuspended())
-    {
+    if (USBIsDeviceSuspended()) {
         LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
         LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
         LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
         return;
     }
 
-    switch(USBGetDeviceState())
-    {         
-        case CONFIGURED_STATE:
-            APP_KeyboardProcessOutputReport();
-            break;
-
-        default:
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-            LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-            break;
+    switch (USBGetDeviceState()) {
+    case CONFIGURED_STATE:
+        APP_KeyboardProcessOutputReport();
+        break;
+    default:
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
+        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+        break;
     }
 }
 

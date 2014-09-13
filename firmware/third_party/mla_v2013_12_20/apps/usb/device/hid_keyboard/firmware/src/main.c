@@ -117,6 +117,8 @@ int main(void)
         USBDeviceTasks();
         #endif
 
+        APP_LEDUpdateUSBStatus();
+
         /* If the USB device isn't configured yet, we can't really do anything
          * else since we don't have a host to talk to.  So jump back to the
          * top of the while loop. */
