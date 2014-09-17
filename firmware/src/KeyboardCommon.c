@@ -783,7 +783,7 @@ unsigned char controlLED(unsigned char report)
     if (BOARD_REV_VALUE < 3) {
         static char tick;
 
-        if (3 <= ++tick)
+        if (4 <= ++tick)
             tick = 0;
         else
             report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
