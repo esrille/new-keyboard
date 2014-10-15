@@ -21,6 +21,7 @@ Japanese:
   * Nicola
   * M type
   * TRON
+  * JIS X 6004
 
 The keyboard firmware processes the above mentioned logical layouts inside the
 keyboard, and no extra device driver installation is necessary.
