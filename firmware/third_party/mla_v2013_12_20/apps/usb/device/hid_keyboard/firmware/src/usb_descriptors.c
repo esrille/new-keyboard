@@ -3,7 +3,7 @@
  *
  * This file is a modified version of usb_descriptors.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
- * See the Software License Agreement below for the License.
+ * See the file NOTICE for copying permission.
  */
 
 /*******************************************************************************

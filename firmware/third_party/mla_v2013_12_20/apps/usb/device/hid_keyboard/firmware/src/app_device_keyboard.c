@@ -3,7 +3,7 @@
  *
  * This file is a modified version of app_device_keyboard.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
- * See the Software License Agreement below for the License.
+ * See the file NOTICE for copying permission.
  */
 
 /*******************************************************************************
@@ -453,6 +453,10 @@ void APP_KeyboardInit(void)
         for (char i = 0; i < 12; ++i) {
             columnPorts[i] = columnPorts4[i];
             columnBits[i] = columnBits4[i];
+        }
+        if (5 <= BOARD_REV_VALUE) {
+            columnBits[10] = 1u << 0;
+            columnBits[11] = 1u << 1;
         }
     }
 
