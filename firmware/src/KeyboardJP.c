@@ -529,15 +529,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             continue;
         }
 
-        unsigned char no_repeat = 4 <= row && row < 7 && column != 5 && column != 6;
-        for (char j = 2; j < 8; ++j) {
-            if (no_repeat && code == processed[j]) {
-                code = VOID_KEY;
-                row = VOID_KEY / 12;
-                column = VOID_KEY % 12;
-                break;
-            }
-        }
+        unsigned char no_repeat = 0;
         if ((mod & MOD_SHIFT) == MOD_SHIFT) {
             if (lastMod & MOD_LEFTSHIFT)
                 mod &= ~MOD_LEFTSHIFT;
@@ -553,6 +545,18 @@ static char processKana(const unsigned char* current, const unsigned char* proce
             roma = right[row][column];
         else
             roma = base[row][column];
+        if (roma && (roma < KANA_DAKUTEN || KANA_CHOUON < roma)) {
+            no_repeat = 1;
+            for (char j = 2; j < 8; ++j) {
+                if (code == processed[j]) {
+                    code = VOID_KEY;
+                    row = VOID_KEY / 12;
+                    column = VOID_KEY % 12;
+                    roma = 0;
+                    break;
+                }
+            }
+        }
         if (roma)
             processRomaji(roma, a);
         if (!roma || !a[0]) {
