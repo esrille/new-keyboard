@@ -247,9 +247,9 @@ static unsigned char const matrixStickneyShift[7][12] =
 //
 static unsigned char const matrixTron[7][12] =
 {
+    {ROMA_LCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {ROMA_RA, ROMA_RU, ROMA_KO, ROMA_HA, ROMA_XYO, 0, 0, ROMA_KI, ROMA_NO, ROMA_KU, ROMA_A, ROMA_RE},
     {ROMA_TA, ROMA_TO, ROMA_KA, ROMA_TE, ROMA_MO, 0, 0, ROMA_WO, ROMA_I, ROMA_U, ROMA_SI, ROMA_NN},
@@ -258,9 +258,9 @@ static unsigned char const matrixTron[7][12] =
 
 static unsigned char const matrixTronLeft[7][12] =
 {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_LCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {ROMA_SANTEN, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {ROMA_HI, ROMA_SO, ROMA_NAKAGURO, ROMA_XYA, ROMA_HO, 0, 0, ROMA_GI, ROMA_GE, ROMA_GU, ROMA_QUESTION, ROMA_WYI},
     {ROMA_NU, ROMA_NE, ROMA_XYU, ROMA_YO, ROMA_HU, 0, 0, ROMA_DAKUTEN, ROMA_DI, ROMA_VU, ROMA_ZI, ROMA_WYE},
@@ -283,9 +283,9 @@ static unsigned char const matrixTronRight[7][12] =
 //
 static unsigned char const matrixNicola[7][12] =
 {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_DAKUTEN},
+    {ROMA_LCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_DAKUTEN},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TOUTEN},
+    {ROMA_RCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TOUTEN},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {ROMA_KUTEN, ROMA_KA, ROMA_TA, ROMA_KO, ROMA_SA, 0, 0, ROMA_RA, ROMA_TI, ROMA_KU, ROMA_TU, ROMA_TOUTEN},
     {ROMA_U, ROMA_SI, ROMA_TE, ROMA_KE, ROMA_SE, 0, 0, ROMA_HA, ROMA_TO, ROMA_KI, ROMA_I, ROMA_NN},
@@ -294,9 +294,9 @@ static unsigned char const matrixNicola[7][12] =
 
 static unsigned char const matrixNicolaLeft[7][12] =
 {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_DAKUTEN},
+    {ROMA_LCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_DAKUTEN},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RCB, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TOUTEN},
     {0, ROMA_SLASH, ROMA_NAMI, ROMA_LCB, ROMA_RCB, 0, 0, ROMA_LSB, ROMA_RSB, 0, 0, 0},
     {ROMA_XA, ROMA_E, ROMA_RI, ROMA_XYA, ROMA_RE, 0, 0, ROMA_PA, ROMA_DI, ROMA_GU, ROMA_DU, ROMA_PI},
     {ROMA_WO, ROMA_A, ROMA_NA, ROMA_XYU, ROMA_MO, 0, 0, ROMA_BA, ROMA_DO, ROMA_GI, ROMA_PO, ROMA_NN},
@@ -307,7 +307,7 @@ static unsigned char const matrixNicolaRight[7][12] =
 {
     {ROMA_LWCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_HANDAKU},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {ROMA_RWCB, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {ROMA_RWCB, ROMA_QUESTION, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TOUTEN},
     {0, ROMA_SLASH, ROMA_NAMI, ROMA_LCB, ROMA_RCB, 0, 0, ROMA_LSB, ROMA_RSB, 0, 0, 0},
     {ROMA_KUTEN, ROMA_GA, ROMA_DA, ROMA_GO, ROMA_ZA, 0, 0, ROMA_YO, ROMA_NI, ROMA_RU, ROMA_MA, ROMA_XE},
     {ROMA_VU, ROMA_ZI, ROMA_DE, ROMA_GE, ROMA_ZE, 0, 0, ROMA_MI, ROMA_O, ROMA_NO, ROMA_XYO, ROMA_XTU},
@@ -344,9 +344,9 @@ static unsigned char const matrixMtypeShift[7][12] =
 //
 static unsigned char const matrixX6004[7][12] =
 {
+    {ROMA_LCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TI},
+    {ROMA_RCB, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_TI},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ROMA_NA},
     {ROMA_SO, ROMA_KE, ROMA_SE, ROMA_TE, ROMA_XYO, 0, 0, ROMA_TU, ROMA_NN, ROMA_NO, ROMA_WO, ROMA_RI},
     {ROMA_HA, ROMA_KA, ROMA_SI, ROMA_TO, ROMA_TA, 0, 0, ROMA_KU, ROMA_U, ROMA_I, ROMA_DAKUTEN, ROMA_KI},
