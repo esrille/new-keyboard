@@ -570,6 +570,11 @@ void switchLED(void);
 void emitIMEName(void);
 void switchIME(void);
 
+#define PREFIXSHIFT_OFF 0
+#define PREFIXSHIFT_ON  1
+#define PREFIXSHIFT_LED 2
+#define PREFIXSHIFT_MAX 2
+
 void emitPrefixShift(void);
 void switchPrefixShift(void);
 

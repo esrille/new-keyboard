@@ -118,13 +118,13 @@ static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
     {KEY_D, KEY_4, KEY_8, KEY_ENTER},
 };
 
-#define MAX_PREFIX           1
 #define MAX_PREFIX_KEY_NAME  4
 
-static unsigned char const prefixKeyNames[MAX_PREFIX + 1][MAX_PREFIX_KEY_NAME] =
+static unsigned char const prefixKeyNames[PREFIXSHIFT_MAX + 1][MAX_PREFIX_KEY_NAME] =
 {
     {KEY_O, KEY_F, KEY_F, KEY_ENTER},
     {KEY_O, KEY_N, KEY_ENTER},
+    {KEY_L, KEY_E, KEY_D, KEY_ENTER},
 };
 
 static unsigned char const codeRev2[8][12] =
@@ -156,7 +156,9 @@ static unsigned char holding;
 static unsigned char hold[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
 static unsigned char processed[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
 
+static unsigned char prefix;
 static unsigned char modifiers;
+static unsigned char modifiersPrev;
 static unsigned char current[8];
 static signed char count = 2;
 static unsigned char rowCount[8];
@@ -233,7 +235,9 @@ void emitPrefixShift(void)
 
 void switchPrefixShift(void)
 {
-    prefix_shift = !prefix_shift;
+    ++prefix_shift;
+    if (PREFIXSHIFT_MAX < prefix_shift)
+        prefix_shift = 0;
     eeprom_write(EEPROM_PREFIX, prefix_shift);
     emitPrefixShift();
 }
@@ -712,8 +716,6 @@ unsigned char processModKey(unsigned char key)
 
 char makeReport(unsigned char* report)
 {
-    static unsigned char prefix;
-
     char xmit = XMIT_NONE;
     char at;
     char prev;
@@ -725,8 +727,11 @@ char makeReport(unsigned char* report)
         current[0] = modifiers;
         if (prefix_shift)
             current[0] |= prefix;
-        if (!(processed[0] & MOD_SHIFT) && (modifiers & MOD_SHIFT))
-            prefix = (modifiers & MOD_SHIFT);
+        if (!(modifiersPrev & MOD_LEFTSHIFT) && (modifiers & MOD_LEFTSHIFT))
+            prefix ^= MOD_LEFTSHIFT;
+        if (!(modifiersPrev & MOD_RIGHTSHIFT) && (modifiers & MOD_RIGHTSHIFT))
+            prefix ^= MOD_RIGHTSHIFT;
+        modifiersPrev = modifiers;
 
         // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
         at = currentKey + MAX_DELAY + 1 - currentDelay;
@@ -780,6 +785,12 @@ unsigned char controlLED(unsigned char report)
 {
     led = report;
     report = controlKanaLED(report);
+    if (prefix_shift == PREFIXSHIFT_LED) {
+        if (prefix & MOD_LEFTSHIFT)
+            report |= LED_NUM_LOCK;
+        if (prefix & MOD_RIGHTSHIFT)
+            report |= LED_SCROLL_LOCK;
+    }
     if (BOARD_REV_VALUE < 3) {
         static char tick;
 
