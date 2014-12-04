@@ -148,15 +148,7 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
         if (!key)
             key = getKeyBase(code);
         if (key && count < 8) {
-            if (key == KEY_LANG1)
-                kana_led = 1;
-            else if (key == KEY_LANG2)
-                kana_led = 0;
-            else if (key == KEY_CAPS_LOCK) {
-                if (!memchr(processed + 2, key, 6) && isJP())
-                    eisuu_mode ^= 1;
-            } else if (key == KEY_0 && (modifiers & MOD_SHIFT) && isJP())
-                key = KEY_INTERNATIONAL1;
+            key = toggleKanaMode(key, modifiers, !memchr(processed + 2, key, 6));
             report[count++] = key;
         }
     }

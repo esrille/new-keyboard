@@ -594,6 +594,7 @@ char makeReport(unsigned char* report);
 unsigned char processModKey(unsigned char key);
 
 char isKanaMode(const unsigned char* current);
+unsigned char toggleKanaMode(unsigned char key, unsigned char mod, char make);
 
 char processKeysBase(const unsigned char* current, const unsigned char* processed, unsigned char* report);
 char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report);
@@ -611,7 +612,6 @@ void emitKey(unsigned char key);
 void emitStringN(const unsigned char s[], unsigned char len);
 
 extern unsigned char os;
-extern unsigned char kana_led;
 extern unsigned char eisuu_mode;
 
 #endif  // #ifndef KEYBOARD_H

@@ -370,6 +370,7 @@ static unsigned char const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
 static unsigned char mode;
 static unsigned char led;
 static unsigned char ime;
+static unsigned char kana_led;
 
 static unsigned char sent[3];
 static unsigned char last[3];
@@ -562,15 +563,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         if (!roma || !a[0]) {
             key = getKeyBase(code);
             if (key) {
-                if (key == KEY_LANG1)
-                    kana_led = 1;
-                else if (key == KEY_LANG2)
-                    kana_led = 0;
-                else if (key == KEY_CAPS_LOCK) {
-                    if (!memchr(processed + 2, key, 6) && isJP())
-                        eisuu_mode ^= 1;
-                } else if (key == KEY_0 && (mod & MOD_SHIFT) && isJP())
-                    key = KEY_INTERNATIONAL1;
+                key = toggleKanaMode(key, mod, !memchr(processed + 2, key, 6));
                 report[count++] = key;
                 memset(last, 0, 3);
                 lastMod = current[0];
@@ -638,6 +631,29 @@ static char processKana(const unsigned char* current, const unsigned char* proce
 char isKanaMode(const unsigned char* current)
 {
     return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
+}
+
+unsigned char toggleKanaMode(unsigned char key, unsigned char mod, char make)
+{
+    switch (key) {
+    case KEY_LANG1:
+        kana_led = 1;
+        break;
+    case KEY_LANG2:
+        kana_led = 0;
+        break;
+    case KEY_CAPS_LOCK:
+        if (make && isJP())
+            eisuu_mode ^= 1;
+        break;
+    case KEY_0:
+        if ((mod & MOD_SHIFT) && isJP())
+            key = KEY_INTERNATIONAL1;
+        break;
+    default:
+        break;
+    }
+    return key;
 }
 
 char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report)

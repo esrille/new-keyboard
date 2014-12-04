@@ -28,7 +28,6 @@ __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_D
 
 unsigned char os;
 unsigned char mod;
-unsigned char kana_led;
 unsigned char eisuu_mode = 0;
 unsigned char prefix_shift;
 
@@ -556,14 +555,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     break;
 #endif
                 default:
-                    if (key == KEY_LANG1)
-                        kana_led = 1;
-                    else if (key == KEY_LANG2)
-                        kana_led = 0;
-                    else if (key == KEY_CAPS_LOCK) {
-                        if (make && isJP())
-                            eisuu_mode ^= 1;
-                    }
+                    key = toggleKanaMode(key, current[1], make);
                     report[count++] = key;
                     break;
                 }
