@@ -637,7 +637,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
 
 char isKanaMode(const unsigned char* current)
 {
-    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != KANA_ROMAJI;
+    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
 }
 
 char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report)

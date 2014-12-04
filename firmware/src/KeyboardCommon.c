@@ -34,8 +34,6 @@ unsigned char prefix_shift;
 
 #define MAX_OS_KEY_NAME     5
 
-#define is109()     (os == OS_109A || os == OS_109B)
-
 static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 {
     {KEY_P, KEY_C, KEY_ENTER},
@@ -572,7 +570,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
             }
         }
         report[0] = modifiers;
-    } else if (isKanaMode(current) && (!eisuu_mode || !is109()))
+    } else if (isKanaMode(current))
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);

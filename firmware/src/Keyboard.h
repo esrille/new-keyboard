@@ -542,6 +542,8 @@ void switchKana(void);
 void emitOSName(void);
 void switchOS(void);
 
+#define is109()     (os == OS_109A || os == OS_109B)
+
 void emitModName(void);
 void switchMod(void);
 
@@ -608,6 +610,7 @@ unsigned char getMacro(void);
 void emitKey(unsigned char key);
 void emitStringN(const unsigned char s[], unsigned char len);
 
+extern unsigned char os;
 extern unsigned char kana_led;
 extern unsigned char eisuu_mode;
 
