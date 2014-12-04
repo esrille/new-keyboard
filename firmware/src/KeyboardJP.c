@@ -563,7 +563,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
         if (!roma || !a[0]) {
             key = getKeyBase(code);
             if (key) {
-                key = toggleKanaMode(key, mod, !memchr(processed + 2, key, 6));
+                key = toggleKanaMode(key, current[0], !memchr(processed + 2, key, 6));
                 report[count++] = key;
                 memset(last, 0, 3);
                 lastMod = current[0];

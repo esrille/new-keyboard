@@ -555,7 +555,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     break;
 #endif
                 default:
-                    key = toggleKanaMode(key, current[1], make);
+                    key = toggleKanaMode(key, current[0], make);
                     report[count++] = key;
                     break;
                 }
