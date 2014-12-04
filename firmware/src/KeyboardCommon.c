@@ -30,6 +30,7 @@ unsigned char os;
 unsigned char mod;
 unsigned char eisuu_mode = 0;
 unsigned char prefix_shift;
+unsigned char prefix;
 
 #define MAX_OS_KEY_NAME     5
 
@@ -153,7 +154,6 @@ static unsigned char holding;
 static unsigned char hold[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
 static unsigned char processed[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
 
-static unsigned char prefix;
 static unsigned char modifiers;
 static unsigned char modifiersPrev;
 static unsigned char current[8];
@@ -715,12 +715,13 @@ char makeReport(unsigned char* report)
             current[count++] = VOID_KEY;
         memmove(keys[currentKey].keys, current + 2, 6);
         current[0] = modifiers;
-        if (prefix_shift)
+        if (prefix_shift && isKanaMode(current)) {
             current[0] |= prefix;
-        if (!(modifiersPrev & MOD_LEFTSHIFT) && (modifiers & MOD_LEFTSHIFT))
-            prefix ^= MOD_LEFTSHIFT;
-        if (!(modifiersPrev & MOD_RIGHTSHIFT) && (modifiers & MOD_RIGHTSHIFT))
-            prefix ^= MOD_RIGHTSHIFT;
+            if (!(modifiersPrev & MOD_LEFTSHIFT) && (modifiers & MOD_LEFTSHIFT))
+                prefix ^= MOD_LEFTSHIFT;
+            if (!(modifiersPrev & MOD_RIGHTSHIFT) && (modifiers & MOD_RIGHTSHIFT))
+                prefix ^= MOD_RIGHTSHIFT;
+        }
         modifiersPrev = modifiers;
 
         // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
@@ -775,12 +776,6 @@ unsigned char controlLED(unsigned char report)
 {
     led = report;
     report = controlKanaLED(report);
-    if (prefix_shift == PREFIXSHIFT_LED) {
-        if (prefix & MOD_LEFTSHIFT)
-            report |= LED_NUM_LOCK;
-        if (prefix & MOD_RIGHTSHIFT)
-            report |= LED_SCROLL_LOCK;
-    }
     if (BOARD_REV_VALUE < 3) {
         static char tick;
 

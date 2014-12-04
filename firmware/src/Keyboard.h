@@ -613,5 +613,7 @@ void emitStringN(const unsigned char s[], unsigned char len);
 
 extern unsigned char os;
 extern unsigned char eisuu_mode;
+extern unsigned char prefix_shift;
+extern unsigned char prefix;
 
 #endif  // #ifndef KEYBOARD_H

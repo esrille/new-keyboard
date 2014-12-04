@@ -630,7 +630,7 @@ static char processKana(const unsigned char* current, const unsigned char* proce
 
 char isKanaMode(const unsigned char* current)
 {
-    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
+    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && !(current[1] & MOD_FN) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
 }
 
 unsigned char toggleKanaMode(unsigned char key, unsigned char mod, char make)
@@ -641,6 +641,7 @@ unsigned char toggleKanaMode(unsigned char key, unsigned char mod, char make)
         break;
     case KEY_LANG2:
         kana_led = 0;
+        prefix = 0;
         break;
     case KEY_CAPS_LOCK:
         if (make && isJP())
@@ -692,6 +693,13 @@ unsigned char controlKanaLED(unsigned char report)
         default:
             break;
         }
+        if (prefix_shift == PREFIXSHIFT_LED) {
+            if (prefix & MOD_LEFTSHIFT)
+                report |= LED_NUM_LOCK;
+            if (prefix & MOD_RIGHTSHIFT)
+                report |= LED_SCROLL_LOCK;
+        }
+
     }
     return report;
 }
