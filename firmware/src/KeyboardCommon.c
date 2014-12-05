@@ -28,7 +28,6 @@ __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_D
 
 unsigned char os;
 unsigned char mod;
-unsigned char eisuu_mode = 0;
 unsigned char prefix_shift;
 unsigned char prefix;
 

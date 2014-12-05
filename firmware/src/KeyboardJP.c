@@ -371,6 +371,7 @@ static unsigned char mode;
 static unsigned char led;
 static unsigned char ime;
 static unsigned char kana_led;
+static unsigned char eisuu_mode;
 
 static unsigned char sent[3];
 static unsigned char last[3];

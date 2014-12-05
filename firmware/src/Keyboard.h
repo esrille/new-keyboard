@@ -612,7 +612,6 @@ void emitKey(unsigned char key);
 void emitStringN(const unsigned char s[], unsigned char len);
 
 extern unsigned char os;
-extern unsigned char eisuu_mode;
 extern unsigned char prefix_shift;
 extern unsigned char prefix;
 
