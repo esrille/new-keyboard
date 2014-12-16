@@ -118,7 +118,7 @@ static unsigned char const mtypeSet[][3] =
     {KEY_Q},
 };
 
-// ROMA_NN - KANA_CHOUON
+// ROMA_NN - ROMA_BANG
 static unsigned char const commonSet[][2] =
 {
     {KEY_N, KEY_N},
@@ -148,6 +148,9 @@ static unsigned char const commonSet[][2] =
     {KEY_LEFTSHIFT, KEY_PERIOD},
     {KEY_LEFTSHIFT, KEY_SLASH},
     {KEY_INTERNATIONAL3},
+
+    // Extra
+    {KEY_LEFTSHIFT, KEY_1},
 };
 
 //
@@ -452,7 +455,7 @@ static void processRomaji(unsigned char roma, unsigned char a[])
         memcpy(a, mtypeSet[roma - ROMA_ANN], 3);
         return;
     }
-    if (ROMA_NN <= roma && roma <= KANA_CHOUON) {
+    if (ROMA_NN <= roma && roma <= ROMA_BANG) {
         memcpy(a, commonSet[roma - ROMA_NN], 2);
         a[2] = 0;
         return;

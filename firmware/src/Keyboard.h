@@ -466,6 +466,9 @@
 #define KANA_NAKAGURO   223
 #define KANA_CHOUON     224
 
+// Common - Extra
+#define ROMA_BANG       225     // !
+
 // Non-common (US, JP, IME)
 #define ROMA_LCB	230	// 「
 #define ROMA_RCB	231	// 」
