@@ -176,7 +176,7 @@ void initKeyboard(void)
     if (MAX_DELAY < currentDelay)
         currentDelay = 0;
     prefix_shift = eeprom_read(EEPROM_PREFIX);
-    if (1 < prefix_shift)
+    if (PREFIXSHIFT_MAX < prefix_shift)
         prefix_shift = 0;
     initKeyboardBase();
     initKeyboardKana();
