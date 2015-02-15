@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014, 2015 Esrille Inc.
  *
  * This file is a modified version of fixed_address_memory.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -37,7 +37,7 @@
 #define KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG  @0x508
 
 #define APP_VERSION_ADDRESS     0x1826  // The application image firmware version number address
-#define APP_VERSION_VALUE       0x0015  // BCD
+#define APP_VERSION_VALUE       0x0016  // BCD
 
 #define BOARD_REV_ADDRESS       0x17FE
 #define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
