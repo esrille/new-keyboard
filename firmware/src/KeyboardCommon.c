@@ -18,22 +18,28 @@
 
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __XC8
 #include <xc.h>
-
 #include <system.h>
-
 #include <plib/adc.h>
+#endif
+
+#ifdef NRF51
+#include <stdio.h>
+#include "nisse.h"
+#endif
 
 __EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0 /* bt */);
 
-unsigned char os;
-unsigned char mod;
-unsigned char prefix_shift;
-unsigned char prefix;
+uint8_t os;
+uint8_t mod;
+uint8_t prefix_shift;
+uint8_t prefix;
 
 #define MAX_OS_KEY_NAME     5
 
-static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
+static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 {
     {KEY_P, KEY_C, KEY_ENTER},
     {KEY_M, KEY_A, KEY_C, KEY_ENTER},
@@ -51,7 +57,7 @@ static unsigned char const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 
 #define isMacMod()  (mod == 2 || mod == 5)
 
-static unsigned char const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
+static uint8_t const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
 {
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
@@ -61,7 +67,7 @@ static unsigned char const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
     {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
 };
 
-static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
+static uint8_t const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
 {
     {KEY_C, KEY_ENTER},
     {KEY_C, KEY_J, KEY_ENTER},
@@ -71,7 +77,7 @@ static unsigned char const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
     {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
 };
 
-static unsigned char const matrixFn[8][12][3] =
+static uint8_t const matrixFn[8][12][3] =
 {
     {{KEY_INSERT}, {KEY_F2}, {KEY_F3}, {KEY_F4}, {KEY_F5}, {KEY_F6}, {KEY_F7}, {KEY_F8}, {KEY_F9}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
     {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_F1}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
@@ -83,7 +89,7 @@ static unsigned char const matrixFn[8][12][3] =
     {{0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_BACKSPACE}, {0}, {0}, {KEY_LEFTCONTROL, KEY_SPACEBAR}, {0}, {0}, {0}, {0}}
 };
 
-static unsigned char const matrixFn109[4][3] =
+static uint8_t const matrixFn109[4][3] =
 {
     {KEY_INTERNATIONAL5},   // no-convert
     {KEY_INTERNATIONAL4},   // convert
@@ -91,7 +97,7 @@ static unsigned char const matrixFn109[4][3] =
     {KEY_GRAVE_ACCENT}      // zenkaku
 };
 
-static unsigned char const matrixNumLock[8][5] =
+static uint8_t const matrixNumLock[8][5] =
 {
     0, 0, 0, 0, 0,
     0, 0, 0, 0, 0,
@@ -103,10 +109,9 @@ static unsigned char const matrixNumLock[8][5] =
     0, KEYPAD_0, 0, KEYPAD_DOT, 0,
 };
 
-#define MAX_DELAY           4
 #define MAX_DELAY_KEY_NAME  4
 
-static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
+static uint8_t const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
 {
     {KEY_D, KEY_0, KEY_ENTER},
     {KEY_D, KEY_1, KEY_2, KEY_ENTER},
@@ -117,14 +122,14 @@ static unsigned char const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
 
 #define MAX_PREFIX_KEY_NAME  4
 
-static unsigned char const prefixKeyNames[PREFIXSHIFT_MAX + 1][MAX_PREFIX_KEY_NAME] =
+static uint8_t const prefixKeyNames[PREFIXSHIFT_MAX + 1][MAX_PREFIX_KEY_NAME] =
 {
     {KEY_O, KEY_F, KEY_F, KEY_ENTER},
     {KEY_O, KEY_N, KEY_ENTER},
     {KEY_L, KEY_E, KEY_D, KEY_ENTER},
 };
 
-static unsigned char const codeRev2[8][12] =
+static uint8_t const codeRev2[8][12] =
 {
     13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 22,
     36, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, 11, 47,
@@ -140,31 +145,37 @@ typedef struct Keys {
     uint8_t keys[6];
 } Keys;
 
-static unsigned char ordered_keys[128];
-static unsigned char ordered_pos = 0;
+static uint8_t ordered_keys[MAX_MACRO_SIZE];
+static uint8_t ordered_pos = 0;
 static uint8_t ordered_max;
 
-static unsigned char currentDelay;
+static uint8_t currentDelay;
 static Keys keys[MAX_DELAY + 1];
-static char currentKey;
+static int8_t currentKey = 0;
 
-static unsigned char tick;
-static unsigned char holding;
-static unsigned char hold[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
-static unsigned char processed[8] = {0, 0, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY, VOID_KEY};
+#ifdef __XC8
+static uint8_t tick;
+#endif
+static uint8_t processed[8];
 
-static unsigned char modifiers;
-static unsigned char modifiersPrev;
-static unsigned char current[8];
-static signed char count = 2;
-static unsigned char rowCount[8];
-static unsigned char columnCount[12];
+static uint8_t modifiers;
+static uint8_t modifiersPrev;
+static uint8_t current[8];
+static int8_t count;
+static uint8_t rowCount[8];
+static uint8_t columnCount[12];
 
-static unsigned char led;
+static uint8_t led;
 
 void initKeyboard(void)
 {
     memset(keys, VOID_KEY, sizeof keys);
+    currentKey = 0;
+    memset(current, 0, 8);
+    memset(processed, 0, 2);
+    memset(processed + 2, VOID_KEY, 6);
+    modifiers = modifiersPrev = 0;
+    count = 2;
 
     os = eeprom_read(EEPROM_OS);
     if (OS_MAX < os)
@@ -238,10 +249,10 @@ void switchPrefixShift(void)
     emitPrefixShift();
 }
 
-void onPressed(signed char row, unsigned char column)
+void onPressed(int8_t row, uint8_t column)
 {
-    unsigned char key;
-    unsigned char code;
+    uint8_t key;
+    uint8_t code;
 
     if (2 <= BOARD_REV_VALUE)
         code = codeRev2[row][column];
@@ -262,12 +273,12 @@ void onPressed(signed char row, unsigned char column)
         current[count++] = code;
 }
 
-static char detectGhost(void)
+static int8_t detectGhost(void)
 {
-    char i;
-    char detected;
-    unsigned char rx = 0;
-    unsigned char cx = 0;
+    uint8_t i;
+    int8_t detected;
+    uint8_t rx = 0;
+    uint8_t cx = 0;
 
     for (i = 0; i < sizeof rowCount; ++i) {
         if (2 <= rowCount[i])
@@ -283,33 +294,33 @@ static char detectGhost(void)
     return detected;
 }
 
-unsigned char beginMacro(unsigned char max)
+uint8_t beginMacro(uint8_t max)
 {
     ordered_pos = 1;
     ordered_max = max;
     return ordered_keys[0];
 }
 
-unsigned char peekMacro(void)
+uint8_t peekMacro(void)
 {
     if (ordered_max <= ordered_pos)
         return 0;
     return ordered_keys[ordered_pos];
 }
 
-unsigned char getMacro(void)
+uint8_t getMacro(void)
 {
-    if (ordered_max <= ordered_pos) {
-        ordered_pos = 0;
+    if (ordered_max <= ordered_pos)
         return 0;
-    }
-    unsigned char key = ordered_keys[ordered_pos++];
-    if (key == 0)
+    uint8_t key = ordered_keys[ordered_pos++];
+    if (key == 0) {
         ordered_pos = 0;
+        ordered_max = 0;
+    }
     return key;
 }
 
-void emitKey(unsigned char c)
+void emitKey(uint8_t c)
 {
     if (ordered_pos < sizeof ordered_keys)
         ordered_keys[ordered_pos++] = c;
@@ -317,23 +328,23 @@ void emitKey(unsigned char c)
         ordered_keys[ordered_pos] = 0;
 }
 
-static void emitString(const unsigned char s[])
+static void emitString(const uint8_t s[])
 {
-    unsigned char i = 0;
-    unsigned char c;
+    uint8_t i = 0;
+    uint8_t c;
     for (c = s[i]; c; c = s[++i])
         emitKey(c);
 }
 
-void emitStringN(const unsigned char s[], unsigned char len)
+void emitStringN(const uint8_t s[], uint8_t len)
 {
-    unsigned char i = 0;
-    unsigned char c;
+    uint8_t i = 0;
+    uint8_t c;
     for (c = s[i]; i < len && c; c = s[++i])
         emitKey(c);
 }
 
-static unsigned char getNumKeycode(unsigned int n)
+static uint8_t getNumKeycode(unsigned int n)
 {
     if (n == 0)
         return KEY_0;
@@ -342,41 +353,41 @@ static unsigned char getNumKeycode(unsigned int n)
     return KEY_SPACEBAR;
 }
 
-static const unsigned char about1[] = {
+static const uint8_t about1[] = {
     KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_N, KEY_I, KEY_S, KEY_S, KEY_E,
-#ifdef BLUETOOTH
-    KEY_SPACEBAR, KEY_B, KEY_T,
+#ifdef NRF51
+    KEY_SPACEBAR, KEY_B, KEY_L, KEY_E,
 #endif
     KEY_ENTER,
     KEY_R, KEY_E, KEY_V, KEY_PERIOD, KEY_SPACEBAR, 0
 };
-static const unsigned char about2[] = {
+static const uint8_t about2[] = {
     KEY_V, KEY_E, KEY_R, KEY_PERIOD, KEY_SPACEBAR, 0
 };
-static const unsigned char about3[] = {
+static const uint8_t about3[] = {
     KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_MINUS, KEY_2, KEY_0, KEY_1, KEY_5, KEY_SPACEBAR,
     KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_I, KEY_N, KEY_C, KEY_PERIOD, KEY_ENTER,
     KEY_F, KEY_2, KEY_SPACEBAR, 0
 };
-static const unsigned char about4[] = {
+static const uint8_t about4[] = {
     KEY_F, KEY_3, KEY_SPACEBAR, 0
 };
-static const unsigned char about5[] = {
+static const uint8_t about5[] = {
     KEY_F, KEY_4, KEY_SPACEBAR, 0
 };
-static const unsigned char about6[] = {
+static const uint8_t about6[] = {
     KEY_F, KEY_5, KEY_SPACEBAR, 0
 };
-static const unsigned char about7[] = {
+static const uint8_t about7[] = {
     KEY_F, KEY_6, KEY_SPACEBAR, 0
 };
-static const unsigned char about8[] = {
+static const uint8_t about8[] = {
     KEY_F, KEY_7, KEY_SPACEBAR, 0
 };
-static const unsigned char about9[] = {
+static const uint8_t about9[] = {
     KEY_F, KEY_8, KEY_SPACEBAR, 0
 };
-static const unsigned char about10[] = {
+static const uint8_t about10[] = {
     KEY_F, KEY_9, KEY_SPACEBAR, 0
 };
 
@@ -427,30 +438,21 @@ static void about(void)
     emitString(about10);
     emitPrefixShift();
 
-#ifdef BLUETOOTH
-    {
-        unsigned int volt;
-
-        CloseADC();
-        OpenADC(ADC_FOSC_64 & ADC_RIGHT_JUST & ADC_6_TAD,
-                ADC_CH0 & ADC_INT_OFF & ADC_REF_VDD_VSS,
-                ADC_1ANA);
-        SetChanADC(ADC_CH0);
-        ConvertADC();
-        while (BusyADC())
-            ;
-        volt = ((unsigned int) ReadADC() * 50) / 1024;
-        emitKey(getNumKeycode(volt / 10));
-        emitKey(KEY_PERIOD);
-        emitKey(getNumKeycode(volt % 10));
-        emitKey(KEY_V);
-        emitKey(KEY_ENTER);
-        CloseADC();
-    }
+#ifdef NRF51
+{
+    uint32_t voltage = battery_voltage_get();
+    emitKey(getNumKeycode(voltage / 100));
+    emitKey(KEY_PERIOD);
+    voltage %= 100;
+    emitKey(getNumKeycode(voltage / 10));
+    emitKey(getNumKeycode(voltage % 10));
+    emitKey(KEY_V);
+    emitKey(KEY_ENTER);
+}
 #endif
 }
 
-static const unsigned char* getKeyFn(unsigned char code)
+static const uint8_t* getKeyFn(uint8_t code)
 {
     if (is109()) {
         if (12 * 6 + 8 <= code && code <= 12 * 6 + 11)
@@ -459,23 +461,23 @@ static const unsigned char* getKeyFn(unsigned char code)
     return matrixFn[code / 12][code % 12];
 }
 
-static char processKeys(const unsigned char* current, const unsigned char* processed, unsigned char* report)
+static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* report)
 {
-    char xmit;
+    int8_t xmit;
 
     if (!memcmp(current, processed, 8))
         return XMIT_NONE;
     memset(report, 0, 8);
     if (current[1] & MOD_FN) {
-        unsigned char modifiers = current[0];
-        unsigned char count = 2;
+        uint8_t modifiers = current[0];
+        uint8_t count = 2;
         xmit = XMIT_NORMAL;
-        for (char i = 2; i < 8 && xmit != XMIT_MACRO; ++i) {
-            unsigned char code = current[i];
-            const unsigned char* a = getKeyFn(code);
-            for (char j = 0; j < 3 && count < 8; ++j) {
-                unsigned char key = a[j];
-                char make = !memchr(processed + 2, code, 6);
+        for (int8_t i = 2; i < 8 && xmit != XMIT_MACRO; ++i) {
+            uint8_t code = current[i];
+            const uint8_t* a = getKeyFn(code);
+            for (int8_t j = 0; j < 3 && count < 8; ++j) {
+                uint8_t key = a[j];
+                int8_t make = !memchr(processed + 2, code, 6);
                 switch (key) {
                 case 0:
                     break;
@@ -537,7 +539,7 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                     modifiers |= MOD_LEFTCONTROL;
                     break;
                 case KEY_RIGHTCONTROL:
-                    modifiers |= MOD_CONTROL;
+                    modifiers |= MOD_RIGHTCONTROL;
                     break;
                 case KEY_LEFTSHIFT:
                     modifiers |= MOD_LEFTSHIFT;
@@ -545,11 +547,32 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
                 case KEY_RIGHTSHIFT:
                     modifiers |= MOD_RIGHTSHIFT;
                     break;
-#ifdef BLUETOOTH
-                case KEY_DISCONNECT:
+#ifdef NRF51
+                case KEY_ESCAPE:
                     if (make) {
-                        SYSTEM_Disconnect();
-                        xmit = XMIT_NONE;
+                        set_event(BSP_EVENT_DISCONNECT);
+                        xmit = XMIT_BRK;
+                    }
+                    break;
+                case KEY_1:
+                    if (make) {
+                        set_event(BSP_EVENT_KEY_1);
+                        modifiers &= ~MOD_LEFTCONTROL;
+                        xmit = XMIT_BRK;
+                    }
+                    break;
+                case KEY_2:
+                    if (make) {
+                        set_event(BSP_EVENT_KEY_2);
+                        modifiers &= ~MOD_LEFTCONTROL;
+                        xmit = XMIT_BRK;
+                    }
+                    break;
+                case KEY_3:
+                    if (make) {
+                        set_event(BSP_EVENT_KEY_3);
+                        modifiers &= ~MOD_LEFTCONTROL;
+                        xmit = XMIT_BRK;
                     }
                     break;
 #endif
@@ -570,9 +593,9 @@ static char processKeys(const unsigned char* current, const unsigned char* proce
     return xmit;
 }
 
-static void processOSMode(unsigned char* report)
+static void processOSMode(uint8_t* report)
 {
-    for (char i = 2; i < 8; ++i) {
+    for (int8_t i = 2; i < 8; ++i) {
         switch (os) {
         case OS_PC:
             switch (report[i]) {
@@ -693,21 +716,21 @@ static void processOSMode(unsigned char* report)
     }
 }
 
-unsigned char processModKey(unsigned char key)
+uint8_t processModKey(uint8_t key)
 {
-    const unsigned char* map = modMap[0];
-    for (char i = 0; i < MAX_MOD_KEYS; ++i) {
+    const uint8_t* map = modMap[0];
+    for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {
         if (key == map[i])
             return modMap[mod][i];
     }
     return key;
 }
 
-char makeReport(unsigned char* report)
+int8_t makeReport(uint8_t* report)
 {
-    char xmit = XMIT_NONE;
-    char at;
-    char prev;
+    int8_t xmit = XMIT_NONE;
+    int8_t at;
+    int8_t prev;
 
     if (!detectGhost()) {
         while (count < 8)
@@ -731,8 +754,8 @@ char makeReport(unsigned char* report)
         if (MAX_DELAY < prev)
                 prev -= MAX_DELAY + 1;
         count = 2;
-        for (char i = 0; i < 6; ++i) {
-            unsigned char key = keys[at].keys[i];
+        for (int8_t i = 0; i < 6; ++i) {
+            uint8_t key = keys[at].keys[i];
             if (memchr(keys[prev].keys, key, 6))
                 current[count++] = key;
         }
@@ -771,24 +794,31 @@ char makeReport(unsigned char* report)
     return xmit;
 }
 
-unsigned char controlLED(unsigned char report)
+uint8_t getLED(void)
+{
+    return led;
+}
+
+uint8_t controlLED(uint8_t report)
 {
     led = report;
     report = controlKanaLED(report);
+#ifdef __XC8
     if (BOARD_REV_VALUE < 3) {
-        static char tick;
+        static int8_t tick;
 
         if (4 <= ++tick)
             tick = 0;
         else
             report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
     }
+#endif
     return report;
 }
 
-unsigned char getKeyNumLock(unsigned char code)
+uint8_t getKeyNumLock(uint8_t code)
 {
-    unsigned char col = code % 12;
+    uint8_t col = code % 12;
 
     if ((led & LED_NUM_LOCK) && 7 <= col) {
         col -= 7;

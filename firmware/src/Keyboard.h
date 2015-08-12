@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Esrille Inc.
+ * Copyright 2013-2015 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
+
+#include <stdint.h>
 
 #define KEY_ERRORROLLOVER	0x01
 #define KEY_POSTFAIL            0x02
@@ -505,10 +507,6 @@ void initKeyboardKana(void);
 #define KEY_DAKUTEN             0xF3
 #define KEY_HANDAKU             0xF4
 
-#ifdef BLUETOOTH
-#define KEY_DISCONNECT          KEY_ESCAPE
-#endif
-
 #define MOD_FN                  1u
 
 #define BASE_QWERTY     0
@@ -520,8 +518,8 @@ void initKeyboardKana(void);
 void emitBaseName(void);
 void switchBase(void);
 
-char isDigit(unsigned char code);
-char isJP(void);
+int8_t isDigit(uint8_t code);
+int8_t isJP(void);
 
 #define KANA_ROMAJI     0
 #define KANA_NICOLA     1
@@ -549,6 +547,8 @@ void switchOS(void);
 
 void emitModName(void);
 void switchMod(void);
+
+#define MAX_DELAY       4
 
 void emitDelayName(void);
 void switchDelay(void);
@@ -591,31 +591,44 @@ void switchPrefixShift(void);
 #define XMIT_IN_ORDER   3
 #define XMIT_MACRO      4
 
-void onPressed(signed char row, unsigned char column);
-char makeReport(unsigned char* report);
+void onPressed(int8_t row, uint8_t column);
+int8_t makeReport(uint8_t* report);
 
-unsigned char processModKey(unsigned char key);
+uint8_t processModKey(uint8_t key);
 
-char isKanaMode(const unsigned char* current);
-unsigned char toggleKanaMode(unsigned char key, unsigned char mod, char make);
+int8_t isKanaMode(const uint8_t* current);
+uint8_t toggleKanaMode(uint8_t key, uint8_t mod, int8_t make);
 
-char processKeysBase(const unsigned char* current, const unsigned char* processed, unsigned char* report);
-char processKeysKana(const unsigned char* current, const unsigned char* processed, unsigned char* report);
+int8_t processKeysBase(const uint8_t* current, const uint8_t* processed, uint8_t* report);
+int8_t processKeysKana(const uint8_t* current, const uint8_t* processed, uint8_t* report);
 
-unsigned char controlLED(unsigned char report);
-unsigned char controlKanaLED(unsigned char report);
+uint8_t getLED(void);
+uint8_t controlLED(uint8_t report);
+uint8_t controlKanaLED(uint8_t report);
 
-unsigned char getKeyNumLock(unsigned char code);
-unsigned char getKeyBase(unsigned char code);
+uint8_t getKeyNumLock(uint8_t code);
+uint8_t getKeyBase(uint8_t code);
 
-unsigned char beginMacro(unsigned char max);
-unsigned char peekMacro(void);
-unsigned char getMacro(void);
-void emitKey(unsigned char key);
-void emitStringN(const unsigned char s[], unsigned char len);
+#define MAX_MACRO_SIZE  132
 
-extern unsigned char os;
-extern unsigned char prefix_shift;
-extern unsigned char prefix;
+uint8_t beginMacro(uint8_t max);
+uint8_t peekMacro(void);
+uint8_t getMacro(void);
+void emitKey(uint8_t key);
+void emitStringN(const uint8_t s[], uint8_t len);
+
+extern uint8_t os;
+extern uint8_t prefix_shift;
+extern uint8_t prefix;
+
+#ifndef __XC8
+
+#define BOARD_REV_VALUE         5
+#define APP_VERSION_VALUE       0x0016  // BCD
+
+uint8_t eeprom_read(uint8_t index);
+void eeprom_write(uint8_t index, uint8_t val);
+
+#endif
 
 #endif  // #ifndef KEYBOARD_H

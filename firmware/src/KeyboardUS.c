@@ -17,9 +17,12 @@
 #include "Keyboard.h"
 
 #include <string.h>
-#include <xc.h>
 
-static unsigned char const baseKeys[BASE_MAX + 1][5] =
+#ifdef __XC8
+#include <xc.h>
+#endif
+
+static uint8_t const baseKeys[BASE_MAX + 1][5] =
 {
     {KEY_U, KEY_S, KEY_ENTER},
     {KEY_U, KEY_S, KEY_MINUS, KEY_D, KEY_ENTER},
@@ -28,7 +31,7 @@ static unsigned char const baseKeys[BASE_MAX + 1][5] =
     {KEY_J, KEY_P, KEY_MINUS, KEY_N, KEY_ENTER},
 };
 
-static unsigned char const matrixQwerty[8][12] =
+static uint8_t const matrixQwerty[8][12] =
 {
     KEY_LEFT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_EQUAL,
     KEY_GRAVE_ACCENT, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_BACKSLASH,
@@ -40,7 +43,7 @@ static unsigned char const matrixQwerty[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
-static unsigned char const matrixDvorak[8][12] =
+static uint8_t const matrixDvorak[8][12] =
 {
     KEY_LEFT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_BACKSLASH,
     KEY_GRAVE_ACCENT, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_EQUAL,
@@ -52,7 +55,7 @@ static unsigned char const matrixDvorak[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
-static unsigned char const matrixColemak[8][12] =
+static uint8_t const matrixColemak[8][12] =
 {
     KEY_LEFT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_EQUAL,
     KEY_GRAVE_ACCENT, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_BACKSLASH,
@@ -81,7 +84,7 @@ static unsigned char const matrixColemak[8][12] =
 // zenkaku      KEY_GRAVE_ACCENT
 //
 
-static unsigned char const matrixJIS[8][12] =
+static uint8_t const matrixJIS[8][12] =
 {
     KEY_RIGHT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_EQUAL,
     KEY_INTERNATIONAL3, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_LEFT_BRACKET,
@@ -93,7 +96,7 @@ static unsigned char const matrixJIS[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
-static unsigned char const matrixNicolaF[8][12] =
+static uint8_t const matrixNicolaF[8][12] =
 {
     KEY_RIGHT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_MINUS,
     KEY_INTERNATIONAL3, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_LEFT_BRACKET,
@@ -105,7 +108,7 @@ static unsigned char const matrixNicolaF[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_FN, KEY_LEFTSHIFT, KEYPAD_ENTER, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
-static unsigned char mode;
+static uint8_t mode;
 
 void initKeyboardBase(void)
 {
@@ -128,23 +131,23 @@ void switchBase(void)
     emitBaseName();
 }
 
-char isDigit(unsigned char code)
+int8_t isDigit(uint8_t code)
 {
     return code == 25 || code == 34 || (37 <= code && code <= 46);
 }
 
-char isJP(void)
+int8_t isJP(void)
 {
     return mode == BASE_JIS || mode == BASE_NICOLA_F;
 }
 
-char processKeysBase(const unsigned char* current, const unsigned char* processed, unsigned char* report)
+int8_t processKeysBase(const uint8_t* current, const uint8_t* processed, uint8_t* report)
 {
-    unsigned char count = 2;
-    unsigned char modifiers = current[0];
-    for (char i = 2; i < 8; ++i) {
-        unsigned char code = current[i];
-        unsigned char key = getKeyNumLock(code);
+    uint8_t count = 2;
+    uint8_t modifiers = current[0];
+    for (int8_t i = 2; i < 8; ++i) {
+        uint8_t code = current[i];
+        uint8_t key = getKeyNumLock(code);
         if (!key)
             key = getKeyBase(code);
         if (key && count < 8) {
@@ -156,11 +159,11 @@ char processKeysBase(const unsigned char* current, const unsigned char* processe
     return XMIT_NORMAL;
 }
 
-unsigned char getKeyBase(unsigned char code)
+uint8_t getKeyBase(uint8_t code)
 {
-    unsigned char key = getKeyNumLock(code);
-    unsigned char row = code / 12;
-    unsigned char column = code % 12;
+    uint8_t key = getKeyNumLock(code);
+    uint8_t row = code / 12;
+    uint8_t column = code % 12;
     if (key)
         return key;
     switch (mode) {
