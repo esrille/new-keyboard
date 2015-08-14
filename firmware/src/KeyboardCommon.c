@@ -150,7 +150,7 @@ static uint8_t ordered_pos = 0;
 static uint8_t ordered_max;
 
 static uint8_t currentDelay;
-static Keys keys[MAX_DELAY + 1];
+static Keys keys[MAX_DELAY + 2];
 static int8_t currentKey = 0;
 
 #ifdef __XC8
@@ -747,12 +747,12 @@ int8_t makeReport(uint8_t* report)
         modifiersPrev = modifiers;
 
         // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
-        at = currentKey + MAX_DELAY + 1 - currentDelay;
-        if (MAX_DELAY < at)
-                at -= MAX_DELAY + 1;
-        prev = at + MAX_DELAY;
-        if (MAX_DELAY < prev)
-                prev -= MAX_DELAY + 1;
+        at = currentKey + MAX_DELAY + 2 - currentDelay;
+        if (MAX_DELAY + 1 < at)
+                at -= MAX_DELAY + 2;
+        prev = at + MAX_DELAY + 1;
+        if (MAX_DELAY + 1 < prev)
+                prev -= MAX_DELAY + 2;
         count = 2;
         for (int8_t i = 0; i < 6; ++i) {
             uint8_t key = keys[at].keys[i];
@@ -780,13 +780,13 @@ int8_t makeReport(uint8_t* report)
         }
         processOSMode(report);
     } else {
-        prev = currentKey + MAX_DELAY;
-        if (MAX_DELAY < prev)
-                prev -= MAX_DELAY + 1;
+        prev = currentKey + MAX_DELAY + 1;
+        if (MAX_DELAY + 1 < prev)
+                prev -= MAX_DELAY + 2;
         memmove(keys[currentKey].keys, keys[prev].keys, 6);
     }
 
-    if (MAX_DELAY < ++currentKey)
+    if (MAX_DELAY + 1 < ++currentKey)
         currentKey = 0;
     count = 2;
     modifiers = 0;
