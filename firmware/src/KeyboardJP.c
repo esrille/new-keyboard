@@ -443,7 +443,7 @@ void switchIME(void)
 static void processRomaji(uint8_t roma, uint8_t a[])
 {
     uint8_t const* c;
-    int8_t i;
+    uint8_t i;
 
     if (roma < ROMA_ANN) {
         c = consonantSet[roma / 7];
@@ -464,19 +464,20 @@ static void processRomaji(uint8_t roma, uint8_t a[])
         return;
     }
     if (ROMA_LCB <= roma && roma <= ROMA_NAMI) {
+        i = roma - ROMA_LCB;
         switch (ime) {
         case IME_GOOGLE:
-            c = googleSet[roma - ROMA_LCB];
+            c = googleSet[i];
             break;
         case IME_APPLE:
-            c = appleSet[roma - ROMA_LCB];
+            c = appleSet[i];
             break;
         case IME_ATOK:
-            c = atokSet[roma - ROMA_LCB];
+            c = atokSet[i];
             break;
         case IME_MS:
         default:
-            c = msSet[roma - ROMA_LCB];
+            c = msSet[i];
             break;
         }
         for (i = 0; i < 3; ++i) {
