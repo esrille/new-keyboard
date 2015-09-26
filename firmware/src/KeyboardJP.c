@@ -24,6 +24,9 @@
 
 #define MAX_KANA_KEY_NAME    6
 
+#define ENABLE_MTYPE
+#define ENABLE_STICKNEY
+
 static uint8_t const kanaKeys[KANA_MAX + 1][MAX_KANA_KEY_NAME] =
 {
     {KEY_R, KEY_O, KEY_M, KEY_A, KEY_ENTER},
@@ -95,6 +98,7 @@ static uint8_t const vowelSet[] =
     KEY_Y
 };
 
+#ifdef ENABLE_MTYPE
 static uint8_t const mtypeSet[][3] =
 {
     {KEY_A, KEY_N, KEY_N},
@@ -120,6 +124,7 @@ static uint8_t const mtypeSet[][3] =
     {KEY_J},
     {KEY_Q},
 };
+#endif
 
 // ROMA_NN - ROMA_BANG
 static uint8_t const commonSet[][2] =
@@ -223,6 +228,7 @@ static uint8_t const appleSet[][3] =
     {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
 };
 
+#ifdef ENABLE_STICKNEY
 //
 // Stickney Next
 //
@@ -247,6 +253,7 @@ static uint8_t const matrixStickneyShift[7][12] =
     {0, 0, KANA_SE, KANA_HE, KANA_KE, 0, 0, 0, KANA_ME, KANA_NU, KANA_RO, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, KANA_MU, 0, 0, 0},
 };
+#endif
 
 //
 // TRON
@@ -320,6 +327,7 @@ static uint8_t const matrixNicolaRight[7][12] =
     {ROMA_KUTEN, ROMA_BI, ROMA_ZU, ROMA_BU, ROMA_BE, 0, 0, ROMA_NU, ROMA_YU, ROMA_MU, ROMA_WA, ROMA_XO},
 };
 
+#ifdef ENABLE_MTYPE
 //
 // M type
 //
@@ -344,6 +352,7 @@ static uint8_t const matrixMtypeShift[7][12] =
     {ROMA_ENN, ROMA_UNN, ROMA_INN, ROMA_ANN, ROMA_ONN, 0, 0, ROMA_KY, ROMA_SY, ROMA_TY, ROMA_NY, ROMA_HY},
     {ROMA_ETU, ROMA_UTU, ROMA_ITU, ROMA_ATU, ROMA_OTU, 0, 0, ROMA_GY, ROMA_ZY, ROMA_DY, ROMA_KUTEN, ROMA_BY},
 };
+#endif
 
 //
 // JIS X 6004
@@ -454,10 +463,12 @@ static void processRomaji(uint8_t roma, uint8_t a[])
             a[i++] = 0;
         return;
     }
+#ifdef ENABLE_MTYPE
     if (ROMA_ANN <= roma && roma <= ROMA_Q) {
         memcpy(a, mtypeSet[roma - ROMA_ANN], 3);
         return;
     }
+#endif
     if (ROMA_NN <= roma && roma <= ROMA_BANG) {
         memcpy(a, commonSet[roma - ROMA_NN], 2);
         a[2] = 0;
@@ -672,10 +683,14 @@ int8_t processKeysKana(const uint8_t* current, const uint8_t* processed, uint8_t
         return processKana(current, processed, report, matrixTron, matrixTronLeft, matrixTronRight);
     case KANA_NICOLA:
         return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
+#ifdef ENABLE_MTYPE
     case KANA_MTYPE:
         return processKana(current, processed, report, matrixMtype, matrixMtypeShift, matrixMtypeShift);
+#endif
+#ifdef ENABLE_STICKNEY
     case KANA_STICKNEY:
         return processKana(current, processed, report, matrixStickney, matrixStickneyShift, matrixStickneyShift);
+#endif
     case KANA_X6004:
         return processKana(current, processed, report, matrixX6004, matrixX6004Shift, matrixX6004Shift);
     default:
