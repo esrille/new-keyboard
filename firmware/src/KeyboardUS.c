@@ -143,14 +143,14 @@ int8_t isJP(void)
 
 int8_t processKeysBase(const uint8_t* current, const uint8_t* processed, uint8_t* report)
 {
-    uint8_t count = 2;
     uint8_t modifiers = current[0];
-    for (int8_t i = 2; i < 8; ++i) {
-        uint8_t code = current[i];
-        uint8_t key = getKeyNumLock(code);
-        if (!key)
-            key = getKeyBase(code);
-        if (key && count < 8) {
+    if (!(current[1] & MOD_PAD)) {
+        uint8_t count = 2;
+        for (int8_t i = 2; i < 8; ++i) {
+            uint8_t code = current[i];
+            uint8_t key = getKeyNumLock(code);
+            if (!key)
+                key = getKeyBase(code);
             key = toggleKanaMode(key, modifiers, !memchr(processed + 2, key, 6));
             report[count++] = key;
         }

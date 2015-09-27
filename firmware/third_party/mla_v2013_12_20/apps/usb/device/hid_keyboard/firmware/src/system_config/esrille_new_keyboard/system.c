@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014, 2015 Esrille Inc.
  *
  * This file is a modified version of system.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -54,16 +54,20 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 #include <system.h>
+#include <plib/usart.h>
 #include <usb/usb_device.h>
 
+#include <app_device_mouse.h>
+
 #include <Keyboard.h>
+#include <Mouse.h>
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
-#pragma config PLLDIV   = 4         // (16 MHz resonator on esrille new keyboard)
+#pragma config PLLDIV   = 1         // 4 MHz resonator
 #pragma config CPUDIV   = OSC3_PLL4 // USB Low Speed
 #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
 #pragma config FOSC     = HSPLL_HS
@@ -120,7 +124,7 @@ static unsigned char trisE = 0x03;  // 0~1, input initially
 // *****************************************************************************
 // *****************************************************************************
 void SYSTEM_Initialize( SYSTEM_STATE state )
-{   
+{
     switch(state)
     {
         case SYSTEM_STATE_USB_START:
@@ -163,12 +167,21 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             TRISE = trisE;
 
             initKeyboard();
+
+#ifdef ENABLE_MOUSE
+            // Initialize USART (9600bps: 624, 38400bps: 155)
+            baudUSART(BAUD_IDLE_RX_PIN_STATE_HIGH & BAUD_IDLE_TX_PIN_STATE_HIGH & BAUD_16_BIT_RATE & BAUD_WAKEUP_OFF & BAUD_AUTO_OFF);
+            OpenUSART(USART_TX_INT_OFF & USART_RX_INT_ON & USART_ASYNCH_MODE & USART_EIGHT_BIT & USART_CONT_RX & USART_BRGH_HIGH, 155);
+            INTCONbits.PEIE = 1;    // Enable peripheral interrupt
+            INTCONbits.GIE = 1;     // Enable global interrupt
+            initMouse();
+#endif
             break;
-			
+
         case SYSTEM_STATE_USB_SUSPEND:
             OSCCON = 0x13;	//Sleep on sleep, 125kHz selected as microcontroller clock source
             break;
-            
+
         case SYSTEM_STATE_USB_RESUME:
             OSCCON = 0x60;      //Primary clock source selected.
 
@@ -180,13 +193,34 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             break;
     }
 }
-		
+
 #if defined(__XC8)
 void interrupt SYS_InterruptHigh(void)
 {
-    #if defined(USB_INTERRUPT)
-        USBDeviceTasks();
-    #endif
+#if defined(USB_INTERRUPT)
+    USBDeviceTasks();
+#endif
+
+#ifdef ENABLE_MOUSE
+    if (DataRdyUSART()) {
+        if (RCSTAbits.OERR || RCSTAbits.FERR) {
+            ReadUSART();    // Clear FERR
+            RCSTA = 0;      // Clear OERR
+            RCSTA = 0x90;   // Restart USARTs
+        } else {
+            uint8_t data = ReadUSART();    // Clear FERR
+
+            /* We will be getting data before we get the SET_CONFIGURATION
+             * packet that will configure this device, thus, we need to make sure that
+             * we are actually initialized and open before we do anything else,
+             * otherwise we should exit the function without doing anything.
+             */
+            if (USBGetDeviceState() == CONFIGURED_STATE && processSerialUnit(data)) {
+                APP_DeviceMouseTasks();
+            }
+        }
+    }
+#endif
 }
 #endif
 

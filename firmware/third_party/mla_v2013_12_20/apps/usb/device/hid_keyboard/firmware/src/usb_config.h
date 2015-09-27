@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014, 2015 Esrille Inc.
  *
  * This file is a modified version of usb_config.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -44,9 +44,14 @@
                                     // of applications.  Exceptions to this, are applications
                                     // that use EP0 IN or OUT for sending large amounts of
                                     // application related data.
-									
-#define USB_MAX_NUM_INT     	1   // For tracking Alternate Setting
-#define USB_MAX_EP_NUMBER	1
+
+#ifndef ENABLE_MOUSE
+#define USB_MAX_NUM_INT     	1
+#define USB_MAX_EP_NUMBER       1
+#else
+#define USB_MAX_NUM_INT     	2   //Set this number to match the maximum interface number used in the descriptors for this firmware project
+#define USB_MAX_EP_NUMBER	    2   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
+#endif
 
 //Make sure only one of the below "#define USB_PING_PONG_MODE"
 //is uncommented.
@@ -81,10 +86,10 @@
 //If progress is made (any successful transactions completing on EP0 IN or OUT)
 //the timeout counter gets reset to the USB_STATUS_STAGE_TIMEOUT value.
 //
-//During normal control transfer processing, the USB stack or the application 
+//During normal control transfer processing, the USB stack or the application
 //firmware will call USBCtrlEPAllowStatusStage() as soon as the firmware is finished
-//processing the control transfer.  Therefore, the status stage completes as 
-//quickly as is physically possible.  The USB_ENABLE_STATUS_STAGE_TIMEOUTS 
+//processing the control transfer.  Therefore, the status stage completes as
+//quickly as is physically possible.  The USB_ENABLE_STATUS_STAGE_TIMEOUTS
 //feature, and the USB_STATUS_STAGE_TIMEOUT value are only relevant, when:
 //1.  The application uses the USBDeferStatusStage() API function, but never calls
 //      USBCtrlEPAllowStatusStage().  Or:
@@ -96,13 +101,13 @@
 //and it never uses host to device control transfers with data stage, then
 //it is not required to enable the USB_ENABLE_STATUS_STAGE_TIMEOUTS feature.
 
-#define USB_ENABLE_STATUS_STAGE_TIMEOUTS    //Comment this out to disable this feature.  
+#define USB_ENABLE_STATUS_STAGE_TIMEOUTS    //Comment this out to disable this feature.
 
 //Section 9.2.6 of the USB 2.0 specifications indicate that:
-//1.  Control transfers with no data stage: Status stage must complete within 
+//1.  Control transfers with no data stage: Status stage must complete within
 //      50ms of the start of the control transfer.
-//2.  Control transfers with (IN) data stage: Status stage must complete within 
-//      50ms of sending the last IN data packet in fullfilment of the data stage.
+//2.  Control transfers with (IN) data stage: Status stage must complete within
+//      50ms of sending the last IN data packet in fulfillment of the data stage.
 //3.  Control transfers with (OUT) data stage: No specific status stage timing
 //      requirement.  However, the total time of the entire control transfer (ex:
 //      including the OUT data stage and IN status stage) must not exceed 5 seconds.
@@ -120,22 +125,36 @@
 
 #define USB_SUPPORT_DEVICE
 
-#define USB_NUM_STRING_DESCRIPTORS 3
+#define USB_NUM_STRING_DESCRIPTORS  3
 
 /** DEVICE CLASS USAGE *********************************************/
 #define USB_USE_HID
 
 /** ENDPOINTS ALLOCATION *******************************************/
 
-/* HID */
-#define HID_INTF_ID             0x00
-#define HID_EP 			1
-#define HID_INT_OUT_EP_SIZE     1
-#define HID_INT_IN_EP_SIZE      8
-#define HID_NUM_OF_DSC          1
-#define HID_RPT01_SIZE          64
-//#define USER_GET_REPORT_HANDLER USBHIDCBGetReportHandler	
-#define USER_SET_REPORT_HANDLER USBHIDCBSetReportHandler	
+/* HID - Keyboard */
+#define HID_INTF_ID                 0x00
+#define HID_EP                      1
+#define HID_INT_OUT_EP_SIZE         1
+#define HID_INT_IN_EP_SIZE          8
+#define HID_RPT01_SIZE              64
+//#define USER_GET_REPORT_HANDLER USBHIDCBGetReportHandler
+#define USER_SET_REPORT_HANDLER USBHIDCBSetReportHandler
+
+/* HID - Mouse */
+#define HID_MOUSE_INTF_ID           0x01
+#define HID_MOUSE_EP                2
+#define HID_MOUSE_INT_OUT_EP_SIZE   3
+#define HID_MOUSE_INT_IN_EP_SIZE    3
+#define HID_RPT02_SIZE              52
+
+#define HID_NUM_OF_DSC              1
+
+#ifndef ENABLE_MOUSE
+#define HID_NUM_OF_INTF             1
+#else
+#define HID_NUM_OF_INTF             2
+#endif
 
 /** DEFINITIONS ****************************************************/
 

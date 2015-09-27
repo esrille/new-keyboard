@@ -649,7 +649,7 @@ static int8_t processKana(const uint8_t* current, const uint8_t* processed, uint
 
 int8_t isKanaMode(const uint8_t* current)
 {
-    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && !(current[1] & MOD_FN) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
+    return kana_led && !(current[0] & (MOD_ALT | MOD_CONTROL | MOD_GUI)) && !(current[1] & (MOD_FN | MOD_PAD)) && mode != KANA_ROMAJI && (!eisuu_mode || !is109());
 }
 
 uint8_t toggleKanaMode(uint8_t key, uint8_t mod, int8_t make)

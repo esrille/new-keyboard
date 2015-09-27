@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014, 2015 Esrille Inc.
  *
  * This file is a modified version of usb_descriptors.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -92,8 +92,13 @@ const uint8_t configDescriptor1[]={
     /* Configuration Descriptor */
     0x09,//sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
     USB_DESCRIPTOR_CONFIGURATION,                // CONFIGURATION descriptor type
-    DESC_CONFIG_WORD(0x0029),   // Total length of data for this cfg
+#ifndef ENABLE_MOUSE
+    DESC_CONFIG_WORD(0x29), // Total length of data for this cfg
     1,                      // Number of interfaces in this cfg
+#else
+    DESC_CONFIG_WORD(0x42), // Total length of data for this cfg
+    2,                      // Number of interfaces in this cfg
+#endif
     1,                      // Index value of this configuration
     0,                      // Configuration string index
     _DEFAULT | _RWU,        // Attributes, see usb_device.h
@@ -118,7 +123,7 @@ const uint8_t configDescriptor1[]={
     HID_NUM_OF_DSC,         // Number of class descriptors, see usbcfg.h
     DSC_RPT,                // Report descriptor type
     DESC_CONFIG_WORD(HID_RPT01_SIZE),   // Size of the report descriptor
-    
+
     /* Endpoint Descriptor */
     0x07,/*sizeof(USB_EP_DSC)*/
     USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
@@ -133,8 +138,37 @@ const uint8_t configDescriptor1[]={
     HID_EP | _EP_OUT,            //EndpointAddress
     _INTERRUPT,                       //Attributes
     DESC_CONFIG_WORD(8),        //size
-    0x01                        //Interval
+    0x01,                       //Interval
 
+#ifdef ENABLE_MOUSE
+    /* Interface Descriptor */
+    0x09,//sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
+    USB_DESCRIPTOR_INTERFACE,               // INTERFACE descriptor type
+    1,                      // Interface Number
+    0,                      // Alternate Setting Number
+    1,                      // Number of endpoints in this intf
+    HID_INTF,               // Class code
+    BOOT_INTF_SUBCLASS,     // Subclass code
+    HID_PROTOCOL_MOUSE,     // Protocol code
+    0,                      // Interface string index
+
+    /* HID Class-Specific Descriptor */
+    0x09,//sizeof(USB_HID_DSC)+3,    // Size of this descriptor in bytes RRoj hack
+    DSC_HID,                // HID descriptor type
+    DESC_CONFIG_WORD(0x0111),                 // HID Spec Release Number in BCD format (1.11)
+    0x00,                   // Country Code (0x00 for Not supported)
+    HID_NUM_OF_DSC,         // Number of class descriptors, see usbcfg.h
+    DSC_RPT,                // Report descriptor type
+    DESC_CONFIG_WORD(HID_RPT02_SIZE),   //sizeof(hid_rpt02),      // Size of the report descriptor
+
+    /* Endpoint Descriptor */
+    0x07,/*sizeof(USB_EP_DSC)*/
+    USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
+    HID_MOUSE_EP | _EP_IN,            //EndpointAddress
+    _INTERRUPT,                       //Attributes
+    DESC_CONFIG_WORD(4),                  //size
+    0x01                        //Interval
+#endif
 };
 
 //Language code string descriptor

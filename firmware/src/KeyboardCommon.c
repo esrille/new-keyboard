@@ -15,6 +15,7 @@
  */
 
 #include "Keyboard.h"
+#include "Mouse.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -30,7 +31,7 @@
 #include "nisse.h"
 #endif
 
-__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0 /* bt */);
+__EEPROM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0 /* mouse */);
 
 uint8_t os;
 uint8_t mod;
@@ -328,7 +329,7 @@ void emitKey(uint8_t c)
         ordered_keys[ordered_pos] = 0;
 }
 
-static void emitString(const uint8_t s[])
+void emitString(const uint8_t s[])
 {
     uint8_t i = 0;
     uint8_t c;
@@ -437,6 +438,10 @@ static void about(void)
     // F9 Prefix Shift
     emitString(about10);
     emitPrefixShift();
+
+#ifdef ENABLE_MOUSE
+    emitMouse();
+#endif
 
 #ifdef NRF51
 {
@@ -737,6 +742,13 @@ int8_t makeReport(uint8_t* report)
             current[count++] = VOID_KEY;
         memmove(keys[currentKey].keys, current + 2, 6);
         current[0] = modifiers;
+        if (led & LED_SCROLL_LOCK)
+            current[1] |= MOD_FN;
+#ifdef ENABLE_MOUSE
+        if (isMouseTouched())
+            current[1] |= MOD_PAD;
+#endif
+
         if (prefix_shift && isKanaMode(current)) {
             current[0] |= prefix;
             if (!(modifiersPrev & MOD_LEFTSHIFT) && (modifiers & MOD_LEFTSHIFT))
@@ -762,8 +774,10 @@ int8_t makeReport(uint8_t* report)
         while (count < 8)
             current[count++] = VOID_KEY;
 
-        if (led & LED_SCROLL_LOCK)
-            current[1] |= MOD_FN;
+#ifdef ENABLE_MOUSE
+        if (current[1] == MOD_PAD)
+            processMouseKeys(current, processed);
+#endif
 
         if (memcmp(current, processed, 8)) {
             if (memcmp(current + 2, processed + 2, 6) || current[2] == VOID_KEY || current[1] || (current[0] & MOD_SHIFT)) {
@@ -791,6 +805,7 @@ int8_t makeReport(uint8_t* report)
     count = 2;
     modifiers = 0;
     current[1] = 0;
+
     return xmit;
 }
 
@@ -803,6 +818,10 @@ uint8_t controlLED(uint8_t report)
 {
     led = report;
     report = controlKanaLED(report);
+#ifdef ENABLE_MOUSE
+    if (isMouseTouched())
+        report |= LED_SCROLL_LOCK;
+#endif
 #ifdef __XC8
     if (BOARD_REV_VALUE < 3) {
         static int8_t tick;

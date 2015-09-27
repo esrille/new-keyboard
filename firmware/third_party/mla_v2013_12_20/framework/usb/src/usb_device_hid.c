@@ -1,3 +1,11 @@
+/*
+ * Copyright 2015 Esrille Inc.
+ *
+ * This file is a modified version of usb_device_hid.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE for copying permission.
+ */
+
 /*******************************************************************************
   USB Device Human Interface Device (HID) Layer
 
@@ -80,10 +88,13 @@ typedef struct __attribute__((packed))
 // Section: Variables
 // *****************************************************************************
 // *****************************************************************************
-static uint8_t idle_rate;
-static uint8_t active_protocol;   // [0] Boot Protocol [1] Report Protocol
+static uint8_t idle_rate[HID_NUM_OF_INTF];
+static uint8_t active_protocol[HID_NUM_OF_INTF];   // [0] Boot Protocol [1] Report Protocol
 
 extern const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01;
+#ifdef ENABLE_MOUSE
+extern const struct{uint8_t report[HID_RPT02_SIZE];}hid_rpt02;
+#endif
 
 // *****************************************************************************
 // *****************************************************************************
@@ -96,7 +107,7 @@ extern const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01;
 
 #if defined USER_SET_REPORT_HANDLER
     extern void USER_SET_REPORT_HANDLER(void);
-#endif     
+#endif
 
 // *****************************************************************************
 // *****************************************************************************
@@ -145,13 +156,15 @@ extern const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01;
 
 	Remarks:
 		None
- 
+
  *******************************************************************/
 void USBCheckHIDRequest(void)
 {
-    if(SetupPkt.Recipient != USB_SETUP_RECIPIENT_INTERFACE_BITFIELD) return;
-    if(SetupPkt.bIntfID != HID_INTF_ID) return;
-    
+    if(SetupPkt.Recipient != USB_SETUP_RECIPIENT_INTERFACE_BITFIELD)
+        return;
+    if(HID_NUM_OF_INTF <= SetupPkt.bIntfID)
+        return;
+
     /*
      * There are two standard requests that hid.c may support.
      * 1. GET_DSC(DSC_HID,DSC_RPT,DSC_PHY);
@@ -161,22 +174,42 @@ void USBCheckHIDRequest(void)
     {
         switch(SetupPkt.bDescriptorType)
         {
-            case DSC_HID: //HID Descriptor          
+            case DSC_HID: //HID Descriptor
                 if(USBActiveConfiguration == 1)
                 {
-                    USBEP0SendROMPtr(
-                        (const uint8_t*)&configDescriptor1 + 18,		//18 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
-                        sizeof(USB_HID_DSC)+3,
-                        USB_EP0_INCLUDE_ZERO);
+                    if(SetupPkt.bIntfID == HID_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&configDescriptor1 + 18,		//18 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
+                            sizeof(USB_HID_DSC)+3,
+                            USB_EP0_INCLUDE_ZERO);
+                    }
+#ifdef ENABLE_MOUSE
+                    else if (SetupPkt.bIntfID == HID_MOUSE_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&configDescriptor1 + 41,		//41 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
+                            sizeof(USB_HID_DSC)+3,
+                            USB_EP0_INCLUDE_ZERO);
+                    }
+#endif
                 }
                 break;
-            case DSC_RPT:  //Report Descriptor           
-                //if(USBActiveConfiguration == 1)
+            case DSC_RPT:  //Report Descriptor
+                if(USBActiveConfiguration == 1)
                 {
-                    USBEP0SendROMPtr(
-                        (const uint8_t*)&hid_rpt01,
-                        HID_RPT01_SIZE,     //See usbcfg.h
-                        USB_EP0_INCLUDE_ZERO);
+                    if(SetupPkt.bIntfID == HID_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&hid_rpt01,
+                            HID_RPT01_SIZE,     //See usbcfg.h
+                            USB_EP0_INCLUDE_ZERO);
+                    }
+#ifdef ENABLE_MOUSE
+                    else if(SetupPkt.bIntfID == HID_MOUSE_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&hid_rpt02,
+                            HID_RPT02_SIZE,     //See usbcfg.h
+                            USB_EP0_INCLUDE_ZERO);
+                    }
+#endif
                 }
                 break;
             case DSC_PHY:  //Physical Descriptor
@@ -194,7 +227,7 @@ void USBCheckHIDRequest(void)
                 break;
         }//end switch(SetupPkt.bDescriptorType)
     }//end if(SetupPkt.bRequest == GET_DSC)
-    
+
     if(SetupPkt.RequestType != USB_SETUP_TYPE_CLASS_BITFIELD)
     {
         return;
@@ -210,28 +243,28 @@ void USBCheckHIDRequest(void)
         case SET_REPORT:
             #if defined USER_SET_REPORT_HANDLER
                 USER_SET_REPORT_HANDLER();
-            #endif       
+            #endif
             break;
         case GET_IDLE:
             USBEP0SendRAMPtr(
-                (uint8_t*)&idle_rate,
+                (uint8_t*)&idle_rate[SetupPkt.bIntfID],
                 1,
                 USB_EP0_INCLUDE_ZERO);
             break;
         case SET_IDLE:
             USBEP0Transmit(USB_EP0_NO_DATA);
-            idle_rate = ((USB_SETUP_SET_IDLE_RATE*)&SetupPkt)->duration;
+            idle_rate[SetupPkt.bIntfID] = ((USB_SETUP_SET_IDLE_RATE*)&SetupPkt)->duration;
             USB_DEVICE_HID_IDLE_RATE_CALLBACK(((USB_SETUP_SET_IDLE_RATE*)&SetupPkt)->reportId, idle_rate);
             break;
         case GET_PROTOCOL:
             USBEP0SendRAMPtr(
-                (uint8_t*)&active_protocol,
+                (uint8_t*)&active_protocol[SetupPkt.bIntfID],
                 1,
                 USB_EP0_NO_OPTIONS);
             break;
         case SET_PROTOCOL:
             USBEP0Transmit(USB_EP0_NO_DATA);
-            active_protocol = ((USB_SETUP_SET_PROTOCOL*)&SetupPkt)->protocol;
+            active_protocol[SetupPkt.bIntfID] = ((USB_SETUP_SET_PROTOCOL*)&SetupPkt)->protocol;
             break;
     }//end switch(SetupPkt.bRequest)
 
@@ -240,12 +273,12 @@ void USBCheckHIDRequest(void)
 /********************************************************************
     Function:
         USB_HANDLE HIDTxPacket(uint8_t ep, uint8_t* data, uint16_t len)
-        
+
     Summary:
         Sends the specified data out the specified endpoint
 
     Description:
-        This function sends the specified data out the specified 
+        This function sends the specified data out the specified
         endpoint and returns a handle to the transfer information.
 
         Typical Usage:
@@ -258,32 +291,32 @@ void USBCheckHIDRequest(void)
             USBInHandle = HIDTxPacket(HID_EP,(uint8_t*)&ToSendDataBuffer[0],sizeof(ToSendDataBuffer));
         }
         </code>
-        
+
     PreCondition:
         None
-        
+
     Parameters:
         uint8_t ep    - the endpoint you want to send the data out of
         uint8_t* data - pointer to the data that you wish to send
         uint16_t len   - the length of the data that you wish to send
-        
+
     Return Values:
         USB_HANDLE - a handle for the transfer.  This information
         should be kept to track the status of the transfer
-        
+
     Remarks:
         None
-  
+
  *******************************************************************/
  // Implemented as a macro. See usb_function_hid.h
 
 /********************************************************************
     Function:
         USB_HANDLE HIDRxPacket(uint8_t ep, uint8_t* data, uint16_t len)
-        
+
     Summary:
         Receives the specified data out the specified endpoint
-        
+
     Description:
         Receives the specified data out the specified endpoint.
 
@@ -297,22 +330,22 @@ void USBCheckHIDRequest(void)
 
     PreCondition:
         None
-        
+
     Parameters:
         uint8_t ep    - the endpoint you want to receive the data into
         uint8_t* data - pointer to where the data will go when it arrives
         uint16_t len   - the length of the data that you wish to receive
-        
+
     Return Values:
         USB_HANDLE - a handle for the transfer.  This information
         should be kept to track the status of the transfer
-        
+
     Remarks:
         None
-  
+
  *******************************************************************/
   // Implemented as a macro. See usb_function_hid.h
-  
+
 /*******************************************************************************
  End of File
 */

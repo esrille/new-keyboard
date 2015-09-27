@@ -43,22 +43,6 @@
 void APP_DeviceMouseInitialize();
 
 /*********************************************************************
-* Function: void APP_DeviceMouseStart(void);
-*
-* Overview: Starts running the demo.
-*
-* PreCondition: The device should be configured into the configuration
-*   that contains the custome HID interface.  The APP_DeviceMouseInitialize()
-*   function should also have been called before calling this function.
-*
-* Input: None
-*
-* Output: None
-*
-********************************************************************/
-void APP_DeviceMouseStart();
-
-/*********************************************************************
 * Function: void APP_DeviceMouseTasks(void);
 *
 * Overview: Keeps the demo running.
@@ -73,8 +57,5 @@ void APP_DeviceMouseStart();
 *
 ********************************************************************/
 void APP_DeviceMouseTasks();
-
-bool APP_DeviceMouseEventHandler(unsigned int event, void *pdata, size_t size);
-void APP_DeviceMouseSOFHandler(void);
 
 #endif

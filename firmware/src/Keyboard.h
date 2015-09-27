@@ -472,15 +472,15 @@
 #define ROMA_BANG       225     // !
 
 // Non-common (US, JP, IME)
-#define ROMA_LCB	230	// 「
-#define ROMA_RCB	231	// 」
-#define ROMA_LWCB	232	// 『
-#define ROMA_RWCB	233	// 』
-#define ROMA_LSB	234	// [
-#define ROMA_RSB	235	// ]
-#define ROMA_NAKAGURO	236	// ・
-#define ROMA_SLASH	237	// ／
-#define ROMA_SANTEN	238	// …
+#define ROMA_LCB        230     // 「
+#define ROMA_RCB        231     // 」
+#define ROMA_LWCB       232     // 『
+#define ROMA_RWCB       233     // 』
+#define ROMA_LSB        234     // [
+#define ROMA_RSB        235     // ]
+#define ROMA_NAKAGURO   236     // ・
+#define ROMA_SLASH      237     // ／
+#define ROMA_SANTEN     238     // …
 #define ROMA_COMMA      239     // ，
 #define ROMA_PERIOD     240     // ．
 #define ROMA_NAMI       241     // 〜
@@ -489,25 +489,26 @@
 //
 //
 
-#define EEPROM_BASE	0
-#define EEPROM_KANA	1
-#define EEPROM_OS	2
+#define EEPROM_BASE     0
+#define EEPROM_KANA     1
+#define EEPROM_OS       2
 #define EEPROM_DELAY	3
-#define EEPROM_MOD	4
-#define EEPROM_LED	5
-#define EEPROM_IME	6
-// 7 is used by bluetooth edition
+#define EEPROM_MOD      4
+#define EEPROM_LED      5
+#define EEPROM_IME      6
+#define EEPROM_MOUSE    7
 #define EEPROM_PREFIX   8
 
 void initKeyboard(void);
 void initKeyboardBase(void);
 void initKeyboardKana(void);
 
-#define KEY_FN                  0xF0
-#define KEY_DAKUTEN             0xF3
-#define KEY_HANDAKU             0xF4
+#define KEY_FN          0xF0
+#define KEY_DAKUTEN     0xF3
+#define KEY_HANDAKU     0xF4
 
-#define MOD_FN                  1u
+#define MOD_FN          1u
+#define MOD_PAD         4u      // Touch sensor
 
 #define BASE_QWERTY     0
 #define BASE_DVORAK     1
@@ -609,12 +610,17 @@ uint8_t controlKanaLED(uint8_t report);
 uint8_t getKeyNumLock(uint8_t code);
 uint8_t getKeyBase(uint8_t code);
 
+#ifdef __XC8
 #define MAX_MACRO_SIZE  132
+#else
+#define MAX_MACRO_SIZE  160
+#endif
 
 uint8_t beginMacro(uint8_t max);
 uint8_t peekMacro(void);
 uint8_t getMacro(void);
 void emitKey(uint8_t key);
+void emitString(const uint8_t s[]);
 void emitStringN(const uint8_t s[], uint8_t len);
 
 extern uint8_t os;

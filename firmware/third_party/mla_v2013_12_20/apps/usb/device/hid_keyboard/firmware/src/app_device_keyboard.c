@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014, 2015 Esrille Inc.
  *
  * This file is a modified version of app_device_keyboard.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -472,7 +472,7 @@ void APP_KeyboardTasks(void)
 
     if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER) {
         static int8_t cnt;
-        
+
         while (((int) ReadTimer0()) - tick < 141)   // 281: 12msec at 24MHz
             ;
         tick = (int) ReadTimer0();
