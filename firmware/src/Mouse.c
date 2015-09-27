@@ -141,9 +141,9 @@ int8_t isMouseTouched(void)
 
 // Protocol:
 // 1  tB tA t9 t8 t7 y7 x7
-// 0  t6 t5 t4 t3 t2 t1	t0
-// 0  x6 x5 x4 x3 x2 x1	x0
-// 0  y6 y5 y4 y3 y2 y1	y0
+// 0  t6 t5 t4 t3 t2 t1 t0
+// 0  x6 x5 x4 x3 x2 x1 x0
+// 0  y6 y5 y4 y3 y2 y1 y0
 int8_t processSerialUnit(uint8_t data)
 {
     int8_t ready = 0;
