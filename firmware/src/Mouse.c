@@ -41,6 +41,24 @@ typedef struct {
 
 #define PLAY_MAX    4
 
+#define CODE_F9     8
+#define CODE_F10    9
+#define CODE_F11    10
+#define CODE_F12    (1*12+10)
+#define CODE_U      (4*12+8)
+#define CODE_I      (4*12+9)
+#define CODE_O      (4*12+10)
+#define CODE_D      (5*12+2)
+#define CODE_J      (5*12+8)
+#define CODE_K      (5*12+9)
+#define CODE_L      (5*12+10)
+#define CODE_Z      (6*12+0)
+#define CODE_X      (6*12+1)
+#define CODE_C      (6*12+2)
+#define CODE_V      (6*12+3)
+#define CODE_B      (6*12+4)
+#define CODE_COMMA  (6*12+9)
+
 const static uint8_t playTable[PLAY_MAX] = {
     64, 56, 48, 40
 };
@@ -184,45 +202,44 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
 
     for (uint8_t i = 2; i < 8; ++i) {
         uint8_t code = current[i];
-        uint8_t key = getKeyBase(code);
-        switch (key) {
-        case KEY_F9:
+        switch (code) {
+        case CODE_F9:
             setPlay(3);
             break;
-        case KEY_F10:
+        case CODE_F10:
             setPlay(2);
             break;
-        case KEY_F11:
+        case CODE_F11:
             setPlay(1);
             break;
-        case KEY_F12:
+        case CODE_F12:
             setPlay(0);
             break;
-        case KEY_J:
-        case KEY_V:
+        case CODE_J:
+        case CODE_V:
             b |= 0x01;    // Left button
             break;
-        case KEY_L:
-        case KEY_X:
+        case CODE_L:
+        case CODE_X:
             b |= 0x02;    // Right button
             break;
-        case KEY_COMMA:
+        case CODE_COMMA:
             b |= 0x04;    // Wheel button
             break;
-        case KEY_U:
-        case KEY_Z:
+        case CODE_U:
+        case CODE_Z:
             b |= 0x8;     // Back button
             break;
-        case KEY_O:
-        case KEY_B:
+        case CODE_O:
+        case CODE_B:
             b |= 0x10;    // Forward button
             break;
-        case KEY_I:
-        case KEY_D:
+        case CODE_I:
+        case CODE_D:
             w = 1;
             break;
-        case KEY_K:
-        case KEY_C:
+        case CODE_K:
+        case CODE_C:
             w = -1;
             break;
         default:
