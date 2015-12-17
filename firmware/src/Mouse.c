@@ -59,6 +59,8 @@ typedef struct {
 #define CODE_B      (6*12+4)
 #define CODE_COMMA  (6*12+9)
 
+#define PLAY_XY      24         // x or y value smaller than PLAY_XY should be ignored.
+
 const static uint8_t playTable[PLAY_MAX] = {
     64, 56, 48, 40
 };
@@ -114,7 +116,7 @@ static int8_t trimXY(uint8_t raw)
         sign = -1;
         value = 128 - raw;
     }
-    if (value < (playXY >> 1))
+    if (value < (playXY >> 1) || value < PLAY_XY)
         return 0;
     if (value < playXY) {
         value = value * value / playXY * value / playXY * 10 / playXY;
