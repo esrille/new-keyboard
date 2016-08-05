@@ -1,9 +1,9 @@
 /*
- * Copyright 2014-2016 Esrille Inc.
+ * Copyright 2014 Esrille Inc.
  *
- * This file is a modified version of system.h provided by
+ * This file is a modified version of leds.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
- * See the file NOTICE for copying permission.
+ * See the Software License Agreement below for the License.
  */
 
 /********************************************************************
@@ -28,59 +28,59 @@
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *******************************************************************/
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef LEDS_H
+#define LEDS_H
 
-#include <xc.h>
 #include <stdbool.h>
 
-#include <buttons.h>
-#include <leds.h>
-#include <nvram.h>
-
-#include <io_mapping.h>
-#include <fixed_address_memory.h>
-#include <power.h>
-
-#include <usb_config.h>
-
-#define _XTAL_FREQ  24000000u
-
-/*** System States **************************************************/
+/** Type defintions *********************************/
 typedef enum
 {
-    SYSTEM_STATE_USB_START,
-    SYSTEM_STATE_USB_SUSPEND,
-    SYSTEM_STATE_USB_RESUME
-} SYSTEM_STATE;
+    LED_NONE,
+    LED_D1,
+    LED_D2,
+    LED_D3,
+} LED;
+
+#define LED_COUNT 3
+
+void LED_Initialize(void);
 
 /*********************************************************************
-* Function: void SYSTEM_Initialize( SYSTEM_STATE state )
+* Function: void LED_On(LED led);
 *
-* Overview: Initializes the system.
+* Overview: Turns requested LED on
 *
-* PreCondition: None
+* PreCondition: LED configured via LED_Configure()
 *
-* Input:  SYSTEM_STATE - the state to initialize the system into
+* Input: LED led - enumeration of the LEDs available in this
+*        demo.  They should be meaningful names and not the names of 
+*        the LEDs on the silkscreen on the board (as the demo code may 
+*        be ported to other boards).
+*         i.e. - LED_On(LED_CONNECTION_DETECTED);
 *
-* Output: None
+* Output: none
 *
 ********************************************************************/
-void SYSTEM_Initialize( SYSTEM_STATE state );
+void LED_On(LED led);
 
 /*********************************************************************
-* Function: void SYSTEM_Tasks(void)
+* Function: void LED_Off(LED led);
 *
-* Overview: Runs system level tasks that keep the system running
+* Overview: Turns requested LED off
 *
-* PreCondition: System has been initalized with SYSTEM_Initialize()
+* PreCondition: LED configured via LEDConfigure()
 *
-* Input: None
+* Input: LED led - enumeration of the LEDs available in this
+*        demo.  They should be meaningful names and not the names of 
+*        the LEDs on the silkscreen on the board (as the demo code may 
+*        be ported to other boards).
+*         i.e. - LED_Off(LED_CONNECTION_DETECTED);
 *
-* Output: None
+* Output: none
 *
 ********************************************************************/
-//void SYSTEM_Tasks(void);
-#define SYSTEM_Tasks()
+void LED_Off(LED led);
 
-#endif //SYSTEM_H
+
+#endif //LEDS_H

@@ -1,4 +1,12 @@
 ;-------------------------------------------------------------------------------
+;* Copyright 2016 Esrille Inc.
+;*
+;* This file is a modified version of VectorRemap.asm provided by
+;* Microchip Technology, Inc. for using Esrille New Keyboard.
+;* See the file NOTICE and the Software License Agreement below for the
+;* License.
+;-------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 ;* FileName:        VectorRemap.asm
 ;* Dependencies:    None
 ;* Processor:       PIC18
@@ -18,7 +26,7 @@
 ;* civil liability for the breach of the terms and conditions of this
 ;* license.
 ;*
-;* THIS SOFTWARE IS PROVIDED IN AN "AS IS"” CONDITION. NO WARRANTIES,
+;* THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
 ;* WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
 ;* TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 ;* PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -31,7 +39,7 @@
     PSECT HiVector,class=CODE,delta=1,abs
 #endif
         org 0x08
-    goto 0x1008     ;Resides at 0x0008 (hardware high priority interrupt vector), and causes PC to jump to 0x1008 upon a high priority interrupt event
+    goto 0x2008     ;Resides at 0x0008 (hardware high priority interrupt vector), and causes PC to jump to 0x1008 upon a high priority interrupt event
 
 
     ;//Low priority interrupt vector remapping, as well as bootloader mode absolute
@@ -40,7 +48,7 @@
     PSECT LoVector,class=CODE,delta=1,abs
 #endif
         org 0x18
-    goto    0x1018  ;Resides at 0x0018 (hardware low priority interrupt vector), and causes PC to jump to 0x1018 upon a low priority interrupt event
+    goto    0x2018  ;Resides at 0x0018 (hardware low priority interrupt vector), and causes PC to jump to 0x1018 upon a low priority interrupt event
     goto    0x30    ;Resides at 0x001C  //Serves as absolute entry point from application program into the bootloader mode
 
 

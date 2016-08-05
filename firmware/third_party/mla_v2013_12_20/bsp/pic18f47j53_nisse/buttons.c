@@ -1,28 +1,25 @@
 /*
  * Copyright 2014-2016 Esrille Inc.
  *
- * This file is a modified version of app_led_usb_status.c provided by
+ * This file is a modified version of buttons.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
  * See the file NOTICE for copying permission.
  */
 
 /*******************************************************************************
-  USB Status Indicator LED
+  Demo board push button abstraction layer for PICDEM FS USB board.
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    led_usb_status.c
+    buttons.c
 
   Summary:
-    Indicates the USB device status to the user via an LED.
+    Provides simple interface for pushbuttons on the PICDEM FS USB board.
 
   Description:
-    Indicates the USB device status to the user via an LED.
-    * The LED is turned off for suspend mode.
-    * It blinks quickly with 50% on time when configured
-    * It blinks slowly at a low on time (~5% on, 95% off) for all other states.
+    Provides simple interface for pushbuttons on the PICDEM FS USB board.
 *******************************************************************************/
 
 // DOM-IGNORE-BEGIN
@@ -55,13 +52,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
 #include <system.h>
-#include <usb/usb_device.h>
-
-#include "app_device_keyboard.h"
-
-#include <Keyboard.h>
+#include <buttons.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -69,58 +61,37 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-
-// *****************************************************************************
-// *****************************************************************************
-// Section: File Scope Data Types
-// *****************************************************************************
-// *****************************************************************************
-
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: Macros or Functions
 // *****************************************************************************
 // *****************************************************************************
 
-void APP_LEDUpdate(uint8_t led)
+/*********************************************************************
+* Function: bool BUTTON_IsPressed( );
+*
+* Overview: Returns the current state of the buttons
+*
+* PreCondition: button configured via BUTTON_SetConfiguration()
+*
+* Output: TRUE if any one of keys is pressed; FALSE if not pressed.
+*
+********************************************************************/
+bool BUTTON_IsPressed()
 {
-    if (led & LED_NUM_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
+    bool result;
 
-    if (led & LED_CAPS_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-
-    if (led & LED_SCROLL_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+    INTCON2bits.RBPU = 0;   // Enable RBPU
+    TRISA = 0x00;
+    TRISE = 0x80;           // Enable RDPU
+    Nop(); Nop(); Nop(); Nop(); Nop();
+    result = (~PORTD & 0xCE) || (~PORTB & 0xEF);
+    TRISA = 0x2F;
+    TRISE = 0x07;           // Disable RDPU
+    INTCON2bits.RBPU = 1;   // Disable RBPU
+    return result;
 }
 
-void APP_LEDUpdateUSBStatus(void)
-{
-    if (USBIsDeviceSuspended()) {
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-        return;
-    }
-
-    switch (USBGetDeviceState()) {
-    case CONFIGURED_STATE:
-        APP_KeyboardProcessOutputReport();
-        break;
-    default:
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-        break;
-    }
-}
 
 /*******************************************************************************
  End of File

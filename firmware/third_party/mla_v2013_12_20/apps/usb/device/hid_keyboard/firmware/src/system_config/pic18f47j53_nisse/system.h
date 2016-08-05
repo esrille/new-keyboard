@@ -32,11 +32,16 @@
 #define SYSTEM_H
 
 #include <xc.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #include <buttons.h>
 #include <leds.h>
 #include <nvram.h>
+
+#ifdef WITH_HOS
+#include <HosMaster.h>
+#endif
 
 #include <io_mapping.h>
 #include <fixed_address_memory.h>
@@ -44,7 +49,14 @@
 
 #include <usb_config.h>
 
-#define _XTAL_FREQ  24000000u
+#define _XTAL_FREQ  48000000u
+#define WDT_FREQ    60u
+
+#ifdef ENABLE_MOUSE
+#define HOS_TYPE_DEFAULT    HOS_TYPE_TSAP
+#else
+#define HOS_TYPE_DEFAULT    HOS_TYPE_INFO
+#endif
 
 /*** System States **************************************************/
 typedef enum
@@ -82,5 +94,8 @@ void SYSTEM_Initialize( SYSTEM_STATE state );
 ********************************************************************/
 //void SYSTEM_Tasks(void);
 #define SYSTEM_Tasks()
+
+uint8_t isBusPowered(void);
+int8_t isUSBMode(void);
 
 #endif //SYSTEM_H

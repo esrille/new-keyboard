@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Esrille Inc.
+ * Copyright 2013-2016 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -610,10 +610,10 @@ uint8_t controlKanaLED(uint8_t report);
 uint8_t getKeyNumLock(uint8_t code);
 uint8_t getKeyBase(uint8_t code);
 
-#ifdef __XC8
+#ifndef WITH_HOS
 #define MAX_MACRO_SIZE  132
 #else
-#define MAX_MACRO_SIZE  160
+#define MAX_MACRO_SIZE  254
 #endif
 
 uint8_t beginMacro(uint8_t max);
@@ -622,6 +622,9 @@ uint8_t getMacro(void);
 void emitKey(uint8_t key);
 void emitString(const uint8_t s[]);
 void emitStringN(const uint8_t s[], uint8_t len);
+#ifdef WITH_HOS
+void emitNumber(uint16_t n);
+#endif
 
 extern uint8_t os;
 extern uint8_t prefix_shift;

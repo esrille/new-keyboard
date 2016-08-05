@@ -205,6 +205,24 @@ static MOUSE mouse;
 ********************************************************************/
 void APP_DeviceMouseInitialize(void)
 {
+#ifdef WITH_HOS
+    PPSUnLock();
+    // Support TSAP via UART2
+    // Set RP7 as RX2
+    iPPSInput(IN_FN_PPS_RX2DT2, IN_PIN_PPS_RP7);
+    PPSLock();
+
+    // Initialize USART (9600bps: 1249, 38400bps: 312)
+    //   Note ignore CPDIV here; see "4. Module: EUSART (Receive Baud Rate)" in
+    //   "PIC18F47J53 Family Silicon Errata and Data Sheet Clarification" for more detail.
+    baud2USART(BAUD_IDLE_RX_PIN_STATE_HIGH & BAUD_IDLE_TX_PIN_STATE_HIGH & BAUD_16_BIT_RATE & BAUD_WAKEUP_OFF & BAUD_AUTO_OFF);
+    Open2USART(USART_TX_INT_OFF & USART_RX_INT_ON & USART_ASYNCH_MODE & USART_EIGHT_BIT & USART_CONT_RX & USART_BRGH_HIGH, 312);
+    IPR3bits.RC2IP = 1;     // High priority
+#endif
+
+    INTCONbits.PEIE = 1;    // Enable peripheral interrupt
+    INTCONbits.GIE = 1;     // Enable global interrupt
+
     /* initialize the handles to invalid so we know they aren't being used. */
     mouse.lastINTransmission = NULL;
 

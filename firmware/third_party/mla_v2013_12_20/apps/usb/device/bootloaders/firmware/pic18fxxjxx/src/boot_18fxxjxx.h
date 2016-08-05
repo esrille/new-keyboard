@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014-2016 Esrille Inc.
+ *
+ * This file is a modified version of boot_18fxxjxx.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE and the Software License Agreement below for the
+ * License.
+ */
 /*********************************************************************
  *
  * Microchip USB C18 Firmware -  HID Bootloader for PIC18FXXJXX USB Devices
@@ -32,7 +40,7 @@
  * File version     Date        Comment
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * 1.0              06/03/2008  Original
- * 2.9j             06/11/13    Added some definitions. 
+ * 2.9j             06/11/13    Added some definitions.
  ********************************************************************/
 #ifndef BOOT18FXXJXX_H
 #define BOOT18FXXJXX_H
@@ -45,15 +53,22 @@ void DisableUSBandExecuteLongDelay(void);
 
 
 //Vector remapping/absolute address constants
-#define REMAPPED_APPLICATION_RESET_VECTOR       0x1000
-//#define REMAPPED_APPLICATION_HIGH_ISR_VECTOR    0x1008        //See VectorRemap.asm
-//#define REMAPPED_APPLICATION_LOW_ISR_VECTOR     0x1018        //See VectorRemap.asm
+#define REMAPPED_APPLICATION_RESET_VECTOR       0x2000
+//#define REMAPPED_APPLICATION_HIGH_ISR_VECTOR    0x2008        //See VectorRemap.asm
+//#define REMAPPED_APPLICATION_LOW_ISR_VECTOR     0x2018        //See VectorRemap.asm
 #define BOOTLOADER_ABSOLUTE_ENTRY_ADDRESS       0x001C  //Execute a "goto 0x001C" inline assembly instruction, if you want to enter the bootloader mode from the application via software
 
-#define APP_SIGNATURE_ADDRESS                   0x1006  //0x1006 and 0x1007 contains the "signature" WORD, indicating successful erase/program/verify operation
+#define APP_SIGNATURE_ADDRESS                   0x2006  //0x2006 and 0x2007 contains the "signature" WORD, indicating successful erase/program/verify operation
 #define APP_SIGNATURE_VALUE                     0x600D  //leet "GOOD", implying that the erase/program was a success and the bootloader intentionally programmed the APP_SIGNATURE_ADDRESS with this value
-#define APP_VERSION_ADDRESS                     0x1016  //0x1016 and 0x1017 should contain the application image firmware version number
+#define APP_VERSION_ADDRESS                     0x1F7F8 //0x1F7F8 and 0x1F7F9 should contain the application image firmware version number
 
+//
+// Esrille New Keyboard
+//
+#define APP_MACHINE_ADDRESS                     0x2004  // The application image machine type number address
+#define APP_MACHINE_VALUE                       0x4753  // PIC18F47J53
 
+#define BOARD_REV_ADDRESS                       0x1FFE
+#define BOARD_REV_VALUE                         ESRILLE_NEW_KEYBOARD
 
 #endif //BOOT18FXXJXX_H

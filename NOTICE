@@ -39,7 +39,23 @@ and/or a USB Vendor ID.
 
 For more information, please contact at info@esrille.com.
 
+
+== ⚠ ATTENTION ==
+
+Several source files of the Firmware contains comment lines including the
+⚠ ATTENTION mark. Those files must not be modified to maintain Bluetooth®
+Qualification of the Esrille New Keyboard - NISSE.
+
+See "Bluetooth Qualification and Declaration Processes" for more details:
+  https://www.bluetooth.org/en-us/test-qualification/qualification-overview
+
+
 == Credits ==
+
+The Bluetooth® word mark and logos are registered trademarks owned by the
+Bluetooth SIG, Inc. and any use of such marks by Esrille Inc. is under
+license.
+
 
 The Firmware contains code provided by Microchip Technology Incorporated for
 its PIC Microcontroller, for use solely and exclusively on Microchip PIC
@@ -63,6 +79,7 @@ published as:
     Masasuke Morita, "On the Optimization of Japanese Text Input System and
     Keyboard System", IEICE Trans. D, Vol.J70-D, No.11, 1987.
     (http://search.ieice.org/bin/summary.php?id=j70-d_11_2047&category=D&lang=J&year=1987&abst=)
+
 
 == The Esrille logo ==
 

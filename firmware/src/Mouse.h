@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Esrille Inc.
+ * Copyright 2015, 2016 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,15 @@ uint8_t getKeyboardMouseButtons(void);
 int8_t getKeyboardMouseX(void);
 int8_t getKeyboardMouseY(void);
 int8_t getKeyboardMouseWheel(void);
+int8_t isProcessingSrialData(void);
+
+#ifdef WITH_HOS
+void processMouseData(void);
+#endif
+
+#ifdef DEBUG
+void dumpMouse(void);
+#endif
 
 #endif  // #ifndef MOUSE_H
 

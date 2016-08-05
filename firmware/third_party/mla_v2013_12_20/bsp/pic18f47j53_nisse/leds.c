@@ -1,28 +1,25 @@
 /*
  * Copyright 2014-2016 Esrille Inc.
  *
- * This file is a modified version of app_led_usb_status.c provided by
+ * This file is a modified version of leds.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
  * See the file NOTICE for copying permission.
  */
 
 /*******************************************************************************
-  USB Status Indicator LED
+  LED demo board abstraction layer for PICDEM FS USB demo board.
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    led_usb_status.c
+    leds.c
 
   Summary:
-    Indicates the USB device status to the user via an LED.
+    LED demo board abstraction layer for PICDEM FS USB demo board.
 
   Description:
-    Indicates the USB device status to the user via an LED.
-    * The LED is turned off for suspend mode.
-    * It blinks quickly with 50% on time when configured
-    * It blinks slowly at a low on time (~5% on, 95% off) for all other states.
+    LED demo board abstraction layer for PICDEM FS USB demo board.
 *******************************************************************************/
 
 // DOM-IGNORE-BEGIN
@@ -55,13 +52,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
 #include <system.h>
-#include <usb/usb_device.h>
-
-#include "app_device_keyboard.h"
-
-#include <Keyboard.h>
 
 // *****************************************************************************
 // *****************************************************************************
@@ -69,12 +60,13 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
+static unsigned char led1Bit = 1u << 0;
+static unsigned char led2Bit = 1u << 1;
+static unsigned char led3Bit = 1u << 2;
 
-// *****************************************************************************
-// *****************************************************************************
-// Section: File Scope Data Types
-// *****************************************************************************
-// *****************************************************************************
+static volatile unsigned char* led1Port = &LATC;
+static volatile unsigned char* led2Port = &LATC;
+static volatile unsigned char* led3Port = &LATC;
 
 
 // *****************************************************************************
@@ -83,44 +75,89 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-void APP_LEDUpdate(uint8_t led)
+void LED_Initialize(void)
 {
-    if (led & LED_NUM_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-
-    if (led & LED_CAPS_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-
-    if (led & LED_SCROLL_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+    LED_On(LED_D1);
+    LED_On(LED_D2);
+    LED_On(LED_D3);
 }
 
-void APP_LEDUpdateUSBStatus(void)
+static void LED_Set(LED led)
 {
-    if (USBIsDeviceSuspended()) {
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-        return;
-    }
-
-    switch (USBGetDeviceState()) {
-    case CONFIGURED_STATE:
-        APP_KeyboardProcessOutputReport();
+    switch (led) {
+    case LED_D1:
+        *led1Port |= led1Bit;
+        break;
+    case LED_D2:
+        *led2Port |= led2Bit;
+        break;
+    case LED_D3:
+        *led3Port |= led3Bit;
         break;
     default:
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
         break;
     }
 }
+
+static void LED_Clear(LED led)
+{
+    switch (led) {
+    case LED_D1:
+        *led1Port &= ~led1Bit;
+        break;
+    case LED_D2:
+        *led2Port &= ~led2Bit;
+        break;
+    case LED_D3:
+        *led3Port &= ~led3Bit;
+        break;
+    default:
+        break;
+    }
+}
+
+/*********************************************************************
+* Function: void LED_On(LED led);
+*
+* Overview: Turns requested LED on
+*
+* PreCondition: LED configured via LED_Configure()
+*
+* Input: LED led - enumeration of the LEDs available in this
+*        demo.  They should be meaningful names and not the names of
+*        the LEDs on the silkscreen on the board (as the demo code may
+*        be ported to other boards).
+*         i.e. - LED_On(LED_CONNECTION_DETECTED);
+*
+* Output: none
+*
+********************************************************************/
+void LED_On(LED led)
+{
+    LED_Set(led);
+}
+
+/*********************************************************************
+* Function: void LED_Off(LED led);
+*
+* Overview: Turns requested LED off
+*
+* PreCondition: LED configured via LEDConfigure()
+*
+* Input: LED led - enumeration of the LEDs available in this
+*        demo.  They should be meaningful names and not the names of
+*        the LEDs on the silkscreen on the board (as the demo code may
+*        be ported to other boards).
+*         i.e. - LED_Off(LED_CONNECTION_DETECTED);
+*
+* Output: none
+*
+********************************************************************/
+void LED_Off(LED led)
+{
+    LED_Clear(led);
+}
+
 
 /*******************************************************************************
  End of File

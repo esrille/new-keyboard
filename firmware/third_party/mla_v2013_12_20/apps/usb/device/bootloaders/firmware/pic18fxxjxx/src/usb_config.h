@@ -1,3 +1,11 @@
+/*
+ * Copyright 2016 Esrille Inc.
+ *
+ * This file is a modified version of main.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE and the Software License Agreement below for the
+ * License.
+ */
 /*********************************************************************
  * FileName:        usb_config.h
  * Dependencies:    See INCLUDES section below
@@ -50,13 +58,13 @@
 //commented out to save code space (and/or if there are no LEDs available on
 //the actual target application board).  If this option is uncommented, you must
 //provide the proper LED pin definitions in the HardwareProfile.h file.
-#define ENABLE_USB_LED_BLINK_STATUS     
+#define ENABLE_USB_LED_BLINK_STATUS
 
 
 //USB VBUS sensing and USB Bus/Self power sensing options.
 //---------------------------------------------------------
 //#define USE_SELF_POWER_SENSE_IO   //Leave commented if device is bus powered only (or self powered only, uncomment for some types of dual powered devices)
-//#define USE_USB_BUS_SENSE_IO      //If the device is self powered, this needs to uncommented if making a fully compliant USB design
+#define USE_USB_BUS_SENSE_IO      //If the device is self powered, this needs to uncommented if making a fully compliant USB design
 
 
 

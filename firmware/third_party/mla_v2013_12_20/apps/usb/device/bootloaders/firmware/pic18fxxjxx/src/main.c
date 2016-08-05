@@ -1,3 +1,11 @@
+/*
+ * Copyright 2014-2016 Esrille Inc.
+ *
+ * This file is a modified version of main.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE and the Software License Agreement below for the
+ * License.
+ */
 /*********************************************************************
  *
  *   Microchip USB HID Bootloader v1.01 for PIC18F46J50 Family Devices
@@ -22,7 +30,7 @@
  * civil liability for the breach of the terms and conditions of this
  * license.
  *
- * THIS SOFTWARE IS PROVIDED IN AN "AS IS"” CONDITION. NO WARRANTIES,
+ * THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
  * WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
  * TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
@@ -31,7 +39,7 @@
  *
  * File Version  Date       Comment
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 1.0           06/19/2008 Original Version.  Adapted from 
+ * 1.0           06/19/2008 Original Version.  Adapted from
  *                          MCHPFSUSB v2.1 HID Bootloader
  *                          for PIC18F87J50 Family devices.
  * 2.9j          06/10/2013 Improved software entry point into bootloader
@@ -49,7 +57,7 @@
 /*********************************************************************
 IMPORTANT NOTE: This code is currently configured to work with the
 PIC18F46J50 FS USB Demo Board.  It can be readily adapted to
-work with other members of the PIC18F46J50 Family of USB microcontrollers 
+work with other members of the PIC18F46J50 Family of USB microcontrollers
 as well ('F' and 'LF' versions of PIC18F24J50/25J50/26J50/44J50/45J50/46J50).
 
 However, the default device that is currently selected in the project
@@ -142,26 +150,26 @@ ways:
 1.  I/O pin check at power up/after any reset.  and/or:
 2.  Software entry via absolute jump to address 0x001C.
 
-The I/O pin check method is the most rugged, since it does not require the 
+The I/O pin check method is the most rugged, since it does not require the
 application firmware image to be intact (at all) to get into the bootloader
 mode.  However, software entry is also possible and may be more convenient
 in applications that do not have user exposed pushbuttons available.
 
 When the "application" image is executing, it may optionally jump into
-bootloader mode, by executing a _asm goto 0x001C _endasm instruction.  
+bootloader mode, by executing a _asm goto 0x001C _endasm instruction.
 Before doing so however, the firwmare should configure the current
 clock settings to be compatible with USB module operation, in they
-are not already.  Once the goto 0x001C has been executed the USB device 
-will detach from the USB bus (if it was previously attached), and will 
-re-enumerate as a HID class device with a new VID/PID (adjustable via 
+are not already.  Once the goto 0x001C has been executed the USB device
+will detach from the USB bus (if it was previously attached), and will
+re-enumerate as a HID class device with a new VID/PID (adjustable via
 usb_dsc.c settings), which can communicate with the associated
 USB host software that loads and programs the new .hex file.
 
 
 --------------------------------------------------------------------------------
-Anytime that an application implements flash self erase/write capability, 
-special care should be taken to make sure that the microcontroller is operated 
-within all datasheet ratings, especially those associated with voltage versus 
+Anytime that an application implements flash self erase/write capability,
+special care should be taken to make sure that the microcontroller is operated
+within all datasheet ratings, especially those associated with voltage versus
 frequency.
 
 Operating the device at too high of a frequency (for a given voltage, ex: by
@@ -170,14 +178,14 @@ value such as 2.35V+ is required) can cause unexpected code operation.  This
 could potentially allow inadvertent execution of bootloader or other self
 erase/write routines, causing corruption of the flash memory of the application.
 
-To avoid this, all applications that implement self erase/write capability 
+To avoid this, all applications that implement self erase/write capability
 should make sure to prevent execution during overclocked/undervolted conditions.
 
-For this reason, enabling and using the microcontroller hardware Brown-out-Reset 
-feature is particularly recommended for applications using a bootloader.  If 
-BOR is not used, or the trip threshold is too low for the intended application 
-frequency, it is suggested to add extra code in the application to detect low 
-voltage conditions, and to intentionally clock switch to a lower frequency 
+For this reason, enabling and using the microcontroller hardware Brown-out-Reset
+feature is particularly recommended for applications using a bootloader.  If
+BOR is not used, or the trip threshold is too low for the intended application
+frequency, it is suggested to add extra code in the application to detect low
+voltage conditions, and to intentionally clock switch to a lower frequency
 (or put the device to sleep) during the low voltage condition.  Hardware
 modules such as the ADC, comparators, or the HLVD (high/low voltage detect)
 can often be used for this purpose.
@@ -208,15 +216,16 @@ placing code on the same erase page as the configuration bits.
 
 
 /** I N C L U D E S **********************************************************/
-#include "usb.h"                         
+#include "usb.h"
 #include "HardwareProfile.h"
 #include "boot_18fxxjxx.h"
 
+#include "HosMaster.h"
 
 
 /** C O N F I G U R A T I O N ************************************************/
-// Note: For a complete list of the available config pragmas and their values, 
-// see the compiler documentation, and/or click "Help --> Topics..." and then 
+// Note: For a complete list of the available config pragmas and their values,
+// see the compiler documentation, and/or click "Help --> Topics..." and then
 // select "PIC18 Config Settings" in the Language Tools section.
 
 #if defined(PIC18F46J50_PIM)
@@ -242,7 +251,7 @@ placing code on the same erase page as the configuration bits.
      #pragma config WPFP = PAGE_1        //Write Protect Program Flash Page 0
      #pragma config WPEND = PAGE_0       //Start protection at page 0
      #pragma config WPCFG = OFF          //Write/Erase last page protect Disabled
-     #pragma config WPDIS = OFF          //WPFP[5:0], WPEND, and WPCFG bits ignored 
+     #pragma config WPDIS = OFF          //WPFP[5:0], WPEND, and WPCFG bits ignored
 #elif defined(PIC18F47J53_PIM)
      #pragma config WDTEN = OFF          //WDT disabled (enabled by SWDTEN bit)
      #pragma config PLLDIV = 3           //Divide by 3 (12 MHz oscillator input)
@@ -264,7 +273,7 @@ placing code on the same erase page as the configuration bits.
      #pragma config WPFP = PAGE_1        //Write Protect Program Flash Page 0
      #pragma config WPEND = PAGE_0       //Start protection at page 0
      #pragma config WPCFG = OFF          //Write/Erase last page protect Disabled
-     #pragma config WPDIS = OFF          //WPFP[5:0], WPEND, and WPCFG bits ignored 
+     #pragma config WPDIS = OFF          //WPFP[5:0], WPEND, and WPCFG bits ignored
 #elif defined(PIC18F87J50_FS_USB_PIM)			// Configuration bits for PIC18F87J50 FS USB Plug-In Module board
     #pragma config XINST    = OFF		// Extended instruction set
     #pragma config STVREN   = ON		// Stack overflow reset
@@ -355,6 +364,50 @@ placing code on the same erase page as the configuration bits.
      #pragma config WPDIS = OFF          //WPFP[5:0], WPEND, and WPCFG bits ignored
 
 
+#elif defined(ESRILLE_NEW_KEYBOARD)     // Configuration bits for Esrille New Keybard
+    // CONFIG1L
+    #pragma config WDTEN = OFF      // Watchdog Timer (Disabled - Controlled by SWDTEN bit)
+    #pragma config PLLDIV = 1       // PLL Prescaler Selection (No prescale (4 MHz oscillator input drives PLL directly))
+    #pragma config CFGPLLEN = ON    // PLL Enable Configuration Bit (PLL Enabled)
+    #pragma config STVREN = ON      // Stack Overflow/Underflow Reset (Enabled)
+    #pragma config XINST = OFF      // Extended Instruction Set (Disabled)
+
+    // CONFIG1H
+    #pragma config CPUDIV = OSC1    // CPU System Clock Postscaler (No CPU system clock divide)
+    #pragma config CP0 = OFF        // Code Protect (Program memory is not code-protected)
+
+    // CONFIG2L
+    #pragma config OSC = HSPLL      // Oscillator (HS+PLL, USB-HS+PLL)
+    #pragma config SOSCSEL = LOW    // T1OSC/SOSC Power Selection Bits (Low Power T1OSC/SOSC circuit selected)
+    #pragma config CLKOEC = OFF     // EC Clock Out Enable Bit  (CLKO output disabled on the RA6 pin)
+    #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor (Disabled)
+    #pragma config IESO = OFF       // Internal External Oscillator Switch Over Mode (Disabled)
+
+    // CONFIG2H
+    #pragma config WDTPS = 4        // Watchdog Postscaler (1:4)
+
+    // CONFIG3L
+    #pragma config DSWDTOSC = INTOSCREF// DSWDT Clock Select (DSWDT uses INTRC)
+    #pragma config RTCOSC = INTOSCREF// RTCC Clock Select (RTCC uses INTRC)
+    #pragma config DSBOREN = OFF    // Deep Sleep BOR (Disabled)
+    #pragma config DSWDTEN = OFF    // Deep Sleep Watchdog Timer (Disabled)
+    #pragma config DSWDTPS = 8192   // Deep Sleep Watchdog Postscaler (1:8,192 (8.5 seconds))
+
+    // CONFIG3H
+    #pragma config IOL1WAY = OFF    // IOLOCK One-Way Set Enable bit (The IOLOCK bit (PPSCON<0>) can be set and cleared as needed)
+    #pragma config ADCSEL = BIT10   // ADC 10 or 12 Bit Select (10 - Bit ADC Enabled)
+    #pragma config MSSP7B_EN = MSK7 // MSSP address masking (7 Bit address masking mode)
+
+    // CONFIG4L
+    #pragma config WPFP = PAGE_1    // Write/Erase Protect Page Start/End Location (Write Protect Program Flash Page 1)
+    #pragma config WPCFG = OFF      // Write/Erase Protect Configuration Region  (Configuration Words page not erase/write-protected)
+
+    // CONFIG4H
+    #pragma config WPDIS = OFF      // Write Protect Disable bit (WPFP<6:0>/WPEND region ignored)
+    #pragma config WPEND = PAGE_0   // Write/Erase Protect Region Select bit (valid when WPDIS = 0) (Pages 0 through WPFP<6:0> erase/write protected)
+    #pragma config LS48MHZ = SYS48X8// Low Speed USB mode with 48 MHz system clock bit (System clock at 48 MHz USB CLKEN divide-by is set to 8)
+
+
 #else
     #error "Double click this message and add your device specific configuration bit settings."
     //Make sure that the oscillator settings in particular are compatible with USB operation.
@@ -363,9 +416,10 @@ placing code on the same erase page as the configuration bits.
     //instead of the proper HID class device.
 #endif
 
+
 /** V A R I A B L E S ********************************************************/
-//NOTE: You must not use initalized variables in this bootloader project.  This
-//firmware project does not rely on the standard C initializer, which is 
+//NOTE: You must not use initialized variables in this bootloader project.  This
+//firmware project does not rely on the standard C initializer, which is
 //responsible for setting up initialized variables in RAM.  Therefore, all
 //variables will be non-initialized/random at start up.
 #ifndef __XC8__
@@ -391,6 +445,7 @@ void BlinkUSBStatus(void);
 //the USB cable or AC power is lost during an erase/program/verify sequence.
 #ifdef __XC8__
     const unsigned int __at(APP_SIGNATURE_ADDRESS) FlashSignatureWord = APP_SIGNATURE_VALUE;
+    const unsigned int __at(BOARD_REV_ADDRESS) BoardRev = BOARD_REV_VALUE;
 #else
     #pragma romdata FLASH_SIG_SECTION = APP_SIGNATURE_ADDRESS
     ROM unsigned int FlashSignatureWord = APP_SIGNATURE_VALUE;
@@ -401,7 +456,7 @@ void BlinkUSBStatus(void);
 //Special handling for modified linker script.
 #ifndef __XC8__
 //Note: This project uses a modified linker script, which does not include the
-//c018i.o standard C initializer for C18 projects.  Therefore, we must manually 
+//c018i.o standard C initializer for C18 projects.  Therefore, we must manually
 //place a goto main() at the hardware reset vector.
 #pragma code _entry_scn=0x000000        //Reset vector is at 0x00.  Device begins executing code from 0x00 after a reset or POR event
 void _entry (void)
@@ -410,7 +465,6 @@ void _entry (void)
 }
 #pragma code
 #endif
-
 
 
 /******************************************************************************
@@ -432,44 +486,90 @@ void _entry (void)
  *
  * Note:            THIS FUNCTION EXECUTES PRIOR TO INITIALIZATION OF THE C
  *                  STACK.  NO C INITIALIZATION OF STATIC VARIABLES OR RESOURCES
- *                  WILL OCCUR, PRIOR TO EXECUTING THIS FUNCTION.  THEREFORE, 
+ *                  WILL OCCUR, PRIOR TO EXECUTING THIS FUNCTION.  THEREFORE,
  *                  THE CODE IN THIS FUNCTION MUST NOT CALL OTHER FUNCTIONS OR
  *                  PERFORM ANY OPERATIONS THAT WILL REQUIRE C INITIALIZED
  *                  BEHAVIOR.
  *****************************************************************************/
 void main(void)
 {
+    uint8_t esc_button;
+    uint8_t app_button;
+
     //Assuming the I/O pin check entry method is enabled, check the I/O pin value
-    //to see if we should stay in bootloader mode, or jump to normal applicaiton 
+    //to see if we should stay in bootloader mode, or jump to normal applicaiton
     //execution mode.
     #ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
         //Need to make sure the I/O pin is configured for digital mode so we
         //can sense the digital level on the input pin.
         mInitSwitch2();
-        
-        //Check Bootload Mode Entry Condition from the I/O pin (ex: place a  
+        __delay_us(2);
+        esc_button = !sw2;
+        app_button = !sw3;
+        //Restore default "reset" value of registers we may have modified temporarily.
+        mDeInitSwitch2();
+
+        //Check Bootload Mode Entry Condition from the I/O pin (ex: place a
         //pushbutton and pull up resistor on the pin)
-        if(sw2 == 1)    
+        if(!esc_button && !app_button)
         {
-            //If we get to here, the user is not pressing the pushbutton.  We
+            //If we get to here, the user is not pressing the push buttons.  We
             //should default to jumping into application run mode in this case.
-            //Restore default "reset" value of registers we may have modified temporarily.
-            mDeInitSwitch2();
-    
+
             //Before going to application image however, make sure the image
             //is properly signed and is intact.
             goto DoFlashSignatureCheck;
         }
+        else if (esc_button)
+        {
+            //User is pressing the ESC button.  We should stay in bootloader mode
+
+            BootMain();
+        }
         else
         {
-            //User is pressing the pushbutton.  We should stay in bootloader mode
-            BootMain();
-        }       
-    #endif //#ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY    
+            //User is pressing the APP button.  We should execute the DFU bootloader.
+            mLED3 = 1;      //LED on initially
+            mLED3Tris = 0;  //Configure pin as output
 
-DoFlashSignatureCheck:    
+            //Initialize BLE module
+            HosInitialize();
+
+            // Enable watchdog timer
+            OSCCONbits.IDLEN = 0;
+            WDTCONbits.REGSLP = 1;
+            WDTCONbits.SWDTEN = 1;
+
+            for (uint16_t i = 0; i < STARTUP_DELAY; ++i) {
+                if (HosGetStatus(HOS_TYPE_INFO)) {
+                    if (HosSetEvent(HOS_TYPE_INFO, HOS_EVENT_DFU))
+                        break;
+                }
+                Sleep();
+                Nop();
+            }
+
+            for (uint16_t tick = 0;; ++tick) {
+                Sleep();
+                Nop();
+                if (HosGetStatus(HOS_TYPE_INFO))
+                    break;
+                uint16_t range = tick * (1000 / WDT_FREQ) % 1000;
+                if (range < 500)
+                    mLED3 = 1;
+                else
+                    mLED3 = 0;
+            }
+
+            WDTCONbits.SWDTEN = 0;
+            mLED3 = 0;      //LED off
+        }
+    #endif //#ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
+
+DoFlashSignatureCheck:
     //Check if the application region flash signature is valid
-    if(*(ROM unsigned int*)APP_SIGNATURE_ADDRESS == APP_SIGNATURE_VALUE)
+    if(*(ROM unsigned int*)APP_SIGNATURE_ADDRESS == APP_SIGNATURE_VALUE &&
+       *(ROM unsigned int*)APP_MACHINE_ADDRESS == APP_MACHINE_VALUE)
     {
         //The flash signature was valid, implying the previous
         //erase/program/verify operation was a success.
@@ -539,9 +639,9 @@ void BootMain(void)
 
     //Make sure interrupts are disabled for this code (could still be on,
     //if the application firmware jumped into the bootloader via software methods)
-    INTCON = 0x00;  
+    INTCON = 0x00;
 
-    //Initialize the C stack pointer, and other compiler managed items as 
+    //Initialize the C stack pointer, and other compiler managed items as
     //normally done in the c018.c file (applicable when using C18 compiler)
     #ifndef __XC8__
         _asm
@@ -551,9 +651,9 @@ void BootMain(void)
         _endasm
     #endif
 
-    //Clear the stack pointer, in case the user application jumped into 
+    //Clear the stack pointer, in case the user application jumped into
     //bootloader mode with excessive junk on the call stack
-    STKPTR = 0x00;  
+    STKPTR = 0x00;
 
     // End of the important parts of the C initializer.  This bootloader firmware does not use
     // any C initialized user variables (idata memory sections).  Therefore, the above is all
@@ -563,27 +663,27 @@ void BootMain(void)
 
     //Call other initialization code and (re)enable the USB module
     InitializeSystem();     //Some USB, I/O pins, and other initialization
-    
+
     //Execute main loop
     while(1)
     {
         ClrWdt();
-        
+
         //Need to call USBDeviceTasks() periodically.  This function takes care of
-        //processing non-USB application related USB packets (ex: "Chapter 9" 
+        //processing non-USB application related USB packets (ex: "Chapter 9"
         //packets associated with USB enumeration)
         USBDeviceTasks();
 
         BlinkUSBStatus();   //When enabled, blinks LEDs on the board, based on USB bus state
-        
+
         LowVoltageCheck();  //Regularly monitor voltage to make sure it is sufficient
                             //for safe operation at full frequency and for erase/write
-                            //operations.       
-        
+                            //operations.
+
         ProcessIO();        //This is where all the actual bootloader related data transfer/self programming takes
                             //place see ProcessIO() function in the BootPIC[xxxx].c file.
-    }//end while    
-}    
+    }//end while
+}
 
 
 #ifndef __XC8__
@@ -605,7 +705,7 @@ void BootMain(void)
  *                  here.
  *
  *                  User application initialization routine should also be
- *                  called from here.                  
+ *                  called from here.
  *
  * Note:            None
  *****************************************************************************/
@@ -686,9 +786,9 @@ void InitializeSystem(void)
         OSCCON2bits.CLKLOCK = 0;    //Deassert clock setting lock
         OSCCON = 0x06;              //FRC at 500kHz selected (in case caller was running from something unknown)
         OSCCON3 = 0x01;             //FRC/2 setting (4MHz)
-        OSCCON4 = 0x00;             //1:1 
+        OSCCON4 = 0x00;             //1:1
         OSCCON = 0x01;              //FRC+PLL selected
-       
+
         //Enable INTOSC active clock tuning if full speed
         ACTCON = 0x90; //Enable active clock self tuning for USB operation
         while(OSCCON2bits.LOCK == 0)      //Make sure PLL is locked/frequency is compatible
@@ -712,8 +812,8 @@ void InitializeSystem(void)
         //everything is correct, comment out the above "#error ..." line
         //to suppress the error message.
     #endif
-    
-	
+
+
     //The USB specifications require that USB peripheral devices must never source
     //current onto the +5V VBUS pin.  Additionally, USB peripherals should not source
     //current on D+ or D- when the host/hub is not actively powering the VBUS line.
@@ -747,7 +847,7 @@ void InitializeSystem(void)
     //on the PICDEM FS USB Demo Board, an I/O pin can be polled to determine the
     //currently selected power source.  If using this feature, make sure "USE_SELF_POWER_SENSE_IO"
     //has been defined in usb_config.h, and that an appropriate I/O pin has been mapped
-    //to it in HardwareProfile.h.  This feature is optionional and is not required
+    //to it in HardwareProfile.h.  This feature is optional and is not required
     //to be implemented on bus powered only or self/bus powered device that never
     //take more than 100mA from VBUS.
     #if defined(USE_SELF_POWER_SENSE_IO)
@@ -763,10 +863,11 @@ void InitializeSystem(void)
 	//Initialize USB module only after oscillator and other settings are compatible with USB operation
     USBDeviceInit();	//Initializes USB module SFRs and firmware
     					//variables to known states.
+
 }//end InitializeSystem
 
 
-    
+
 
 
 /******************************************************************************
@@ -810,7 +911,7 @@ void BlinkUSBStatus(void)
 
 
 //LVDSTAT feature only available on "F" devices (not available in "LF" devices)
-#if defined(__18F46J50) || defined(__18F45J50) || defined(__18F44J50) || defined(__18F26J50) || defined(__18F25J50) || defined(__18F24J50) || defined(__18F47J53) || defined(__18F46J53) || defined(__18F27J53)  || defined(__18F26J53) || defined(__18F87J50) || defined(__18F86J55) || defined(__18F86J50)||defined(__18F85J50) || defined(__18F67J50) || defined(__18F66J55) || defined(__18F66J50) || defined(__18F65J50) 
+#if defined(__18F46J50) || defined(__18F45J50) || defined(__18F44J50) || defined(__18F26J50) || defined(__18F25J50) || defined(__18F24J50) || defined(__18F47J53) || defined(__18F46J53) || defined(__18F27J53)  || defined(__18F26J53) || defined(__18F87J50) || defined(__18F86J55) || defined(__18F86J50)||defined(__18F85J50) || defined(__18F67J50) || defined(__18F66J55) || defined(__18F66J50) || defined(__18F65J50)
 void LowVoltageCheck(void)
 {
     //Verify voltage is sufficient for safe bootloader operations.  If the
@@ -833,7 +934,7 @@ void LowVoltageCheck(void)
 		{
             if(WDTCONbits.LVDSTAT == 1)
             {
-                uint_delay_counter--;                
+                uint_delay_counter--;
             }
             else
             {
@@ -845,7 +946,7 @@ void LowVoltageCheck(void)
         //Go ahead and reset the microcontroller so that is can resume
         //normal operation, now that the voltage is presumably sufficient (again).
         Reset();
-    }       
+    }
 }
 #elif defined(__18F97J94) || defined(__18F87J94) || defined(__18F67J94) || defined(__18F96J99) || defined(__18F86J99) || defined(__18F66J99) || defined(__18F96J94) || defined(__18F86J94) || defined(__18F66J94) || defined(__18F95J94) || defined(__18F85J94) || defined(__18F65J94)
 void LowVoltageCheck(void)
@@ -864,7 +965,7 @@ void LowVoltageCheck(void)
 		while(PIR2bits.HLVDIF == 1)
 		{
 			//The voltage is too low for "safe" bootloader operation.
-			//Operate at low frequency, disable potential wake up sources  
+			//Operate at low frequency, disable potential wake up sources
 			//and sleep indefinitely.
 			OSCCON = 0x05;          //31kHz Internal oscillator
             UCONbits.SUSPND = 0;
@@ -889,7 +990,7 @@ void LowVoltageCheck(void)
 void LowVoltageCheck(void)
 {
     #warning "Recommended to implement code here to check VDD.  Voltage detection can be done using ADC, HVLD, comparators, or other means."
-}    
+}
 #endif
 
 
@@ -952,12 +1053,12 @@ void LowVoltageCheck(void)
  *****************************************************************************/
 void USBCBWakeFromSuspend(void)
 {
-    //This code delays ~5ms @ 8MHz to execute (using C18 3.21 with full 
+    //This code delays ~5ms @ 8MHz to execute (using C18 3.21 with full
     //optimizations enabled), but takes much less time at 48MHz.  This delay
     //is to make sure the PLL is enabled and locked, in case two speed startup
     //was enabled
     DelayRoutine(0x300);  //Device will switch clocks (if using two-speed startup) while executing this delay function
-    
+
     //Primary oscillator and PLL should be running by now.
 
     //Do not return from this function until the oscillator is correctly configured and
@@ -1004,7 +1105,7 @@ void USBCBSuspend(void)
     #endif
     Sleep();            //Go to sleep, wake up when a USB activity event occurs
     //If using the WDT, should go back to sleep if awoke by WDT instead of USBIF
-    while((USBIF_FLAG == 0) && (RCONbits.TO == 0))      
+    while((USBIF_FLAG == 0) && (RCONbits.TO == 0))
     {
         Sleep();        //Entry into sleep clears WDT count, much like executing ClrWdt() instruction
     }
@@ -1051,8 +1152,8 @@ void USBCBInitEP(uint8_t ConfigurationIndex)
 {
     //Check what configuration "index" the host has requested us to select.
     //Configuration index 0 is special and represents that the device should be
-    //un-configured.  However, when the host sets the confguration (with index
-    //matching the valid/implemenented configuration from the configuration descriptor),
+    //un-configured.  However, when the host sets the configuration (with index
+    //matching the valid/implemented configuration from the configuration descriptor),
     //the firmware should enable the application endpoints associated with that
     //configuration, and (re)initialize all application state variables associated
     //with the USB application endpoints operation.
@@ -1089,7 +1190,7 @@ void USBCBInitEP(uint8_t ConfigurationIndex)
  *
  * Overview:        This function is called when the USB stack receives a
  *                  new control transfer SETUP packet from the host.  The
- *                  USB stack handles normal USB "Chapter 9" requests interntally,
+ *                  USB stack handles normal USB "Chapter 9" requests internally,
  *                  but some control transfer requests are class specific.  In
  *                  order to handle these class specific requests, you must call
  *                  the class handler's firmware control transfer handler function.
@@ -1115,9 +1216,9 @@ void USBCBCheckOtherReq(void)
 //message, please upgrade to the PRO compiler, and then use the mode
 //(ex: build configuration --> XC8 compiler --> Option Categories: Optimizations --> Operation Mode: PRO)
 #ifdef __XC8__
-    #if _HTC_EDITION_ < 2   //Check if PRO, Standard, or Free mode
-    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."
-    #endif
+//    #if _HTC_EDITION_ < 2   //Check if PRO, Standard, or Free mode
+//    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."
+//    #endif
     #if __XC8_VERSION < 1210
     #error "This code is only intended for XC8 v1.21 or later.  Please upgrade to the latest compiler version."
     #endif

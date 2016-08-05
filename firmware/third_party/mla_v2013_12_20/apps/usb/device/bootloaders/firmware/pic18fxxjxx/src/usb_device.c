@@ -1,3 +1,11 @@
+/*
+ * Copyright 2016 Esrille Inc.
+ *
+ * This file is a modified version of main.c provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE and the Software License Agreement below for the
+ * License.
+ */
 /*********************************************************************
  *
  *      Microchip USB C18/XC8 HID Bootloader specific usb_device.c
@@ -300,7 +308,7 @@ volatile unsigned char hid_report_in[HID_INT_IN_EP_SIZE] USB_HID_BUFF_IN_ADDR;
  *                  currently selected oscillator settings are compatible with
  *                  USB operation, prior to calling this function.  The user
  *                  application code must also initialize the VBUS sensing I/O
- *                  pin before calling this code, if it uses VBUS sensing 
+ *                  pin before calling this code, if it uses VBUS sensing
  *                  (only needed in self powered applications).
  *
  * Input:           None
@@ -373,7 +381,7 @@ void USBSoftDetach(void)
 {
     //Disable USB module (this doesn't need to be done in the loop, but we
     //add it to the loop to deliberately make the loop execute slower)
-    UCONbits.SUSPND = 0;    
+    UCONbits.SUSPND = 0;
     UCON = 0x00;            //Disable module
     usb_device_state = DETACHED_STATE;
     DeviceIsSoftDetached = TRUE;
@@ -596,7 +604,7 @@ void USBDeviceTasks(void)
  * Side Effects:    None
  *
  * Overview:        When the USB host sends USB suspend signalling, this function
- *                  gets called.  In order to be USB compliant, the device 
+ *                  gets called.  In order to be USB compliant, the device
  *                  firmware should configure the application so that it takes
  *                  no more than 2.5mA from the +5VBus supply from the
  *                  USB port during USB suspend events.  Bus powered devices can
@@ -613,7 +621,7 @@ void USBSuspend(void)
     #if defined(_PIC14E)
         static unsigned char INTCONSave;
     #endif
-    
+
     /*
      * NOTE: Do not clear UIRbits.ACTVIF here!
      * Reason:
@@ -656,11 +664,11 @@ void USBSuspend(void)
     //Disable all microcontroller wake up sources, except for the one(s) which will
     //be used to wake up the microcontroller.  At the very least, the USB activity
     //detect interrupt should be enabled as a wake up source.
-    
+
     USBIF_FLAG = 0;     //Won't get clear if an enabled and pending wake up source was already triggered
                         //However, since only the ACTVIF interrupt source is currently enabled,
                         //only bus activity events will prevent entry into sleep.
-                            
+
     USBIE_BIT = 1;      //Set USB wakeup source
 
     #if defined(_PIC14E)
@@ -679,8 +687,8 @@ void USBSuspend(void)
 
     USBIE_BIT = 0;
     UIE |= UIESave;     //Restore UIE to state it was in prior to entering USB suspend (with the ACTVIF enabled as well, used later in stack)
-                        //USB suspend events do not by themselves cause any loss of 
-                        //state information inside either the USB device firmware, or 
+                        //USB suspend events do not by themselves cause any loss of
+                        //state information inside either the USB device firmware, or
                         //in the USB host software.
 }//end USBSuspend
 
@@ -817,7 +825,7 @@ void USBCtrlTrfSetupHandler(void)
     //tracking variables, since only one control transfer can be pending at a
     //time (and if the last one didn't fully complete for whatever reason,
     //abandon it).
-    ep0Bi.Stat._byte = _UCPU;           
+    ep0Bi.Stat._byte = _UCPU;
     short_pkt_status = SHORT_PKT_NOT_SENT;
 
     //Make sure none of the EP0 OUT endpoints are still armed (one could still
@@ -907,8 +915,8 @@ void USBCtrlTrfOutHandler(uint8_t USTATValue)
             bytes_received = ep0BoEven.Cnt;
             pSrc.bRam = ep0BoEven.ADR;
         }
-        
-        //Keep track of how many total bytes have been received in this OUT 
+
+        //Keep track of how many total bytes have been received in this OUT
         //control transfer (host to device), so we know when the host
         //is finished sending us all the data.
         wCount.Val = wCount.Val + bytes_received;
@@ -1011,12 +1019,12 @@ void USBCtrlTrfOutHandler(uint8_t USTATValue)
  *                  end (status stage) of the control transfer for Set Address
  *                  Request is an IN transaction. Therefore it is necessary
  *                  to service this unique situation when the condition is
- *                  right. 
+ *                  right.
  *****************************************************************************/
 void USBCtrlTrfInHandler(void)
 {
     //Check if we are in the address pending state.  If so, we just completed
-    //the status stage of the SET ADDRESS command, and we now must switch 
+    //the status stage of the SET ADDRESS command, and we now must switch
     //ourself to the new USB device address.
     if(usb_device_state == ADR_PENDING_STATE)
     {
@@ -1432,7 +1440,7 @@ void USBStdGetDscHandler(void)
 void USBStdSetCfgHandler(void)
 {
     static unsigned char i;
-    
+
     ctrl_trf_session_owner = MUID_USB9;
     //Initially disable all endpoints (except EP0, which we are still using)
     mDisableEP1to7();                          // See usb_device.h
@@ -1451,7 +1459,7 @@ void USBStdSetCfgHandler(void)
     //us (set to == 0).  The application firmware should disable endpoints
     //when getting de-configured.
     USBCBInitEP(usb_active_cfg);
-    
+
     if(SetupPkt.bCfgValue == 0)
     {
         usb_device_state = ADDRESS_STATE;
@@ -1617,7 +1625,8 @@ void USBDisableWithLongDelay(void)
 {
     UCONbits.SUSPND = 0;    //Make sure not in suspend mode
     UCON = 0x00;            //Disable USB module
-    DelayRoutine(0xFFFF);   //Wait long time for host to recognize detach event
+    for (uint8_t i = 0; i < 12; ++i)
+        DelayRoutine(0xFFFF);   //Wait long time for host to recognize detach event
     usb_device_state = DETACHED_STATE;
 }
 

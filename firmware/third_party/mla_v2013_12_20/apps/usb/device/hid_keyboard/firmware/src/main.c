@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2015 Esrille Inc.
+ * Copyright 2014-2016 Esrille Inc.
  *
  * This file is a modified version of main.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -57,6 +57,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 /* Standard C includes */
 #include <stdint.h>
+#include <stdio.h>
 
 /* Microchip library includes */
 #include <system.h>
@@ -65,10 +66,16 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <usb/usb.h>
 #include <usb/usb_device_hid.h>
 
-/* Demo project includes */
 #include "app_led_usb_status.h"
 #include "app_device_keyboard.h"
 #include "app_device_mouse.h"
+
+#include <Keyboard.h>
+
+#ifdef ENABLE_MOUSE
+#include <Mouse.h>
+#endif
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -94,15 +101,38 @@ int main(void)
 {
     SYSTEM_Initialize(SYSTEM_STATE_USB_START);
     LED_Initialize();
+    APP_KeyboardConfigure();
+
+#ifdef WITH_HOS
+    HosCheckDFU();
+    if (!isUSBMode() || !isBusPowered()) {
+        HosMainLoop();
+    }
+    for (uint16_t i = 0; i < HOS_STARTUP_DELAY; ++i) {
+        if (HosSleep(HOS_TYPE_DEFAULT)) {
+            break;
+        }
+        __delay_ms(4);
+    }
+#endif
 
     USBDeviceInit();
     USBDeviceAttach();
 
     for (;;)
     {
+#ifdef WITH_HOS
+        if (!isBusPowered() || !isUSBMode()) {
+            Reset();
+            Nop();
+            Nop();
+            // NOT REACHED HERE
+        }
+#endif
+
         SYSTEM_Tasks();
 
-        #if defined(USB_POLLING)
+#if defined(USB_POLLING)
         /* Check bus status and service USB interrupts.  Interrupt or polling
          * method.  If using polling, must call this function periodically.
          * This function will take care of processing and responding to SETUP
@@ -115,7 +145,7 @@ int main(void)
          * USBDeviceTasks() function does not take very long to execute
          * (ex: <100 instruction cycles) before it returns. */
         USBDeviceTasks();
-        #endif
+#endif
 
         APP_LEDUpdateUSBStatus();
 

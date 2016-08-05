@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Esrille Inc.
+ * Copyright 2015, 2016 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,8 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
-#ifdef __XC8
-#include <xc.h>
 #include <system.h>
-#endif
-
-#ifdef NRF51
-#include "nisse.h"
-#endif
+#include <stdio.h>
 
 typedef struct {
     uint8_t count;
@@ -41,6 +35,7 @@ typedef struct {
 
 #define PLAY_MAX    4
 
+#define CODE_F1     (1*1+1)
 #define CODE_F9     8
 #define CODE_F10    9
 #define CODE_F11    10
@@ -80,17 +75,27 @@ static int8_t  wheel;
 static SerialData rawData;
 static TouchSensor touchSensor;
 
+#ifdef __XC8
+
 void initMouse(void)
 {
-    play = eeprom_read(EEPROM_MOUSE);
+    play = ReadNvram(EEPROM_MOUSE);
     if (PLAY_MAX <= play)
         play = 0;
+    touchSensor.current = touchSensor.thresh = 0;
 }
 
 void emitMouse(void)
 {
     emitString(about);
     emitKey(KEY_1 + play);
+
+#ifdef WITH_HOS
+    emitKey(KEY_SPACEBAR);
+    emitNumber(touchSensor.current);
+    emitKey(KEY_SLASH);
+    emitNumber(touchSensor.thresh);
+#endif
     emitKey(KEY_ENTER);
 }
 
@@ -100,101 +105,7 @@ static void setPlay(uint8_t val)
         play = 0;
     else
         play = val;
-    eeprom_write(EEPROM_MOUSE, play);
-}
-
-static int8_t trimXY(uint8_t raw)
-{
-    int8_t sign;
-    uint16_t value;
-    uint8_t playXY = playTable[play];
-
-    if (128 <= raw) {
-        sign = 1;
-        value = raw - 128;
-    } else {
-        sign = -1;
-        value = 128 - raw;
-    }
-    if (value < (playXY >> 1) || value < PLAY_XY)
-        return 0;
-    if (value < playXY) {
-        value = value * value / playXY * value / playXY * 10 / playXY;
-        value = (tick <= value) ? 1 : 0;
-    } else {
-        value = (value * value / (playXY * playXY)) * value / playXY;
-        if (128 <= value)
-            return (0 < sign) ? 127 : -127;
-    }
-    return sign * value;
-}
-
-// Return 0.75 * prev + (1 - 0.75) * raw
-static uint16_t lowPassFilter(uint16_t prev, uint16_t raw)
-{
-    prev -= (prev >> 2);
-    raw >>= 2;
-    return prev + raw;
-}
-
-static void processSerialData(void)
-{
-    x = trimXY(rawData.x);
-    y = trimXY(rawData.y);
-
-    touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
-    if (touchSensor.current < touchSensor.low)
-        touchSensor.low = touchSensor.current;
-    if (touchSensor.low * 7 / 6 < touchSensor.current) {
-        touchSensor.thresh = (touchSensor.low + touchSensor.current) / 2;
-        touchSensor.low = touchSensor.current;
-    }
-
-    if (10 < ++tick)
-        tick = 0;
-}
-
-int8_t isMouseTouched(void)
-{
-    return touchSensor.current < touchSensor.thresh;
-}
-
-// Protocol:
-// 1  tB tA t9 t8 t7 y7 x7
-// 0  t6 t5 t4 t3 t2 t1 t0
-// 0  x6 x5 x4 x3 x2 x1 x0
-// 0  y6 y5 y4 y3 y2 y1 y0
-int8_t processSerialUnit(uint8_t data)
-{
-    int8_t ready = 0;
-
-    if (data & 0x80)
-        rawData.count = 1;
-    switch (rawData.count) {
-    case 1:
-        rawData.touch = ((uint16_t) (data & 0x7c)) << 5;
-        rawData.y = (data & 0x02) << 6;
-        rawData.x = (data & 0x01) << 7;
-        ++rawData.count;
-        break;
-    case 2:
-        rawData.touch |= data;
-        ++rawData.count;
-        break;
-    case 3:
-        rawData.x |= data;
-        ++rawData.count;
-        break;
-    case 4:
-        rawData.y |= data;
-        rawData.count = 0;
-        processSerialData();
-        ready = 1;
-        break;
-    default:
-        break;
-    }
-    return ready;
+    WriteNvram(EEPROM_MOUSE, play);
 }
 
 void processMouseKeys(uint8_t* current, const uint8_t* processed)
@@ -254,9 +165,100 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
     wheel = w;
 }
 
-uint8_t getKeyboardMouseButtons(void)
+#endif  // __XC8
+
+static int8_t trimXY(uint8_t raw)
 {
-    return isMouseTouched() ? buttons: 0;
+    int8_t sign;
+    uint16_t value;
+    uint8_t playXY = playTable[play];
+
+    if (128 <= raw) {
+        sign = 1;
+        value = raw - 128;
+    } else {
+        sign = -1;
+        value = 128 - raw;
+    }
+    if (value < (playXY >> 1) || value < PLAY_XY)
+        return 0;
+    if (value < playXY) {
+        value = value * value / playXY * value / playXY * 10 / playXY;
+        value = (tick <= value) ? 1 : 0;
+    } else {
+        value = (value * value / (playXY * playXY)) * value / playXY;
+        if (128 <= value)
+            return (0 < sign) ? 127 : -127;
+    }
+    return sign * value;
+}
+
+// Return 0.75 * prev + (1 - 0.75) * raw
+static uint16_t lowPassFilter(uint16_t prev, uint16_t raw)
+{
+    prev -= (prev >> 2);
+    raw >>= 2;
+    return prev + raw;
+}
+
+static void processSerialData(void)
+{
+    x = trimXY(rawData.x);
+    y = trimXY(rawData.y);
+
+    touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
+    if (touchSensor.current < touchSensor.low)
+        touchSensor.low = touchSensor.current;
+    if (touchSensor.low * 7 / 6 < touchSensor.current) {
+        touchSensor.thresh = (touchSensor.low + touchSensor.current) / 2;
+        touchSensor.low = touchSensor.current;
+    }
+
+    if (10 < ++tick)
+        tick = 0;
+}
+
+// Protocol:
+// 1  tB tA t9 t8 t7 y7 x7
+// 0  t6 t5 t4 t3 t2 t1 t0
+// 0  x6 x5 x4 x3 x2 x1 x0
+// 0  y6 y5 y4 y3 y2 y1 y0
+int8_t processSerialUnit(uint8_t data)
+{
+    int8_t ready = 0;
+
+    if (data & 0x80)
+        rawData.count = 1;
+    switch (rawData.count) {
+    case 1:
+        rawData.touch = ((uint16_t) (data & 0x7c)) << 5;
+        rawData.y = (data & 0x02) << 6;
+        rawData.x = (data & 0x01) << 7;
+        ++rawData.count;
+        break;
+    case 2:
+        rawData.touch |= data;
+        ++rawData.count;
+        break;
+    case 3:
+        rawData.x |= data;
+        ++rawData.count;
+        break;
+    case 4:
+        rawData.y |= data;
+        rawData.count = 0;
+        processSerialData();
+        ready = 1;
+        break;
+    default:
+        break;
+    }
+    return ready;
+}
+
+int8_t isMouseTouched(void)
+{
+    return touchSensor.current < touchSensor.thresh;
 }
 
 int8_t getKeyboardMouseX(void)
@@ -269,7 +271,34 @@ int8_t getKeyboardMouseY(void)
     return y;
 }
 
+uint8_t getKeyboardMouseButtons(void)
+{
+    return isMouseTouched() ? buttons: 0;
+}
+
 int8_t getKeyboardMouseWheel(void)
 {
     return isMouseTouched() ? wheel : 0;
 }
+
+int8_t isProcessingSrialData(void)
+{
+    return 1 <= rawData.count;
+}
+
+#ifdef WITH_HOS
+void processMouseData(void)
+{
+    rawData.x = HosGetKeyboardMouseX();
+    rawData.y = HosGetKeyboardMouseY();
+    rawData.touch = HosGetTouch();
+    processSerialData();
+}
+#endif
+
+#ifdef DEBUG
+void dumpMouse(void)
+{
+    printf("%u %u %u\n", rawData.x, rawData.y, rawData.touch);
+}
+#endif

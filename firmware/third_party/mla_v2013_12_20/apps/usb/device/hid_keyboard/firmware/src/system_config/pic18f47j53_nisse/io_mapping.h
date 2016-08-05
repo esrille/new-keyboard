@@ -1,9 +1,9 @@
 /*
- * Copyright 2014-2016 Esrille Inc.
+ * Copyright 2014 Esrille Inc.
  *
- * This file is a modified version of app_device_keyboard.c provided by
+ * This file is a modified version of io_mapping.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
- * See the file NOTICE for copying permission.
+ * See the Software License Agreement below for the License.
  */
 
 /********************************************************************
@@ -26,20 +26,12 @@
  PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
  IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
-********************************************************************/
+ *******************************************************************/
+#include <system.h>
 
-#ifndef APP_KEYBOARD_H
-#define APP_KEYBOARD_H
+/* Demo I/O options. */
+#define LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK            LED_D1
+#define LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK           LED_D2
+#define LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK         LED_D3
 
-#include <stdint.h>
-
-void APP_KeyboardConfigure(void);
-void APP_KeyboardInit(void);
-uint8_t* APP_KeyboardScan(void);
-void APP_KeyboardTasks(void);
-void APP_Suspend();
-void APP_WakeFromSuspend();
-
-void APP_KeyboardProcessOutputReport(void);
-
-#endif
+#define BUTTON_USB_DEVICE_HID_KEYBOARD_KEY              BUTTON_S2

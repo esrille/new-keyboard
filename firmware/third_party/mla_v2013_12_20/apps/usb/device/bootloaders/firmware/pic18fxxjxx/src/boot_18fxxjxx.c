@@ -31,7 +31,7 @@
  *
  * File version     Date        Comment
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 1.0              06/19/08    Original Version.  Adapted from 
+ * 1.0              06/19/08    Original Version.  Adapted from
  *                              MCHPFSUSB v2.1 HID Bootloader
  *                              for PIC18F87J50 Family devices.
 
@@ -137,7 +137,7 @@
 #define UNLOCKCONFIG                0x00    //Sub-command for the ERASE_DEVICE command
 #define LOCKCONFIG                  0x01    //Sub-command for the ERASE_DEVICE command
 
-//Query Device Response "Types" 
+//Query Device Response "Types"
 #define MEMORY_REGION_PROGRAM_MEM   0x01    //When the host sends a QUERY_DEVICE command, need to respond by populating a list of valid memory regions that exist in the device (and should be programmed)
 #define MEMORY_REGION_EEDATA        0x02
 #define MEMORY_REGION_CONFIG        0x03
@@ -158,17 +158,17 @@
 #define BYTES_PER_ADDRESS_PIC18     0x01    //One byte per address.  PIC24 uses 2 bytes for each address in the hex file.
 #define USB_PACKET_SIZE             0x40
 #define WORDSIZE                    0x02    //PIC18 uses 2 byte words, PIC24 uses 3 byte words.
-#define REQUEST_DATA_BLOCK_SIZE     0x3A    //Number of data bytes in a standard request to the PC.  Must be an even number from 2-58 (0x02-0x3A).  Larger numbers make better use of USB bandwidth and 
+#define REQUEST_DATA_BLOCK_SIZE     0x3A    //Number of data bytes in a standard request to the PC.  Must be an even number from 2-58 (0x02-0x3A).  Larger numbers make better use of USB bandwidth and
                                             //yeild shorter program/verify times, but require more micrcontroller RAM for buffer space.
 
 
 
 /** USB Packet Request/Response Formatting Structure **********************************************************/
-typedef union 
+typedef union
 {
         unsigned char Contents[USB_PACKET_SIZE];
 
-        //General command (with data in it) packet structure used by PROGRAM_DEVICE and GET_DATA commands       
+        //General command (with data in it) packet structure used by PROGRAM_DEVICE and GET_DATA commands
         struct{
             unsigned char Command;
             unsigned long Address;
@@ -176,7 +176,7 @@ typedef union
             //unsigned char PadBytes[58-REQUEST_DATA_BLOCK_SIZE]; //Uncomment this if using a smaller than 0x3A RequestDataBlockSize.  Compiler doesn't like 0 byte array when using 58 byte data block size.
             unsigned char Data[REQUEST_DATA_BLOCK_SIZE];
         };
-        
+
         //This struct used for responding to QUERY_DEVICE command (on a device with four programmable sections)
         struct{
             unsigned char Command;
@@ -193,22 +193,22 @@ typedef union
             unsigned long Length3;
             unsigned char Type4;
             unsigned long Address4;
-            unsigned long Length4;                      
+            unsigned long Length4;
             unsigned char Type5;
             unsigned long Address5;
             unsigned long Length5;
             unsigned char Type6;
             unsigned long Address6;
-            unsigned long Length6;  
-            unsigned char VersionFlag;      //Used by host software to identify if device is new enough to support QUERY_EXTENDED_INFO command  
+            unsigned long Length6;
+            unsigned char VersionFlag;      //Used by host software to identify if device is new enough to support QUERY_EXTENDED_INFO command
             unsigned char ExtraPadBytes[7];
-        };  
-        
+        };
+
         struct{                     //For UNLOCK_CONFIG command
             unsigned char Command;
             unsigned char LockValue;
         };
-        
+
         //Structure for the QUERY_EXTENDED_INFO command (and response)
         struct{
             unsigned char Command;
@@ -233,9 +233,9 @@ typedef union
             unsigned char Config7HMask;
             unsigned char Config8LMask;
             unsigned char Config8HMask;
-        };          
-} PacketToFromPC;       
-    
+        };
+} PacketToFromPC;
+
 
 /** V A R I A B L E S ********************************************************/
 #ifndef __XC8__
@@ -280,7 +280,7 @@ void UserInit(void)
     MaxPageToErase = MAX_PAGE_TO_ERASE_NO_CONFIGS;       //Assume we will not allow erase/programming of config words (unless host sends override command)
     ProgramMemStopAddress = PROG_MEM_END_NO_CONFIGS;
     BootState = IDLE;
-    ProgrammedPointer = INVALID_ADDRESS;    
+    ProgrammedPointer = INVALID_ADDRESS;
     BufferedDataIndex = 0;
 }//end UserInit
 
@@ -296,7 +296,7 @@ void UserInit(void)
  *
  * Side Effects:    None
  *
- * Overview:        This function receives/sends USB packets to/from the USB 
+ * Overview:        This function receives/sends USB packets to/from the USB
  *                  host.  It also processes any received OUT packets and
  *                  is reponsible for generating USB IN packet data.
  *
@@ -328,18 +328,18 @@ void ProcessIO(void)
         //PC software on the USB host.
         if(!mHIDRxIsBusy()) //Did we receive a command?
         {
-            //We received a new command from the host.  Copy the OUT packet from 
+            //We received a new command from the host.  Copy the OUT packet from
             //the host into a local buffer for processing.
             HIDRxReport((char *)&PacketFromPC, USB_PACKET_SIZE);     //Also re-arms the OUT endpoint to be able to receive the next packet
             BootState = NOT_IDLE;   //Set flag letting state machine know it has a command that needs processing.
-            
+
             //Pre-initialize a response packet buffer (only used for some commands)
             for(i = 0; i < USB_PACKET_SIZE; i++)        //Prepare the next packet we will send to the host, by initializing the entire packet to 0x00.
                 PacketToPC.Contents[i] = 0;             //This saves code space, since we don't have to do it independently in the QUERY_DEVICE and GET_DATA cases.
         }
     }//if(BootState == IDLE)
     else //(BootState must be NOT_IDLE)
-    {   
+    {
         //Check the latest command we received from the PC app, to determine what
         //we should be doing.
         switch(PacketFromPC.Command)
@@ -355,10 +355,10 @@ void ProcessIO(void)
                 PacketToPC.Type2 = MEMORY_REGION_CONFIG;
                 PacketToPC.Address2 = (unsigned long)CONFIG_WORDS_START_ADDRESS;
                 PacketToPC.Length2 = (unsigned long)CONFIG_WORDS_SECTION_LENGTH;
-                PacketToPC.Type3 = MEMORY_REGION_END;       
+                PacketToPC.Type3 = MEMORY_REGION_END;
                 PacketToPC.VersionFlag = BOOTLOADER_V1_01_OR_NEWER_FLAG;
                 //Init pad bytes to 0x00...  Already done after we received the QUERY_DEVICE command (just after calling HIDRxReport()).
-    
+
                 //Now send the packet to the USB host software, assuming the USB endpoint is available/ready to accept new data.
                 if(!mHIDTxIsBusy())
                 {
@@ -390,12 +390,12 @@ void ProcessIO(void)
                     EraseFlashPage(i);
                     USBDeviceTasks();     //Call USBDeviceTasks() periodically to prevent falling off the bus if any SETUP packets should happen to arrive.
                 }
-                BootState = IDLE;               
+                BootState = IDLE;
                 break;
             case PROGRAM_DEVICE:
                 if(ProgrammedPointer == (uint24_t)INVALID_ADDRESS)
                     ProgrammedPointer = PacketFromPC.Address;
-                
+
                 if(ProgrammedPointer == (uint24_t)PacketFromPC.Address)
                 {
                     for(i = 0; i < PacketFromPC.Size; i++)
@@ -409,8 +409,8 @@ void ProcessIO(void)
                         }
                     }
                 }
-                //else host sent us a non-contiguous packet address...  to make 
-                //this firmware simpler, host should not do this without sending 
+                //else host sent us a non-contiguous packet address...  to make
+                //this firmware simpler, host should not do this without sending
                 //a PROGRAM_COMPLETE command in between program sections.
                 BootState = IDLE;
                 break;
@@ -458,8 +458,8 @@ void ProcessIO(void)
                 break;
             case QUERY_EXTENDED_INFO:
                 //Prepare a response packet with the QUERY_EXTENDED_INFO response info in it.
-                //This command is only supported in bootloader firmware verison 1.01 or later.
-                //Make sure the regular QUERY_DEVIER reponse packet value "PacketToPC.Type6" is = BOOTLOADER_V1_01_OR_NEWER_FLAG;
+                //This command is only supported in bootloader firmware version 1.01 or later.
+                //Make sure the regular QUERY_DEVIER response packet value "PacketToPC.Type6" is = BOOTLOADER_V1_01_OR_NEWER_FLAG;
                 //to let the host PC software know that the QUERY_EXTENDED_INFO command is implemented
                 //in this firmware and is available for requesting by the host software.
                 PacketToPC.Command = QUERY_EXTENDED_INFO;   //Echo the command byte
@@ -484,13 +484,13 @@ void ProcessIO(void)
                 PacketToPC.Config7HMask = 0x00;
                 PacketToPC.Config8LMask = 0x00;
                 PacketToPC.Config8HMask = 0x00;
-				
-                //Now actually command USB to send the packet to the host                   
+
+                //Now actually command USB to send the packet to the host
                 if(!mHIDTxIsBusy())
                 {
                     HIDTxReport((char *)&PacketToPC, USB_PACKET_SIZE);
                     BootState = IDLE;   //Packet will be sent, go back to idle state ready for next command from host
-                }       
+                }
                 break;
             case RESET_DEVICE:
                 ResetDeviceCleanly();
@@ -505,7 +505,7 @@ void ProcessIO(void)
 
 
 
-//Should be called once, only after the regular erase/program/verify sequence 
+//Should be called once, only after the regular erase/program/verify sequence
 //has completed successfully.  This function will program the magic
 //APP_SIGNATURE_VALUE into the magic APP_SIGNATURE_ADDRESS in the application
 //flash memory space.  This is used on the next bootup to know that the the
@@ -517,25 +517,25 @@ void SignFlash(void)
 {
     static unsigned int i;
     far ROM uint8_t* pROM;
-    
+
     //First read in the erase page contents of the page with the signature WORD
     //in it, and temporarily store it in a RAM buffer.
     pROM = (far ROM uint8_t*)(APP_SIGNATURE_ADDRESS & ERASE_PAGE_ADDRESS_MASK);
     for(i = 0; i < ERASE_PAGE_SIZE; i++)
     {
         ProgrammingBuffer[i] = *pROM++;
-    }    
-    
+    }
+
     //Now change the signature WORD value at the correct address in the RAM buffer
     ProgrammingBuffer[(APP_SIGNATURE_ADDRESS & ~ERASE_PAGE_ADDRESS_MASK)] = (unsigned char)APP_SIGNATURE_VALUE;
     ProgrammingBuffer[(APP_SIGNATURE_ADDRESS & ~ERASE_PAGE_ADDRESS_MASK) + 1] = (unsigned char)(APP_SIGNATURE_VALUE >> 8);
-    
+
     //Now erase the flash memory block with the signature WORD in it
     EraseFlashPage(APP_SIGNATURE_ADDRESS / ERASE_PAGE_SIZE);
-    
+
     //Now re-program the values from the RAM buffer into the flash memory.  Use
-    //reverse order, so we program the larger addresses first.  This way, the 
-    //write page with the flash signature word is the last page that gets 
+    //reverse order, so we program the larger addresses first.  This way, the
+    //write page with the flash signature word is the last page that gets
     //programmed (assuming the flash signature resides on the lowest address
     //write page, which is recommended, so that it becomes the first page
     //erased, and the last page programmed).
@@ -560,7 +560,7 @@ void SignFlash(void)
         #else //must be C18 instead
             _asm tblwt _endasm
         #endif
-                
+
         //Check if we are at a program write block size boundary
         if((i % WRITE_BLOCK_SIZE) == 0)
         {
@@ -578,36 +578,36 @@ void SignFlash(void)
         #else //must be C18 instead
             _asm tblrdpostdec _endasm
         #endif
-        
+
         //Check if we are done writing all blocks
         if(i == 0)
         {
             break;  //Exit while loop
-        }    
+        }
         i--;
-    }    
-}    
+    }
+}
 
 
-//Before resetting the microcontroller, we should shut down the USB module 
+//Before resetting the microcontroller, we should shut down the USB module
 //gracefully, to make sure the host correctly recognizes that we detached
 //from the bus.  Some USB hosts malfunction/fail to re-enumerate the device
 //correctly if the USB device does not stay detached for a minimum amount of
 //time before re-attaching to the USB bus.  For reliable operation, the USB
 //device should stay detached for as long as a human would require to unplug and
-//reattach a USB device (ex: 100ms+), to ensure the USB host software has a 
-//chance to process the detach event and configure itself for a state ready for 
+//reattach a USB device (ex: 100ms+), to ensure the USB host software has a
+//chance to process the detach event and configure itself for a state ready for
 //a new attachment event.
 void ResetDeviceCleanly(void)
 {
     USBDisableWithLongDelay();
-    Reset();    
+    Reset();
     Nop();
     Nop();
-}    
+}
 
 
- 
+
 
 
 //Routine used to write data to the flash memory from the ProgrammingBuffer[].
@@ -619,7 +619,7 @@ void WriteFlashSubBlock(void)       //Use word writes to write code chunks less 
     uint16_t WordToWrite;
     static uint24_t Address;
 
-    
+
     i = 0;
     while(BufferedDataIndex > 0)        //While data is still in the buffer.
     {
@@ -666,8 +666,8 @@ void WriteFlashSubBlock(void)       //Use word writes to write code chunks less 
 
 
 
-//It is preferrable to only place this sequence in only one place in the flash memory.
-//This reduces the probabilty of the code getting executed inadvertently by
+//It is preferable to only place this sequence in only one place in the flash memory.
+//This reduces the probability of the code getting executed inadvertently by
 //errant code.  It is also recommended to enable BOR (in hardware) and/or add
 //software checks to avoid microcontroller "overclocking".  Always make sure
 //to obey the voltage versus frequency graph in the datasheet, even during
@@ -683,21 +683,21 @@ void UnlockAndActivate(unsigned char UnlockKey)
     //If they were, they should always pass us the CORRECT_UNLOCK_KEY.
     if(UnlockKey != CORRECT_UNLOCK_KEY)
     {
-        //Warning!  Errant code execution detected.  Somehow this 
+        //Warning!  Errant code execution detected.  Somehow this
         //UnlockAndActivate() function got called by someone that wasn't trying
         //to actually perform an NVM erase or write.  This could happen due to
         //microcontroller overclocking (or undervolting for an otherwise allowed
-        //CPU frequency), or due to buggy code (ex: incorrect use of function 
-        //pointers, etc.).  In either case, we should execute some fail safe 
+        //CPU frequency), or due to buggy code (ex: incorrect use of function
+        //pointers, etc.).  In either case, we should execute some fail safe
         //code here to prevent corruption of the NVM contents.
         OSCCON = 0x03;  //Switch to INTOSC at low frequency
         while(1)
         {
             Sleep();
-        }    
+        }
         Reset();
-    }    
-    
+    }
+
     #ifdef __XC8__
         EECON2 = 0x55;
         EECON2 = 0xAA;
@@ -713,9 +713,9 @@ void UnlockAndActivate(unsigned char UnlockKey)
         _endasm
     #endif
 
-    while(EECON1bits.WR);   //Wait until complete (relevant when programming EEPROM, not important when programming flash since processor stalls during flash program)  
+    while(EECON1bits.WR);   //Wait until complete (relevant when programming EEPROM, not important when programming flash since processor stalls during flash program)
     EECON1bits.WREN = 0;    //Good practice now to clear the WREN bit, as further protection against any accidental activation of self write/erase operations.
-}   
+}
 
 
 void EraseFlashPage(unsigned int PageNumToErase)
@@ -725,7 +725,7 @@ void EraseFlashPage(unsigned int PageNumToErase)
     //Error check to make sure we aren't erasing part of the bootloader itself
     if(PageNumToErase < START_PAGE_TO_ERASE)
         PageNumToErase = START_PAGE_TO_ERASE;
-    
+
     //Load table pointer so we are pointing to the page we want to erase
     #ifdef __XC8__
         TablePointerValue = ERASE_PAGE_SIZE * (uint24_t)PageNumToErase;

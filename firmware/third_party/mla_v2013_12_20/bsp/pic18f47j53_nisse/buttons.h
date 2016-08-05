@@ -1,11 +1,3 @@
-/*
- * Copyright 2014-2016 Esrille Inc.
- *
- * This file is a modified version of system.h provided by
- * Microchip Technology, Inc. for using Esrille New Keyboard.
- * See the file NOTICE for copying permission.
- */
-
 /********************************************************************
  Software License Agreement:
 
@@ -28,59 +20,31 @@
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *******************************************************************/
 
-#ifndef SYSTEM_H
-#define SYSTEM_H
-
-#include <xc.h>
 #include <stdbool.h>
 
-#include <buttons.h>
-#include <leds.h>
-#include <nvram.h>
+#ifndef BUTTONS_H
+#define BUTTONS_H
 
-#include <io_mapping.h>
-#include <fixed_address_memory.h>
-#include <power.h>
-
-#include <usb_config.h>
-
-#define _XTAL_FREQ  24000000u
-
-/*** System States **************************************************/
+/*** Button Definitions *********************************************/
 typedef enum
 {
-    SYSTEM_STATE_USB_START,
-    SYSTEM_STATE_USB_SUSPEND,
-    SYSTEM_STATE_USB_RESUME
-} SYSTEM_STATE;
+    BUTTON_NONE,
+    BUTTON_S2,
+    BUTTON_S3
+    //S1 is MCLR
+} BUTTON;
+
 
 /*********************************************************************
-* Function: void SYSTEM_Initialize( SYSTEM_STATE state )
+* Function: bool BUTTON_IsPressed();
 *
-* Overview: Initializes the system.
+* Overview: Returns the current state of the requested button
 *
-* PreCondition: None
+* PreCondition: button configured via BUTTON_SetConfiguration()
 *
-* Input:  SYSTEM_STATE - the state to initialize the system into
-*
-* Output: None
+* Output: TRUE if any one of keys is pressed; FALSE if not pressed.
 *
 ********************************************************************/
-void SYSTEM_Initialize( SYSTEM_STATE state );
+bool BUTTON_IsPressed();
 
-/*********************************************************************
-* Function: void SYSTEM_Tasks(void)
-*
-* Overview: Runs system level tasks that keep the system running
-*
-* PreCondition: System has been initalized with SYSTEM_Initialize()
-*
-* Input: None
-*
-* Output: None
-*
-********************************************************************/
-//void SYSTEM_Tasks(void);
-#define SYSTEM_Tasks()
-
-#endif //SYSTEM_H
+#endif //BUTTONS_H

@@ -1,29 +1,7 @@
 The Esrille New Keyboard - NISSE
-Copyright 2013-2015 Esrille Inc.
+Copyright 2013-2016 Esrille Inc.
 
 This product includes the design and the firmware of the Esrille New Keyboard
 being developed at Esrille Inc. (http://www.esrille.com/keyboard/).
-
-The Esrille New Keyboard is an ergonomically designed USB keyboard. It has 76
-key switches (including two Fn keys), and is technically compatible with the
-104/109 key USB keyboard.
-
-The keyboard firmware of the Esrille New Keyboard currently supports the
-following logical keyboard layouts:
-
-English:
-  * Qwerty
-  * Dvorak
-  * Colemak
-
-Japanese:
-  * Stickney Next
-  * Nicola
-  * M type
-  * TRON
-  * JIS X 6004
-
-The keyboard firmware processes the above mentioned logical layouts inside the
-keyboard, and no extra device driver installation is necessary.
 
 See the file NOTICE for copying permission.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2015 Esrille Inc.
+ * Copyright 2014-2016 Esrille Inc.
  *
  * This file is a modified version of app_device_keyboard.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -53,8 +53,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
 #include <system.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <usb/usb.h>
 #include <usb/usb_device_hid.h>
 #include <plib/timers.h>
@@ -63,6 +64,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app_led_usb_status.h"
 
 #include <Keyboard.h>
+
+#define SCAN_DELAY  (_XTAL_FREQ / 256 / 4 / 167 + 1) // About 6 [msec]
 
 // *****************************************************************************
 // *****************************************************************************
@@ -295,6 +298,20 @@ static volatile unsigned char* rowPorts4[8] = {
     &TRISA,
 };
 
+#ifdef WITH_HOS
+// Rev 6
+static volatile unsigned char* rowPorts6[8] = {
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISA,
+    &TRISE,
+    &TRISE,
+    &TRISE,
+};
+#endif
+
 static unsigned char rowBits[8] = {
     1u << 0,
     1u << 1,
@@ -330,6 +347,20 @@ static unsigned char rowBits4[8] = {
     1u << 1
 };
 
+#ifdef WITH_HOS
+// Rev 6
+static unsigned char rowBits6[8] = {
+    1u << 0,
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 5,
+    1u << 0,
+    1u << 1,
+    1u << 2
+};
+#endif
+
 static volatile unsigned char* columnPorts[12] = {
     &PORTD,
     &PORTD,
@@ -360,6 +391,24 @@ static volatile unsigned char* columnPorts4[12] = {
     &PORTD,
     &PORTD,
 };
+
+#ifdef WITH_HOS
+// Rev 6
+static volatile unsigned char* columnPorts6[12] = {
+    &PORTD,
+    &PORTD,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+    &PORTD,
+    &PORTD,
+    &PORTD,
+    &PORTB,
+    &PORTB,
+    &PORTB,
+};
+#endif
 
 static unsigned char columnBits[12] = {
     1u << 4,
@@ -408,7 +457,27 @@ static unsigned char columnBits4[12] = {
     1u << 0,
 };
 
+#ifdef WITH_HOS
+// Rev 6
+static unsigned char columnBits6[12] = {
+    1u << 6,
+    1u << 7,
+    1u << 0,
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 1,
+    1u << 2,
+    1u << 3,
+    1u << 7,
+    1u << 6,
+    1u << 5,
+};
+#endif
+
 static int tick;
+static int8_t xmit = XMIT_NORMAL;
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -422,6 +491,47 @@ static int tick;
 // Section: Macros or Functions
 // *****************************************************************************
 // *****************************************************************************
+
+void APP_KeyboardConfigure(void)
+{
+#ifdef WITH_HOS
+    if (6 <= BOARD_REV_VALUE) {
+        for (char i = 0; i < 8; ++i) {
+            rowPorts[i] = rowPorts6[i];
+            rowBits[i] = rowBits6[i];
+        }
+        for (char i = 0; i < 12; ++i) {
+            columnPorts[i] = columnPorts6[i];
+            columnBits[i] = columnBits6[i];
+        }
+    }
+    else
+#endif
+    if (4 <= BOARD_REV_VALUE)
+    {
+        for (char i = 0; i < 8; ++i) {
+            rowPorts[i] = rowPorts4[i];
+            rowBits[i] = rowBits4[i];
+        }
+        for (char i = 0; i < 12; ++i) {
+            columnPorts[i] = columnPorts4[i];
+            columnBits[i] = columnBits4[i];
+        }
+        if (5 <= BOARD_REV_VALUE) {
+            columnBits[10] = 1u << 0;
+            columnBits[11] = 1u << 1;
+        }
+    }
+    else if (BOARD_REV_VALUE == 3)
+    {
+        rowPorts[5] = &TRISE;
+        for (char i = 0; i < 8; ++i)
+            rowBits[i] = rowBits3[i];
+        for (char i = 0; i < 12; ++i)
+            columnBits[i] = columnBits3[i];
+    }
+}
+
 void APP_KeyboardInit(void)
 {
     //initialize the variable holding the handle for the last
@@ -438,60 +548,36 @@ void APP_KeyboardInit(void)
     //Arm OUT endpoint so we can receive caps lock, num lock, etc. info from host
     keyboard.lastOUTTransmission = HIDRxPacket(HID_EP, (uint8_t*) &outputReport, sizeof(outputReport));
 
-    if (BOARD_REV_VALUE == 3) {
-        rowPorts[5] = &TRISE;
-        for (char i = 0; i < 8; ++i)
-            rowBits[i] = rowBits3[i];
-        for (char i = 0; i < 12; ++i)
-            columnBits[i] = columnBits3[i];
-    }
-    if (4 <= BOARD_REV_VALUE) {
-        for (char i = 0; i < 8; ++i) {
-            rowPorts[i] = rowPorts4[i];
-            rowBits[i] = rowBits4[i];
-        }
-        for (char i = 0; i < 12; ++i) {
-            columnPorts[i] = columnPorts4[i];
-            columnBits[i] = columnBits4[i];
-        }
-        if (5 <= BOARD_REV_VALUE) {
-            columnBits[10] = 1u << 0;
-            columnBits[11] = 1u << 1;
-        }
-    }
-
     OpenTimer0(TIMER_INT_OFF & T0_16BIT & T0_SOURCE_INT & T0_PS_1_256);
     tick = (int) ReadTimer0();
 }
 
-void APP_KeyboardTasks(void)
+uint8_t* APP_KeyboardScan(void)
 {
-    static int8_t xmit = XMIT_NORMAL;
     int8_t row;
     uint8_t column;
 
-    if (xmit != XMIT_BRK && xmit != XMIT_IN_ORDER) {
-        static int8_t cnt;
-
-        while (((int) ReadTimer0()) - tick < 141)   // 281: 12msec at 24MHz
-            ;
-        tick = (int) ReadTimer0();
-        if (++cnt & 1)
-            return;
-    }
-
-    /* Check if the IN endpoint is busy, and if it isn't check if we want to send
-     * keystroke data to the host. */
-    if (!HIDTxHandleBusy(keyboard.lastINTransmission)) {
-        if (xmit == XMIT_IN_ORDER) {
-            if (inputReport.keys[0] && inputReport.keys[0] == peekMacro())
-                inputReport.keys[0] = 0;    // BRK
-            else {
-                inputReport.keys[0] = getMacro();
-                if (!inputReport.keys[0])
-                    xmit = XMIT_NONE;
+    if (xmit == XMIT_IN_ORDER) {
+        if (inputReport.keys[0] && inputReport.keys[0] == peekMacro())
+            inputReport.keys[0] = 0;    // BRK
+        else {
+            inputReport.keys[0] = getMacro();
+#ifdef WITH_HOS
+            if (inputReport.keys[0] == KEYPAD_PERCENT) {
+                inputReport.keys[0] = KEY_5;
+                inputReport.modifiers.bits.leftShift = 1;
             }
-        } else {
+#endif
+            if (!inputReport.keys[0])
+                xmit = XMIT_NONE;
+        }
+    } else {
+        if (BUTTON_IsPressed()) {
+#ifdef WITH_HOS
+            INTCON2bits.RBPU = 0;   // Enable RBPU
+            TRISEbits.RDPU = 1;     // Enable RDPU
+            Nop(); Nop(); Nop(); Nop(); Nop();
+#endif
             for (row = 7; 0 <= row; --row) {
                 *rowPorts[row] &= ~rowBits[row];
                 for (column = 0; column < 12; ++column) {
@@ -500,32 +586,57 @@ void APP_KeyboardTasks(void)
                 }
                 *rowPorts[row] |= rowBits[row];
             }
-
-            xmit = makeReport((uint8_t*) &inputReport);
-            switch (xmit) {
-            case XMIT_BRK:
-                memset(&inputReport + 2, 0, 6);
-                break;
-            case XMIT_NORMAL:
-                break;
-            case XMIT_IN_ORDER:
-                for (char i = 0; i < 6; ++i)
-                    emitKey(inputReport.keys[i]);
-                inputReport.keys[0] = beginMacro(6);
-                memset(inputReport.keys + 1, 0, 5);
-                break;
-            case XMIT_MACRO:
-                xmit = XMIT_IN_ORDER;
-                inputReport.modifiers.value = 0;
-                inputReport.keys[0] = beginMacro(128);
-                memset(inputReport.keys + 1, 0, 5);
-                break;
-            default:
-                break;
-            }
+#ifdef WITH_HOS
+            TRISEbits.RDPU = 0;     // Disable RDPU
+            INTCON2bits.RBPU = 1;   // Disable RBPU
+#endif
         }
-        if (xmit)
-            keyboard.lastINTransmission = HIDTxPacket(HID_EP, (uint8_t*) &inputReport, sizeof(inputReport));
+
+        xmit = makeReport((uint8_t*) &inputReport);
+        switch (xmit) {
+        case XMIT_BRK:
+            memset(&inputReport + 2, 0, 6);
+            break;
+        case XMIT_NORMAL:
+            break;
+        case XMIT_IN_ORDER:
+            for (uint8_t i = 0; i < 6; ++i)
+                emitKey(inputReport.keys[i]);
+            inputReport.keys[0] = beginMacro(6);
+            memset(inputReport.keys + 1, 0, 5);
+            break;
+        case XMIT_MACRO:
+            xmit = XMIT_IN_ORDER;
+            inputReport.modifiers.value = 0;
+            inputReport.keys[0] = beginMacro(MAX_MACRO_SIZE);
+            memset(inputReport.keys + 1, 0, 5);
+            break;
+        default:
+            break;
+        }
+    }
+    if (!xmit)
+        return NULL;
+    return (uint8_t*) &inputReport;
+}
+
+void APP_KeyboardTasks(void)
+{
+    static int8_t cnt;
+
+    while (((int) ReadTimer0()) - tick < (int) SCAN_DELAY)
+        ;
+    tick = (int) ReadTimer0();
+    if (++cnt & 1)
+        return;
+
+    /* Check if the IN endpoint is busy, and if it isn't check if we want to send
+     * keystroke data to the host. */
+    if (!HIDTxHandleBusy(keyboard.lastINTransmission)) {
+        uint8_t* report = APP_KeyboardScan();
+        if (report) {
+            keyboard.lastINTransmission = HIDTxPacket(HID_EP, report, sizeof(inputReport));
+        }
     }
 
     /* Check if any data was sent from the PC to the keyboard device.  Report
@@ -540,21 +651,7 @@ void APP_KeyboardTasks(void)
 
 void APP_KeyboardProcessOutputReport(void)
 {
-    uint8_t led = controlLED(outputReport.value);
-    if (led & LED_NUM_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK);
-
-    if (led & LED_CAPS_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK);
-
-    if (led & LED_SCROLL_LOCK)
-        LED_On(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
-    else
-        LED_Off(LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK);
+    APP_LEDUpdate(controlLED(outputReport.value));
 }
 
 void APP_Suspend()

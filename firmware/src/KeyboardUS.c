@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Esrille Inc.
+ * Copyright 2013-2016 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 #include "Keyboard.h"
 
 #include <string.h>
-
-#ifdef __XC8
-#include <xc.h>
-#endif
+#include <system.h>
 
 static uint8_t const baseKeys[BASE_MAX + 1][5] =
 {
@@ -112,7 +109,7 @@ static uint8_t mode;
 
 void initKeyboardBase(void)
 {
-    mode = eeprom_read(EEPROM_BASE);
+    mode = ReadNvram(EEPROM_BASE);
     if (BASE_MAX < mode)
         mode = 0;
 }
@@ -127,7 +124,7 @@ void switchBase(void)
     ++mode;
     if (BASE_MAX < mode)
         mode = 0;
-    eeprom_write(EEPROM_BASE, mode);
+    WriteNvram(EEPROM_BASE, mode);
     emitBaseName();
 }
 
