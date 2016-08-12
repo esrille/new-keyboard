@@ -33,7 +33,7 @@ typedef struct {
     uint16_t low;
 } TouchSensor;
 
-#define PLAY_MAX    4
+#define PLAY_MAX    (PAD_SENSE_MAX + 1)
 
 #define CODE_F1     (1*1+1)
 #define CODE_F9     8
@@ -117,16 +117,16 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
         uint8_t code = current[i];
         switch (code) {
         case CODE_F9:
-            setPlay(3);
+            setPlay(PAD_SENSE_4);
             break;
         case CODE_F10:
-            setPlay(2);
+            setPlay(PAD_SENSE_3);
             break;
         case CODE_F11:
-            setPlay(1);
+            setPlay(PAD_SENSE_2);
             break;
         case CODE_F12:
-            setPlay(0);
+            setPlay(PAD_SENSE_1);
             break;
         case CODE_J:
         case CODE_V:
@@ -293,12 +293,5 @@ void processMouseData(void)
     rawData.y = HosGetKeyboardMouseY();
     rawData.touch = HosGetTouch();
     processSerialData();
-}
-#endif
-
-#ifdef DEBUG
-void dumpMouse(void)
-{
-    printf("%u %u %u\n", rawData.x, rawData.y, rawData.touch);
 }
 #endif

@@ -546,10 +546,23 @@ void switchOS(void);
 
 #define is109()     (os == OS_109A || os == OS_109B)
 
+#define MOD_C           0
+#define MOD_CJ          1
+#define MOD_CJ_MAC      2
+#define MOD_S           3
+#define MOD_SJ          4
+#define MOD_SJ_MAC      5
+#define MOD_MAX         5
+
 void emitModName(void);
 void switchMod(void);
 
-#define MAX_DELAY       4
+#define DELAY_0         0
+#define DELAY_12        1
+#define DELAY_24        2
+#define DELAY_36        3
+#define DELAY_48        4
+#define DELAY_MAX       4
 
 void emitDelayName(void);
 void switchDelay(void);

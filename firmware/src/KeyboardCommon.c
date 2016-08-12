@@ -21,7 +21,7 @@
 #include <string.h>
 #include <system.h>
 
-NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, 1 /* delay */, 0 /* mod */, LED_DEFAULT, IME_MS, 0 /* mouse */);
+NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_12, MOD_C, LED_DEFAULT, IME_MS, PAD_SENSE_1);
 
 uint8_t os;
 uint8_t mod;
@@ -42,13 +42,12 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
     {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
 };
 
-#define MAX_MOD             5
 #define MAX_MOD_KEY_NAME    6
 #define MAX_MOD_KEYS        7
 
 #define isMacMod()  (mod == 2 || mod == 5)
 
-static uint8_t const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
+static uint8_t const modMap[MOD_MAX + 1][MAX_MOD_KEYS] =
 {
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
@@ -58,7 +57,7 @@ static uint8_t const modMap[MAX_MOD + 1][MAX_MOD_KEYS] =
     {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
 };
 
-static uint8_t const modKeys[MAX_MOD + 1][MAX_MOD_KEY_NAME] =
+static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
 {
     {KEY_C, KEY_ENTER},
     {KEY_C, KEY_J, KEY_ENTER},
@@ -106,7 +105,7 @@ static uint8_t const matrixNumLock[8][5] =
 
 #define MAX_DELAY_KEY_NAME  4
 
-static uint8_t const delayKeyNames[MAX_DELAY + 1][MAX_DELAY_KEY_NAME] =
+static uint8_t const delayKeyNames[DELAY_MAX + 1][MAX_DELAY_KEY_NAME] =
 {
     {KEY_D, KEY_0, KEY_ENTER},
     {KEY_D, KEY_1, KEY_2, KEY_ENTER},
@@ -145,7 +144,7 @@ static uint8_t ordered_pos = 0;
 static uint8_t ordered_max;
 
 static uint8_t currentDelay;
-static Keys keys[MAX_DELAY + 2];
+static Keys keys[DELAY_MAX + 2];
 static int8_t currentKey = 0;
 
 #ifdef __XC8
@@ -176,10 +175,10 @@ void initKeyboard(void)
     if (OS_MAX < os)
         os = 0;
     mod = ReadNvram(EEPROM_MOD);
-    if (MAX_MOD < mod)
+    if (MOD_MAX < mod)
         mod = 0;
     currentDelay = ReadNvram(EEPROM_DELAY);
-    if (MAX_DELAY < currentDelay)
+    if (DELAY_MAX < currentDelay)
         currentDelay = 0;
     prefix_shift = ReadNvram(EEPROM_PREFIX);
     if (PREFIXSHIFT_MAX < prefix_shift)
@@ -210,7 +209,7 @@ void emitModName(void)
 void switchMod(void)
 {
     ++mod;
-    if (MAX_MOD < mod)
+    if (MOD_MAX < mod)
         mod = 0;
     WriteNvram(EEPROM_MOD, mod);
     emitModName();
@@ -224,7 +223,7 @@ void emitDelayName(void)
 void switchDelay(void)
 {
     ++currentDelay;
-    if (MAX_DELAY < currentDelay)
+    if (DELAY_MAX < currentDelay)
         currentDelay = 0;
     WriteNvram(EEPROM_DELAY, currentDelay);
     emitDelayName();
@@ -865,12 +864,12 @@ int8_t makeReport(uint8_t* report)
         modifiersPrev = modifiers;
 
         // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
-        at = currentKey + MAX_DELAY + 2 - currentDelay;
-        if (MAX_DELAY + 1 < at)
-                at -= MAX_DELAY + 2;
-        prev = at + MAX_DELAY + 1;
-        if (MAX_DELAY + 1 < prev)
-                prev -= MAX_DELAY + 2;
+        at = currentKey + DELAY_MAX + 2 - currentDelay;
+        if (DELAY_MAX + 1 < at)
+                at -= DELAY_MAX + 2;
+        prev = at + DELAY_MAX + 1;
+        if (DELAY_MAX + 1 < prev)
+                prev -= DELAY_MAX + 2;
         count = 2;
         for (int8_t i = 0; i < 6; ++i) {
             uint8_t key = keys[at].keys[i];
@@ -900,13 +899,13 @@ int8_t makeReport(uint8_t* report)
         }
         processOSMode(report);
     } else {
-        prev = currentKey + MAX_DELAY + 1;
-        if (MAX_DELAY + 1 < prev)
-                prev -= MAX_DELAY + 2;
+        prev = currentKey + DELAY_MAX + 1;
+        if (DELAY_MAX + 1 < prev)
+                prev -= DELAY_MAX + 2;
         memmove(keys[currentKey].keys, keys[prev].keys, 6);
     }
 
-    if (MAX_DELAY + 1 < ++currentKey)
+    if (DELAY_MAX + 1 < ++currentKey)
         currentKey = 0;
     count = 2;
     modifiers = 0;

@@ -19,6 +19,12 @@
 
 #include <stdint.h>
 
+#define PAD_SENSE_1      0
+#define PAD_SENSE_2      1
+#define PAD_SENSE_3      2
+#define PAD_SENSE_4      3
+#define PAD_SENSE_MAX    PAD_SENSE_4
+
 void initMouse(void);
 void emitMouse(void);
 int8_t processSerialUnit(uint8_t data);
@@ -32,10 +38,6 @@ int8_t isProcessingSrialData(void);
 
 #ifdef WITH_HOS
 void processMouseData(void);
-#endif
-
-#ifdef DEBUG
-void dumpMouse(void);
 #endif
 
 #endif  // #ifndef MOUSE_H
