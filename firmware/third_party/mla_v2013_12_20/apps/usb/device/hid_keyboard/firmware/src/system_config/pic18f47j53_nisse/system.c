@@ -158,27 +158,67 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
             ANCON1 = 0x1f;
 
             // Initialize all of the LED pins and key matrix ports
-            // PORT A (0~3, 5, input initially)
+            // PORT A
+            //   RA0: R0 (output by default)
+            //   RA1: R1 (output by default)
+            //   RA2: R2 (output by default)
+            //   RA3: R3 (output by default)
+            //   -
+            //   RA5: R4 (output by default)
+            //   CLKO: (output)
+            //   CLKI: (input)
             LATA = 0x00;
-            TRISA = 0x2F;
+            TRISA = 0x80;
 
-            // PORT B (0~7, input)
+            // PORT B
+            //   RB0: C2 (output by default)
+            //   RB1: C3 (output by default)
+            //   RB2: C4 (output by default)
+            //   RB3: C5 (output by default)
+            //   RB4: RX2 (input: configured later)
+            //   RB5: C11 (output by default)
+            //   RB6: C10 (output by default)
+            //   RB7: C9 (output by default)
             LATB = 0x00;
-            TRISB = 0xFF;
-            INTCON2bits.RBPU = 1;   // Disable pull up
+            TRISB = 0x10;
 
-            // PORT C (0-2 output)
+            // PORT C
+            //   RC0: L1 (output: 0)
+            //   RC1: L2 (output: 0)
+            //   RC2: L3 (output: 0)
+            //   -
+            //   RC4: D- (-)
+            //   RC5: D+ (-)
+            //   RC6: SCK (input: configured later)
+            //   RC7: MISO (input: configured later)
             LATC = 0x00;
-            TRISC = 0xF8;
+            TRISC = 0xF0;
 
-            // PORT D (0~7, input)
-            LATD = 0x00;
-            TRISD = 0xFF;
+            // PORT D
+            //   RD0: USB Sense (input)
+            //   RD1: C6 (output by default)
+            //   RD2: C7 (output by default)
+            //   RD3: C8 (output by default)
+            //   RD4: MOSI (input: configured later)
+            //   RD5: CS (output: 1)
+            //   RD6: C0 (output by default)
+            //   RD7: C1 (output by default)
+            LATD = 0x20;
+            TRISD = 0x11;
 
-            // PORT E (0~2, input initially)
+            // PORT E
+            //   RE0: R5 (output by default)
+            //   RE1: R6 (output by default)
+            //   RE2: R7 (output by default)
+            //   -
+            //   -
+            //   -
+            //   REPU: disable (0)
+            //   RDPU: disable (0)
             LATE = 0x00;
-            TRISE = 0x07;
-            TRISEbits.RDPU = 0;     // Disable pull up
+            TRISE = 0x00;
+
+            BUTTON_Disable();
 
             InitNvram();
             initKeyboard();

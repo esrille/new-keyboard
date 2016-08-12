@@ -1,50 +1,29 @@
-/********************************************************************
- Software License Agreement:
-
- The software supplied herewith by Microchip Technology Incorporated
- (the "Company") for its PIC(R) Microcontroller is intended and
- supplied to you, the Company's customer, for use solely and
- exclusively on Microchip PIC Microcontroller products. The
- software is owned by the Company and/or its supplier, and is
- protected under applicable copyright laws. All rights are reserved.
- Any use in violation of the foregoing restrictions may subject the
- user to criminal sanctions under applicable laws, as well as to
- civil liability for the breach of the terms and conditions of this
- license.
-
- THIS SOFTWARE IS PROVIDED IN AN "AS IS" CONDITION. NO WARRANTIES,
- WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED
- TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE COMPANY SHALL NOT,
- IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL OR
- CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- *******************************************************************/
+/*
+ * Copyright 2014-2016 Esrille Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <stdbool.h>
 
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
-/*** Button Definitions *********************************************/
-typedef enum
-{
-    BUTTON_NONE,
-    BUTTON_S2,
-    BUTTON_S3
-    //S1 is MCLR
-} BUTTON;
+// Internal pull-ups are always enabled in NISSE Rev.1 to Rev.5
+#define BUTTON_Enable()
+#define BUTTON_Disable()
 
-
-/*********************************************************************
-* Function: bool BUTTON_IsPressed();
-*
-* Overview: Returns the current state of the requested button
-*
-* PreCondition: button configured via BUTTON_SetConfiguration()
-*
-* Output: TRUE if any one of keys is pressed; FALSE if not pressed.
-*
-********************************************************************/
+// Returns true if any one of the keys is pressed
 bool BUTTON_IsPressed();
 
-#endif //BUTTONS_H
+#endif // BUTTONS_H

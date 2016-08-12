@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Esrille Inc.
+ * Copyright 2014-2016 Esrille Inc.
  *
  * This file is a modified version of io_mapping.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -33,5 +33,3 @@
 #define LED_USB_DEVICE_HID_KEYBOARD_NUM_LOCK            LED_D1
 #define LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK           LED_D2
 #define LED_USB_DEVICE_HID_KEYBOARD_SCROLL_LOCK         LED_D3
-
-#define BUTTON_USB_DEVICE_HID_KEYBOARD_KEY              BUTTON_S2

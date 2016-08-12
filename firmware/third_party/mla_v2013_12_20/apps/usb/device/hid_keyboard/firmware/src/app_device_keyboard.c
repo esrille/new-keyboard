@@ -573,11 +573,7 @@ uint8_t* APP_KeyboardScan(void)
         }
     } else {
         if (BUTTON_IsPressed()) {
-#ifdef WITH_HOS
-            INTCON2bits.RBPU = 0;   // Enable RBPU
-            TRISEbits.RDPU = 1;     // Enable RDPU
-            Nop(); Nop(); Nop(); Nop(); Nop();
-#endif
+            BUTTON_Enable();
             for (row = 7; 0 <= row; --row) {
                 *rowPorts[row] &= ~rowBits[row];
                 for (column = 0; column < 12; ++column) {
@@ -586,10 +582,7 @@ uint8_t* APP_KeyboardScan(void)
                 }
                 *rowPorts[row] |= rowBits[row];
             }
-#ifdef WITH_HOS
-            TRISEbits.RDPU = 0;     // Disable RDPU
-            INTCON2bits.RBPU = 1;   // Disable RBPU
-#endif
+            BUTTON_Disable();
         }
 
         xmit = makeReport((uint8_t*) &inputReport);

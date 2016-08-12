@@ -110,8 +110,8 @@ void HosInitialize(void)
     // RXD  MISO    SDI     RC7/RX1/RP18
     // RTS  SCK     SCK     RC6/TX1/RP17
 
-    CS_TRIS = 0;
     CS_LAT = 1;
+    CS_TRIS = 0;
 
     TRISDbits.TRISD4 = 0;   // SDO
     TRISCbits.TRISC7 = 1;   // SDI
@@ -430,7 +430,7 @@ static void WaitForResume(void)
     APP_Suspend();
 
     while (!BUTTON_IsPressed()) {
-        _delay(16000/ 32);  // Note _delay(1) = 32 [usec] while suspended at 125kHz.
+        _delay(16000 / 32);  // Note _delay(1) = 32 [usec] while suspended at 125kHz.
     }
 
     APP_WakeFromSuspend();
