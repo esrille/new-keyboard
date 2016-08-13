@@ -45,7 +45,7 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 #define MAX_MOD_KEY_NAME    6
 #define MAX_MOD_KEYS        7
 
-#define isMacMod()  (mod == 2 || mod == 5)
+#define isMacMod()  (mod == MOD_CJ_MAC || mod == MOD_SJ_MAC)
 
 static uint8_t const modMap[MOD_MAX + 1][MAX_MOD_KEYS] =
 {
@@ -147,9 +147,7 @@ static uint8_t currentDelay;
 static Keys keys[DELAY_MAX + 2];
 static int8_t currentKey = 0;
 
-#ifdef __XC8
 static uint8_t tick;
-#endif
 static uint8_t processed[8];
 
 static uint8_t modifiers;
