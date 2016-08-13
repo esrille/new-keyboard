@@ -637,7 +637,6 @@ uint8_t toggleKanaMode(uint8_t key, uint8_t mod, int8_t make);
 int8_t processKeysBase(const uint8_t* current, const uint8_t* processed, uint8_t* report);
 int8_t processKeysKana(const uint8_t* current, const uint8_t* processed, uint8_t* report);
 
-uint8_t getLED(void);
 uint8_t controlLED(uint8_t report);
 uint8_t controlKanaLED(uint8_t report);
 

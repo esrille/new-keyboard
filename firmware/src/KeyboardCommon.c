@@ -735,9 +735,10 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 static void processOSMode(uint8_t* report)
 {
     for (int8_t i = 2; i < 8; ++i) {
+        uint8_t key = report[i];
         switch (os) {
         case OS_PC:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
                 report[i] = KEY_F13;
                 break;
@@ -753,7 +754,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_MAC:
-            switch (report[i]) {
+            switch (key) {
             case KEY_INTERNATIONAL4:
             case KEY_INTERNATIONAL5:
                 report[i] = KEY_SPACEBAR;
@@ -776,7 +777,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_104A:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
                 report[i] = KEY_SPACEBAR;
                 report[0] |= MOD_LEFTSHIFT | MOD_LEFTCONTROL;
@@ -794,7 +795,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_104B:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
             case KEY_LANG2:
                 report[i] = KEY_GRAVE_ACCENT;
@@ -809,7 +810,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_109A:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
                 report[i] = KEY_INTERNATIONAL4;
                 report[0] |= MOD_LEFTSHIFT | MOD_LEFTCONTROL;
@@ -823,7 +824,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_109B:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
             case KEY_LANG2:
                 report[i] = KEY_GRAVE_ACCENT;
@@ -833,7 +834,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_ALT_SP:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
             case KEY_LANG2:
                 report[i] = KEY_SPACEBAR;
@@ -844,7 +845,7 @@ static void processOSMode(uint8_t* report)
             }
             break;
         case OS_SHIFT_SP:
-            switch (report[i]) {
+            switch (key) {
             case KEY_LANG1:
             case KEY_LANG2:
                 report[i] = KEY_SPACEBAR;
@@ -961,11 +962,6 @@ int8_t makeReport(uint8_t* report)
     return xmit;
 }
 
-uint8_t getLED(void)
-{
-    return led;
-}
-
 uint8_t controlLED(uint8_t report)
 {
     led = report;
@@ -974,7 +970,6 @@ uint8_t controlLED(uint8_t report)
     if (isMouseTouched())
         report |= LED_SCROLL_LOCK;
 #endif
-#ifdef __XC8
     if (BOARD_REV_VALUE < 3) {
         static int8_t tick;
 
@@ -983,7 +978,6 @@ uint8_t controlLED(uint8_t report)
         else
             report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
     }
-#endif
     return report;
 }
 
