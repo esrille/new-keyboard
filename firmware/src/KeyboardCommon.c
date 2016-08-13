@@ -21,7 +21,7 @@
 #include <string.h>
 #include <system.h>
 
-NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_12, MOD_C, LED_DEFAULT, IME_MS, PAD_SENSE_1);
+NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_12, MOD_DEFAULT, LED_DEFAULT, IME_MS, PAD_SENSE_1);
 
 uint8_t os;
 uint8_t mod;
@@ -45,8 +45,6 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 #define MAX_MOD_KEY_NAME    6
 #define MAX_MOD_KEYS        7
 
-#define isMacMod()  (mod == MOD_CJ_MAC || mod == MOD_SJ_MAC)
-
 static uint8_t const modMap[MOD_MAX + 1][MAX_MOD_KEYS] =
 {
     {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
@@ -65,6 +63,10 @@ static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
     {KEY_S, KEY_ENTER},
     {KEY_S, KEY_J, KEY_ENTER},
     {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
+#ifdef ENABLE_DUAL_ROLE_FN
+    {KEY_C, KEY_X, KEY_ENTER},
+    {KEY_S, KEY_X, KEY_ENTER},
+#endif
 };
 
 static uint8_t const matrixFn[8][12][3] =
@@ -158,6 +160,11 @@ static uint8_t rowCount[8];
 static uint8_t columnCount[12];
 
 static uint8_t led;
+
+#ifdef ENABLE_DUAL_ROLE_FN
+static uint8_t modFn;
+static uint8_t dualFn;  // Used for dual-role FN keys
+#endif
 
 void initKeyboard(void)
 {
@@ -691,8 +698,37 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
         xmit = processKeysKana(current, processed, report);
     else
         xmit = processKeysBase(current, processed, report);
+
+#ifdef ENABLE_DUAL_ROLE_FN
+    if (isDualRoleFnMod()) {
+        if ((current[1] ^ processed[1]) & MOD_FN) {
+            modFn = (current[1] & MOD_FN);
+            if (modFn) {
+                dualFn = modFn;
+            } else if (dualFn) {
+                if (xmit == XMIT_NORMAL && !report[2]) {
+                    uint8_t key = (dualFn & MOD_RIGHTFN) ? KEY_LANG1 : KEY_LANG2;
+                    key = toggleKanaMode(key, current[0], 1);
+                    report[2] = key;
+                    xmit = XMIT_NORMAL;
+                }
+                memmove(processed, current, 8);
+                processed[1] |= dualFn;
+                dualFn = 0;
+                return xmit;
+            }
+        }
+        if (dualFn) {
+            if (xmit != XMIT_NORMAL || xmit == XMIT_NORMAL && report[2]) {
+                dualFn = 0;
+            }
+        }
+    }
+#endif
+
     if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER || xmit == XMIT_MACRO)
         memmove(processed, current, 8);
+
     return xmit;
 }
 
@@ -827,9 +863,22 @@ static void processOSMode(uint8_t* report)
 uint8_t processModKey(uint8_t key)
 {
     const uint8_t* map = modMap[0];
+    uint8_t xfer = mod;
+#ifdef ENABLE_DUAL_ROLE_FN
+    switch (mod) {
+    case MOD_CX:
+        xfer = MOD_C;
+        break;
+    case MOD_SX:
+        xfer = MOD_S;
+        break;
+    default:
+        break;
+    }
+#endif
     for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {
         if (key == map[i])
-            return modMap[mod][i];
+            return modMap[xfer][i];
     }
     return key;
 }

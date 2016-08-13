@@ -1339,7 +1339,7 @@
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>
-        <property key="define-macros" value="WITH_HOS"/>
+        <property key="define-macros" value="WITH_HOS;ENABLE_DUAL_ROLE_FN"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>
         <property key="identifier-length" value="255"/>
@@ -1786,7 +1786,7 @@
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>
-        <property key="define-macros" value="WITH_HOS;ENABLE_MOUSE"/>
+        <property key="define-macros" value="WITH_HOS;ENABLE_MOUSE;ENABLE_DUAL_ROLE_FN"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>
         <property key="identifier-length" value="255"/>
