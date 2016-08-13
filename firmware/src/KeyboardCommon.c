@@ -259,8 +259,8 @@ void onPressed(int8_t row, uint8_t column)
         modifiers |= 1u << (key - KEY_LEFTCONTROL);
         return;
     }
-    if (KEY_FN == key) {
-        current[1] |= MOD_FN;
+    if (KEY_LEFT_FN <= key && key <= KEY_RIGHT_FN) {
+        current[1] |= 1u << (key - KEY_LEFT_FN);
         return;
     }
     if (count < 8)
@@ -846,7 +846,7 @@ int8_t makeReport(uint8_t* report)
         memmove(keys[currentKey].keys, current + 2, 6);
         current[0] = modifiers;
         if (led & LED_SCROLL_LOCK)
-            current[1] |= MOD_FN;
+            current[1] |= MOD_LEFTFN;
 #ifdef ENABLE_MOUSE
         if (isMouseTouched())
             current[1] |= MOD_PAD;

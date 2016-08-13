@@ -240,6 +240,12 @@
 
 #define KEY_CALC                0xFB
 
+// KEY_ extension for NISSE
+#define KEY_LEFT_FN             0xF0
+#define KEY_RIGHT_FN            0xF1
+#define KEY_DAKUTEN             0xF3
+#define KEY_HANDAKU             0xF4
+
 #define MOD_LEFTALT             (1u << (KEY_LEFTALT - KEY_LEFTCONTROL))
 #define MOD_RIGHTALT            (1u << (KEY_RIGHTALT - KEY_LEFTCONTROL))
 #define MOD_ALT                 (MOD_LEFTALT | MOD_RIGHTALT)
@@ -256,7 +262,10 @@
 #define MOD_RIGHTGUI            (1u << (KEY_RIGHT_GUI - KEY_LEFTCONTROL))
 #define MOD_GUI                 (MOD_LEFTGUI | MOD_RIGHTGUI)
 
-#define MOD_FN                  1u
+// MOD_ extension for NISSE
+#define MOD_LEFTFN              (1u << (KEY_LEFT_FN - KEY_LEFT_FN))
+#define MOD_RIGHTFN             (1u << (KEY_RIGHT_FN - KEY_LEFT_FN))
+#define MOD_FN                  (MOD_LEFTFN | MOD_RIGHTFN)
 #define MOD_PAD                 4u      // Touch sensor
 
 
@@ -511,10 +520,6 @@
 void initKeyboard(void);
 void initKeyboardBase(void);
 void initKeyboardKana(void);
-
-#define KEY_FN          0xF0
-#define KEY_DAKUTEN     0xF3
-#define KEY_HANDAKU     0xF4
 
 #define BASE_QWERTY     0
 #define BASE_DVORAK     1
