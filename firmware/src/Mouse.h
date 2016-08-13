@@ -41,4 +41,3 @@ void processMouseData(void);
 #endif
 
 #endif  // #ifndef MOUSE_H
-
