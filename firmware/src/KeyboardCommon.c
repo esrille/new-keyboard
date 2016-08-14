@@ -551,7 +551,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
         uint8_t modifiers = current[0];
         uint8_t count = 2;
         xmit = XMIT_NORMAL;
-        for (int8_t i = 2; i < 8 && xmit != XMIT_MACRO; ++i) {
+        for (int8_t i = 2; i < 8 && xmit == XMIT_NORMAL; ++i) {
             uint8_t code = current[i];
             const uint8_t* a = getKeyFn(code);
             for (int8_t j = 0; j < 3 && count < 8; ++j) {
