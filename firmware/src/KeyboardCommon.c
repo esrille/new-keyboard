@@ -705,23 +705,18 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
             modFn = (current[1] & MOD_FN);
             if (modFn) {
                 dualFn = modFn;
-            } else if (dualFn) {
-                if (xmit == XMIT_NORMAL && !report[2]) {
-                    uint8_t key = (dualFn & MOD_RIGHTFN) ? KEY_LANG1 : KEY_LANG2;
-                    key = toggleKanaMode(key, current[0], 1);
-                    report[2] = key;
-                    xmit = XMIT_NORMAL;
-                }
+            } else if (dualFn && xmit == XMIT_NORMAL && !report[2]) {
+                uint8_t key = (dualFn & MOD_RIGHTFN) ? KEY_LANG1 : KEY_LANG2;
+                key = toggleKanaMode(key, current[0], 1);
+                report[2] = key;
                 memmove(processed, current, 8);
                 processed[1] |= dualFn;
                 dualFn = 0;
                 return xmit;
             }
         }
-        if (dualFn) {
-            if (xmit != XMIT_NORMAL || xmit == XMIT_NORMAL && report[2]) {
-                dualFn = 0;
-            }
+        if (dualFn && (xmit != XMIT_NORMAL || report[2])) {
+            dualFn = 0;
         }
     }
 #endif
