@@ -354,7 +354,7 @@ static uint8_t getNumKeycode(unsigned int n)
     return KEY_SPACEBAR;
 }
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 void emitNumber(uint16_t n)
 {
     int8_t zero = 0;

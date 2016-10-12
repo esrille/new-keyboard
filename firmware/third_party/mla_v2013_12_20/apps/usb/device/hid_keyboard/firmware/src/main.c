@@ -104,7 +104,7 @@ int main(void)
     APP_KeyboardConfigure();
 
 #ifdef WITH_HOS
-    HosCheckDFU();
+    HosCheckDFU(BOOT_FLAGS_VALUE & BOOT_WITH_APP);
     if (!isUSBMode() || !isBusPowered()) {
         HosMainLoop();
     }

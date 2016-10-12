@@ -44,4 +44,6 @@
 #define BOARD_REV_ADDRESS       0x17FE
 #define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
 
+#define APP_MACHINE_VALUE       0x4550  // PIC18F4550
+
 #endif //FIXED_MEMORY_ADDRESS

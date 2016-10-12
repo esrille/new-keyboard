@@ -298,7 +298,7 @@ static volatile unsigned char* rowPorts4[8] = {
     &TRISA,
 };
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 // Rev 6
 static volatile unsigned char* rowPorts6[8] = {
     &TRISA,
@@ -347,7 +347,7 @@ static unsigned char rowBits4[8] = {
     1u << 1
 };
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 // Rev 6
 static unsigned char rowBits6[8] = {
     1u << 0,
@@ -392,7 +392,7 @@ static volatile unsigned char* columnPorts4[12] = {
     &PORTD,
 };
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 // Rev 6
 static volatile unsigned char* columnPorts6[12] = {
     &PORTD,
@@ -457,7 +457,7 @@ static unsigned char columnBits4[12] = {
     1u << 0,
 };
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 // Rev 6
 static unsigned char columnBits6[12] = {
     1u << 6,
@@ -494,7 +494,7 @@ static int8_t xmit = XMIT_NORMAL;
 
 void APP_KeyboardConfigure(void)
 {
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
     if (6 <= BOARD_REV_VALUE) {
         for (char i = 0; i < 8; ++i) {
             rowPorts[i] = rowPorts6[i];
@@ -562,7 +562,7 @@ uint8_t* APP_KeyboardScan(void)
             inputReport.keys[0] = 0;    // BRK
         else {
             inputReport.keys[0] = getMacro();
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
             if (inputReport.keys[0] == KEYPAD_PERCENT) {
                 inputReport.keys[0] = KEY_5;
                 inputReport.modifiers.bits.leftShift = 1;

@@ -377,18 +377,20 @@ uint16_t HosGetRevision(void)
     return (info.revisionMajor << 8) | info.revisionMinor;
 }
 
-void HosCheckDFU(void)
+void HosCheckDFU(bool dfu)
 {
-    int8_t dfu = 1;
-
     // Enable watchdog timer
     WDTCONbits.REGSLP = 1;
     WDTCONbits.SWDTEN = 1;
 
+    bool responded = false;
     for (uint16_t i = 0; i < HOS_STARTUP_DELAY; ++i) {
         if (HosGetStatus(HOS_TYPE_INFO)) {
-            dfu = 0;
-            break;
+            responded = true;
+            if (!dfu)
+                break;
+            if (HosSetEvent(HOS_TYPE_INFO, HOS_EVENT_DFU))
+                break;
         }
         Sleep();
         Nop();
@@ -398,7 +400,7 @@ void HosCheckDFU(void)
     LED_Off(LED_D2);
     LED_Off(LED_D3);
 
-    if (dfu) {
+    if (dfu || !responded) {
         for (uint16_t tick = 0;; ++tick) {
             Sleep();
             Nop();

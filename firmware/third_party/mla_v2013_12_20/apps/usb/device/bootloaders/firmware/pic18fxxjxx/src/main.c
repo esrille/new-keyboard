@@ -446,6 +446,7 @@ void BlinkUSBStatus(void);
 #ifdef __XC8__
     const unsigned int __at(APP_SIGNATURE_ADDRESS) FlashSignatureWord = APP_SIGNATURE_VALUE;
     const unsigned int __at(BOARD_REV_ADDRESS) BoardRev = BOARD_REV_VALUE;
+    unsigned int __at(BOOT_FLAGS_ADDRESS) BootFlags = 0;
 #else
     #pragma romdata FLASH_SIG_SECTION = APP_SIGNATURE_ADDRESS
     ROM unsigned int FlashSignatureWord = APP_SIGNATURE_VALUE;
@@ -493,78 +494,39 @@ void _entry (void)
  *****************************************************************************/
 void main(void)
 {
-    uint8_t esc_button;
-    uint8_t app_button;
-
     //Assuming the I/O pin check entry method is enabled, check the I/O pin value
     //to see if we should stay in bootloader mode, or jump to normal applicaiton
     //execution mode.
-    #ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
+#ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
         //Need to make sure the I/O pin is configured for digital mode so we
         //can sense the digital level on the input pin.
+        BootFlags = 0;
         mInitSwitch2();
         __delay_us(2);
-        esc_button = !sw2;
-        app_button = !sw3;
+        if (!sw2)
+            BootFlags |= BOOT_WITH_ESC;
+        if (!sw3)
+            BootFlags |= BOOT_WITH_APP;
         //Restore default "reset" value of registers we may have modified temporarily.
         mDeInitSwitch2();
 
         //Check Bootload Mode Entry Condition from the I/O pin (ex: place a
         //pushbutton and pull up resistor on the pin)
-        if(!esc_button && !app_button)
+        if(!(BootFlags & BOOT_WITH_ESC))
         {
-            //If we get to here, the user is not pressing the push buttons.  We
+            //If we get to here, the user is not pressing the ESC button.  We
             //should default to jumping into application run mode in this case.
 
             //Before going to application image however, make sure the image
             //is properly signed and is intact.
             goto DoFlashSignatureCheck;
         }
-        else if (esc_button)
-        {
-            //User is pressing the ESC button.  We should stay in bootloader mode
-
-            BootMain();
-        }
         else
         {
-            //User is pressing the APP button.  We should execute the DFU bootloader.
-            mLED3 = 1;      //LED on initially
-            mLED3Tris = 0;  //Configure pin as output
-
-            //Initialize BLE module
-            HosInitialize();
-
-            // Enable watchdog timer
-            OSCCONbits.IDLEN = 0;
-            WDTCONbits.REGSLP = 1;
-            WDTCONbits.SWDTEN = 1;
-
-            for (uint16_t i = 0; i < STARTUP_DELAY; ++i) {
-                if (HosGetStatus(HOS_TYPE_INFO)) {
-                    if (HosSetEvent(HOS_TYPE_INFO, HOS_EVENT_DFU))
-                        break;
-                }
-                Sleep();
-                Nop();
-            }
-
-            for (uint16_t tick = 0;; ++tick) {
-                Sleep();
-                Nop();
-                if (HosGetStatus(HOS_TYPE_INFO))
-                    break;
-                uint16_t range = tick * (1000 / WDT_FREQ) % 1000;
-                if (range < 500)
-                    mLED3 = 1;
-                else
-                    mLED3 = 0;
-            }
-
-            WDTCONbits.SWDTEN = 0;
-            mLED3 = 0;      //LED off
+            //User is pressing the ESC button.  We should stay in bootloader mode
+            BootMain();
         }
-    #endif //#ifdef ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
+#endif // ENABLE_IO_PIN_CHECK_BOOTLOADER_ENTRY
 
 DoFlashSignatureCheck:
     //Check if the application region flash signature is valid

@@ -75,8 +75,6 @@ static int8_t  wheel;
 static SerialData rawData;
 static TouchSensor touchSensor;
 
-#ifdef __XC8
-
 void initMouse(void)
 {
     play = ReadNvram(EEPROM_MOUSE);
@@ -90,12 +88,13 @@ void emitMouse(void)
     emitString(about);
     emitKey(KEY_1 + play);
 
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
     emitKey(KEY_SPACEBAR);
     emitNumber(touchSensor.current);
     emitKey(KEY_SLASH);
     emitNumber(touchSensor.thresh);
 #endif
+
     emitKey(KEY_ENTER);
 }
 
@@ -164,8 +163,6 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
     buttons = b;
     wheel = w;
 }
-
-#endif  // __XC8
 
 static int8_t trimXY(uint8_t raw)
 {

@@ -44,6 +44,13 @@
 #define BOARD_REV_ADDRESS       0x1FFE
 #define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
 
+// The first 16 bytes of RAM is reserved for passing configuration
+// information from the HID bootloader.
+#define BOOT_FLAGS_ADDRESS      0x0000  // in RAM
+#define BOOT_FLAGS_VALUE        (*(unsigned int*) BOOT_FLAGS_ADDRESS)
+#define BOOT_WITH_ESC           0x0001
+#define BOOT_WITH_APP           0x0002
+
 #define APP_MACHINE_ADDRESS     0x2004  // The application image machine type number address
 #define APP_MACHINE_VALUE       0x4753  // PIC18F47J53
 

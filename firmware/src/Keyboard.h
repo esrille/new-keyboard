@@ -643,7 +643,7 @@ uint8_t controlKanaLED(uint8_t report);
 uint8_t getKeyNumLock(uint8_t code);
 uint8_t getKeyBase(uint8_t code);
 
-#ifndef WITH_HOS
+#if APP_MACHINE_VALUE == 0x4550
 #define MAX_MACRO_SIZE  132
 #else
 #define MAX_MACRO_SIZE  254
@@ -655,7 +655,7 @@ uint8_t getMacro(void);
 void emitKey(uint8_t key);
 void emitString(const uint8_t s[]);
 void emitStringN(const uint8_t s[], uint8_t len);
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
 void emitNumber(uint16_t n);
 #endif
 

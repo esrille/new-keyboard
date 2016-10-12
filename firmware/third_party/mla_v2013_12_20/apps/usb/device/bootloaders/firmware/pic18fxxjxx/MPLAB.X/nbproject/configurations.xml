@@ -11,8 +11,6 @@
       <itemPath>../src/usb_device.h</itemPath>
       <itemPath>../src/usb_device_hid.h</itemPath>
       <itemPath>../src/boot_18fxxjxx.h</itemPath>
-      <itemPath>../../../../../../../../../src/HosMaster.h</itemPath>
-      <itemPath>../../../../../../../../../src/Hos.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LibraryFiles"
                    displayName="Library Files"
@@ -40,7 +38,6 @@
       <itemPath>../src/usb_device_hid.c</itemPath>
       <itemPath>../src/VectorRemap.asm</itemPath>
       <itemPath>../src/boot_18fxxjxx.c</itemPath>
-      <itemPath>../../../../../../../../../src/HosMaster.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -64,7 +64,7 @@ uint16_t HosGetTouch(void);
 uint8_t HosGetKeyboardMouseX(void);
 uint8_t HosGetKeyboardMouseY(void);
 
-void HosCheckDFU(void);
+void HosCheckDFU(bool dfu);
 void HosMainLoop(void);
 
 #endif // HOS_MASTER_H

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Esrille Inc.
+ * Copyright 2015, 2016 Esrille Inc.
  *
  * This file is a modified version of app_device_mouse.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -205,7 +205,7 @@ static MOUSE mouse;
 ********************************************************************/
 void APP_DeviceMouseInitialize(void)
 {
-#ifdef WITH_HOS
+#if APP_MACHINE_VALUE != 0x4550
     PPSUnLock();
     // Support TSAP via UART2
     // Set RP7 as RX2
