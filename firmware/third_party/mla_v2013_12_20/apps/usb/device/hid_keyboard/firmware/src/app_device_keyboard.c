@@ -558,6 +558,7 @@ uint8_t* APP_KeyboardScan(void)
     uint8_t column;
 
     if (xmit == XMIT_IN_ORDER) {
+        inputReport.modifiers.value = 0;
         if (inputReport.keys[0] && inputReport.keys[0] == peekMacro())
             inputReport.keys[0] = 0;    // BRK
         else {
