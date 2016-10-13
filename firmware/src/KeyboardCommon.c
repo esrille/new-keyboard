@@ -515,7 +515,7 @@ static void about(void)
     if (!isBusPowered()) {
         uint16_t voltage = HosGetBatteryVoltage();
         uint8_t level = HosGetBatteryLevel();
-        if (0 < voltage) {
+        if (HOS_BATTERY_VOLTAGE_OFFSET < voltage) {
             emitKey(getNumKeycode(voltage / 100));
             emitKey(KEY_PERIOD);
             voltage %= 100;
