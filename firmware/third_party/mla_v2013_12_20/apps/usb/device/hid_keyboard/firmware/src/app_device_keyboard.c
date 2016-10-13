@@ -558,17 +558,20 @@ uint8_t* APP_KeyboardScan(void)
     uint8_t column;
 
     if (xmit == XMIT_IN_ORDER) {
-        inputReport.modifiers.value = 0;
-        if (inputReport.keys[0] && inputReport.keys[0] == peekMacro())
+        uint8_t key = peekMacro();
+        uint8_t mod = 0;
+#if APP_MACHINE_VALUE != 0x4550
+        if (key == KEYPAD_PERCENT) {
+            key = KEY_5;
+            mod = MOD_LEFTSHIFT;
+        }
+#endif
+        if (inputReport.keys[0] && inputReport.keys[0] == key)
             inputReport.keys[0] = 0;    // BRK
         else {
-            inputReport.keys[0] = getMacro();
-#if APP_MACHINE_VALUE != 0x4550
-            if (inputReport.keys[0] == KEYPAD_PERCENT) {
-                inputReport.keys[0] = KEY_5;
-                inputReport.modifiers.bits.leftShift = 1;
-            }
-#endif
+            getMacro();
+            inputReport.keys[0] = key;
+            inputReport.modifiers.value = mod;
             if (!inputReport.keys[0])
                 xmit = XMIT_NONE;
         }
