@@ -389,7 +389,7 @@ static uint8_t sent[3];
 static uint8_t last[3];
 static uint8_t lastMod;
 
-void initKeyboardKana(void)
+void loadKanaSettings(void)
 {
     mode = ReadNvram(EEPROM_KANA);
     if (KANA_MAX < mode)

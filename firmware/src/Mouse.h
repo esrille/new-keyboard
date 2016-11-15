@@ -26,6 +26,7 @@
 #define PAD_SENSE_MAX    PAD_SENSE_4
 
 void initMouse(void);
+void loadMouseSettings(void);
 void emitMouse(void);
 int8_t processSerialUnit(uint8_t data);
 void processMouseKeys(uint8_t* current, const uint8_t* processed);

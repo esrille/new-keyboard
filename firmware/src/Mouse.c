@@ -77,10 +77,15 @@ static TouchSensor touchSensor;
 
 void initMouse(void)
 {
+    touchSensor.current = touchSensor.thresh = 0;
+    loadMouseSettings();
+}
+
+void loadMouseSettings(void)
+{
     play = ReadNvram(EEPROM_MOUSE);
     if (PLAY_MAX <= play)
         play = 0;
-    touchSensor.current = touchSensor.thresh = 0;
 }
 
 void emitMouse(void)

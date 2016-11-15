@@ -518,8 +518,9 @@
 #define EEPROM_PREFIX   8
 
 void initKeyboard(void);
-void initKeyboardBase(void);
-void initKeyboardKana(void);
+void loadKeyboardSettings(void);
+void loadBaseSettings(void);
+void loadKanaSettings(void);
 
 #define BASE_QWERTY     0
 #define BASE_DVORAK     1

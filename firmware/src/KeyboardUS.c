@@ -107,7 +107,7 @@ static uint8_t const matrixNicolaF[8][12] =
 
 static uint8_t mode;
 
-void initKeyboardBase(void)
+void loadBaseSettings(void)
 {
     mode = ReadNvram(EEPROM_BASE);
     if (BASE_MAX < mode)

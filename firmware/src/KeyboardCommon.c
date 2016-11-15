@@ -175,7 +175,11 @@ void initKeyboard(void)
     memset(processed + 2, VOID_KEY, 6);
     modifiers = modifiersPrev = 0;
     count = 2;
+    loadKeyboardSettings();
+}
 
+void loadKeyboardSettings(void)
+{
     os = ReadNvram(EEPROM_OS);
     if (OS_MAX < os)
         os = 0;
@@ -188,8 +192,8 @@ void initKeyboard(void)
     prefix_shift = ReadNvram(EEPROM_PREFIX);
     if (PREFIXSHIFT_MAX < prefix_shift)
         prefix_shift = 0;
-    initKeyboardBase();
-    initKeyboardKana();
+    loadBaseSettings();
+    loadKanaSettings();
 }
 
 void emitOSName(void)
@@ -540,6 +544,17 @@ static const uint8_t* getKeyFn(uint8_t code)
     return matrixFn[code / 12][code % 12];
 }
 
+#ifdef WITH_HOS
+static void switchProfile(uint8_t profile)
+{
+    SelectProfile(profile);
+    loadKeyboardSettings();
+#ifdef ENABLE_MOUSE
+    loadMouseSettings();
+#endif
+}
+#endif
+
 static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* report)
 {
     int8_t xmit;
@@ -565,7 +580,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                     if (make) {
 #ifdef WITH_HOS
                         if (current[0] & MOD_SHIFT) {
-                            SelectProfile(1);
+                            switchProfile(1);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
                         }
@@ -581,7 +596,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                     if (make) {
 #ifdef WITH_HOS
                         if (current[0] & MOD_SHIFT) {
-                            SelectProfile(2);
+                            switchProfile(2);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
                         }
@@ -597,7 +612,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                     if (make) {
 #ifdef WITH_HOS
                         if (current[0] & MOD_SHIFT) {
-                            SelectProfile(3);
+                            switchProfile(3);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
                         }
@@ -613,7 +628,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                     if (make) {
 #ifdef WITH_HOS
                         if (current[0] & MOD_SHIFT) {
-                            SelectProfile(0);
+                            switchProfile(0);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
                         }
