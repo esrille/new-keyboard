@@ -308,21 +308,20 @@ uint8_t beginMacro(uint8_t max)
 
 uint8_t peekMacro(void)
 {
-    if (ordered_max <= ordered_pos)
-        return 0;
-    return ordered_keys[ordered_pos];
+    if (ordered_pos < ordered_max)
+        return ordered_keys[ordered_pos];
+    return 0;
 }
 
 uint8_t getMacro(void)
 {
-    if (ordered_max <= ordered_pos)
-        return 0;
-    uint8_t key = ordered_keys[ordered_pos++];
-    if (key == 0) {
-        ordered_pos = 0;
-        ordered_max = 0;
+    if (ordered_pos < ordered_max) {
+        uint8_t key = ordered_keys[ordered_pos++];
+        if (key)
+            return key;
     }
-    return key;
+    ordered_pos = ordered_max = 0;
+    return 0;
 }
 
 void emitKey(uint8_t c)
