@@ -54,7 +54,7 @@ typedef struct {
 #define CODE_B      (6*12+4)
 #define CODE_COMMA  (6*12+9)
 
-#define PLAY_XY      24         // x or y value smaller than PLAY_XY should be ignored.
+#define PLAY_XY     12  // x or y value smaller than PLAY_XY should be ignored.
 
 const static uint8_t playTable[PLAY_MAX] = {
     64, 56, 48, 40
@@ -74,6 +74,11 @@ static int8_t  wheel;
 
 static SerialData rawData;
 static TouchSensor touchSensor;
+
+static uint8_t centerX = 128;
+static uint8_t centerY = 128;
+static uint8_t prevX = 128;
+static uint8_t prevY = 128;
 
 void initMouse(void)
 {
@@ -169,20 +174,20 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
     wheel = w;
 }
 
-static int8_t trimXY(uint8_t raw)
+static int8_t trimXY(uint8_t raw, uint8_t center)
 {
     int8_t sign;
     uint16_t value;
     uint8_t playXY = playTable[play];
 
-    if (128 <= raw) {
+    if (center <= raw) {
         sign = 1;
-        value = raw - 128;
+        value = raw - center;
     } else {
         sign = -1;
-        value = 128 - raw;
+        value = center - raw;
     }
-    if (value < (playXY >> 1) || value < PLAY_XY)
+    if (/* value < (playXY >> 1) || */ value < PLAY_XY)
         return 0;
     if (value < playXY) {
         value = value * value / playXY * value / playXY * 10 / playXY;
@@ -205,16 +210,24 @@ static uint16_t lowPassFilter(uint16_t prev, uint16_t raw)
 
 static void processSerialData(void)
 {
-    x = trimXY(rawData.x);
-    y = trimXY(rawData.y);
-
     touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
     if (touchSensor.current < touchSensor.low)
         touchSensor.low = touchSensor.current;
     if (touchSensor.low * 7 / 6 < touchSensor.current) {
-        touchSensor.thresh = (touchSensor.low + touchSensor.current) / 2;
-        touchSensor.low = touchSensor.current;
+        uint16_t d = touchSensor.current - touchSensor.low ;
+        touchSensor.thresh = touchSensor.low + d / 2;
+        touchSensor.low = touchSensor.thresh;
     }
+    if (!isMouseTouched()) {
+        if (rawData.x == prevX && rawData.y == prevY) {
+            centerX = rawData.x;
+            centerY = rawData.y;
+        }
+        prevX = rawData.x;
+        prevY = rawData.y;
+    }
+    x = trimXY(rawData.x, centerX);
+    y = trimXY(rawData.y, centerY);
 
     if (10 < ++tick)
         tick = 0;
