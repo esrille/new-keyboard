@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016 Esrille Inc.
+ * Copyright 2015-2017 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,11 @@
 #include <stdio.h>
 
 typedef struct {
+    uint8_t x;
+    uint8_t y;
+} Pos;
+
+typedef struct {
     uint8_t count;
     uint8_t x;
     uint8_t y;
@@ -33,38 +38,43 @@ typedef struct {
     uint16_t low;
 } TouchSensor;
 
-#define PLAY_MAX    (PAD_SENSE_MAX + 1)
+#define CODE_F1         (1*1+1)
+#define CODE_F9         (0*1+8)
+#define CODE_F10        (0*1+9)
+#define CODE_F11        (0*1+10)
+#define CODE_F12        (1*12+10)
+#define CODE_U          (4*12+8)
+#define CODE_I          (4*12+9)
+#define CODE_O          (4*12+10)
+#define CODE_D          (5*12+2)
+#define CODE_H          (5*12+7)
+#define CODE_J          (5*12+8)
+#define CODE_K          (5*12+9)
+#define CODE_L          (5*12+10)
+#define CODE_SEMICOLON  (5*12+11)
+#define CODE_Z          (6*12+0)
+#define CODE_X          (6*12+1)
+#define CODE_C          (6*12+2)
+#define CODE_V          (6*12+3)
+#define CODE_B          (6*12+4)
+#define CODE_COMMA      (6*12+9)
 
-#define CODE_F1     (1*1+1)
-#define CODE_F9     8
-#define CODE_F10    9
-#define CODE_F11    10
-#define CODE_F12    (1*12+10)
-#define CODE_U      (4*12+8)
-#define CODE_I      (4*12+9)
-#define CODE_O      (4*12+10)
-#define CODE_D      (5*12+2)
-#define CODE_J      (5*12+8)
-#define CODE_K      (5*12+9)
-#define CODE_L      (5*12+10)
-#define CODE_Z      (6*12+0)
-#define CODE_X      (6*12+1)
-#define CODE_C      (6*12+2)
-#define CODE_V      (6*12+3)
-#define CODE_B      (6*12+4)
-#define CODE_COMMA  (6*12+9)
+#define PLAY_XY     24  // x or y value smaller than PLAY_XY should be ignored.
+#define THRESH_XY   48  // x or y value threshold
+#define AIM_BUTTON  0x80
 
-#define PLAY_XY     12  // x or y value smaller than PLAY_XY should be ignored.
-
-const static uint8_t playTable[PLAY_MAX] = {
-    64, 56, 48, 40
+const static uint8_t normalTable[PAD_SENSE_MAX + 1] = {
+    3, 4, 5, 6
+};
+const static uint8_t aimTable[PAD_SENSE_MAX + 1] = {
+    2, 2, 3, 3
 };
 
 static const uint8_t about[] = {
     KEY_P, KEY_A, KEY_D, KEY_SPACEBAR, 0
 };
 
-static uint8_t play;
+static uint8_t resolution;
 static uint8_t tick;
 
 static uint8_t buttons;
@@ -75,28 +85,27 @@ static int8_t  wheel;
 static SerialData rawData;
 static TouchSensor touchSensor;
 
-static uint8_t centerX = 128;
-static uint8_t centerY = 128;
-static uint8_t prevX = 128;
-static uint8_t prevY = 128;
+static Pos center;
+static Pos prev;
 
 void initMouse(void)
 {
     touchSensor.current = touchSensor.thresh = 0;
+    center.x = center.y = 0;
     loadMouseSettings();
 }
 
 void loadMouseSettings(void)
 {
-    play = ReadNvram(EEPROM_MOUSE);
-    if (PLAY_MAX <= play)
-        play = 0;
+    resolution = ReadNvram(EEPROM_MOUSE);
+    if (PAD_SENSE_MAX < resolution)
+        resolution = 0;
 }
 
 void emitMouse(void)
 {
     emitString(about);
-    emitKey(KEY_1 + play);
+    emitKey(KEY_1 + resolution);
 
 #if APP_MACHINE_VALUE != 0x4550
     emitKey(KEY_SPACEBAR);
@@ -108,13 +117,13 @@ void emitMouse(void)
     emitKey(KEY_ENTER);
 }
 
-static void setPlay(uint8_t val)
+static void setResolution(uint8_t val)
 {
-    if (PLAY_MAX <= val)
-        play = 0;
+    if (PAD_SENSE_MAX < val)
+        resolution = 0;
     else
-        play = val;
-    WriteNvram(EEPROM_MOUSE, play);
+        resolution = val;
+    WriteNvram(EEPROM_MOUSE, resolution);
 }
 
 void processMouseKeys(uint8_t* current, const uint8_t* processed)
@@ -126,16 +135,16 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
         uint8_t code = current[i];
         switch (code) {
         case CODE_F9:
-            setPlay(PAD_SENSE_4);
+            setResolution(PAD_SENSE_4);
             break;
         case CODE_F10:
-            setPlay(PAD_SENSE_3);
+            setResolution(PAD_SENSE_3);
             break;
         case CODE_F11:
-            setPlay(PAD_SENSE_2);
+            setResolution(PAD_SENSE_2);
             break;
         case CODE_F12:
-            setPlay(PAD_SENSE_1);
+            setResolution(PAD_SENSE_1);
             break;
         case CODE_J:
         case CODE_V:
@@ -164,6 +173,9 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
         case CODE_C:
             w = -1;
             break;
+        case CODE_SEMICOLON:
+            b |= AIM_BUTTON;
+            break;
         default:
             break;
         }
@@ -174,11 +186,16 @@ void processMouseKeys(uint8_t* current, const uint8_t* processed)
     wheel = w;
 }
 
+static uint8_t distance(uint8_t raw, uint8_t center)
+{
+    return (raw < center) ? (center - raw) : (raw - center);
+}
+
 static int8_t trimXY(uint8_t raw, uint8_t center)
 {
     int8_t sign;
     uint16_t value;
-    uint8_t playXY = playTable[play];
+    uint8_t r;
 
     if (center <= raw) {
         sign = 1;
@@ -187,13 +204,19 @@ static int8_t trimXY(uint8_t raw, uint8_t center)
         sign = -1;
         value = center - raw;
     }
-    if (/* value < (playXY >> 1) || */ value < PLAY_XY)
+    if (value < THRESH_XY / 2)
         return 0;
-    if (value < playXY) {
-        value = value * value / playXY * value / playXY * 10 / playXY;
+    if (buttons & AIM_BUTTON)
+        r = aimTable[resolution];
+    else
+        r = normalTable[resolution];
+    value *= r;
+    value / = 3;
+    if (value < THRESH_XY) {
+        value = value * value / THRESH_XY * value / THRESH_XY * 10 / THRESH_XY;
         value = (tick <= value) ? 1 : 0;
     } else {
-        value = (value * value / (playXY * playXY)) * value / playXY;
+        value = (value * value / (THRESH_XY * THRESH_XY)) * value / THRESH_XY;
         if (128 <= value)
             return (0 < sign) ? 127 : -127;
     }
@@ -214,21 +237,21 @@ static void processSerialData(void)
     if (touchSensor.current < touchSensor.low)
         touchSensor.low = touchSensor.current;
     if (touchSensor.low * 7 / 6 < touchSensor.current) {
-        uint16_t d = touchSensor.current - touchSensor.low ;
-        touchSensor.thresh = touchSensor.low + d / 2;
+        touchSensor.thresh = (touchSensor.current + touchSensor.low) / 2;
         touchSensor.low = touchSensor.thresh;
     }
-    if (!isMouseTouched()) {
-        if (rawData.x == prevX && rawData.y == prevY) {
-            centerX = rawData.x;
-            centerY = rawData.y;
+    if (touchSensor.thresh < touchSensor.current) { // not touched?
+        if ((distance(rawData.x, 128u) < PLAY_XY && distance(rawData.y, 128u) < PLAY_XY) || (center.x == 0 && center.y == 0)) {
+            if (rawData.x == prev.x && rawData.y == prev.y) {
+                center.x = rawData.x;
+                center.y = rawData.y;
+            }
         }
-        prevX = rawData.x;
-        prevY = rawData.y;
     }
-    x = trimXY(rawData.x, centerX);
-    y = trimXY(rawData.y, centerY);
-
+    x = trimXY(rawData.x, center.x);
+    y = trimXY(rawData.y, center.y);
+    prev.x = rawData.x;
+    prev.y = rawData.y;
     if (10 < ++tick)
         tick = 0;
 }
@@ -273,7 +296,7 @@ int8_t processSerialUnit(uint8_t data)
 
 int8_t isMouseTouched(void)
 {
-    return touchSensor.current < touchSensor.thresh;
+    return (touchSensor.current < touchSensor.thresh) || x || y;
 }
 
 int8_t getKeyboardMouseX(void)
@@ -288,7 +311,7 @@ int8_t getKeyboardMouseY(void)
 
 uint8_t getKeyboardMouseButtons(void)
 {
-    return isMouseTouched() ? buttons: 0;
+    return isMouseTouched() ? (buttons & ~AIM_BUTTON) : 0;
 }
 
 int8_t getKeyboardMouseWheel(void)
