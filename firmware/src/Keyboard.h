@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Esrille Inc.
+ * Copyright 2013-2017 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -566,12 +566,13 @@ void switchOS(void);
 #define MOD_SJ_MAC      5
 #ifndef ENABLE_DUAL_ROLE_FN
 #define MOD_MAX         MOD_SJ_MAC
+#define MOD_DEFAULT     MOD_C
 #else
 #define MOD_CX          6
 #define MOD_SX          7
 #define MOD_MAX         MOD_SX
+#define MOD_DEFAULT     MOD_CX
 #endif
-#define MOD_DEFAULT     MOD_C
 
 void emitModName(void);
 void switchMod(void);
