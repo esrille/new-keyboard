@@ -315,7 +315,7 @@
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>
-        <property key="define-macros" value=""/>
+        <property key="define-macros" value="ENABLE_DUAL_ROLE_FN;DISABLE_MTYPE"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/esrille_new_keyboard;../src/system_config/esrille_new_keyboard"/>
         <property key="identifier-length" value="255"/>
@@ -618,7 +618,8 @@
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>
-        <property key="define-macros" value="ENABLE_MOUSE"/>
+        <property key="define-macros"
+                  value="ENABLE_MOUSE;ENABLE_DUAL_ROLE_FN;DISABLE_MTYPE"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/esrille_new_keyboard;../src/system_config/esrille_new_keyboard"/>
         <property key="identifier-length" value="255"/>
