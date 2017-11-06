@@ -59,7 +59,7 @@ typedef struct {
 #define CODE_B          (6*12+4)
 #define CODE_COMMA      (6*12+9)
 
-#define PLAY_XY     24  // x or y value smaller than PLAY_XY should be ignored.
+#define PLAY_XY     36  // x or y value smaller than PLAY_XY should be ignored.
 #define THRESH_XY   48  // x or y value threshold
 #define AIM_BUTTON  0x80
 
@@ -112,6 +112,10 @@ void emitMouse(void)
     emitNumber(touchSensor.current);
     emitKey(KEY_SLASH);
     emitNumber(touchSensor.thresh);
+    emitKey(KEY_SPACEBAR);
+    emitNumber(prev.x);
+    emitKey(KEY_COMMA);
+    emitNumber(prev.y);
 #endif
 
     emitKey(KEY_ENTER);
@@ -236,8 +240,8 @@ static void processSerialData(void)
     touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
     if (touchSensor.current < touchSensor.low)
         touchSensor.low = touchSensor.current;
-    if (touchSensor.low * 7 / 6 < touchSensor.current) {
-        touchSensor.thresh = (touchSensor.current + touchSensor.low) / 2;
+    if ((touchSensor.low * 7) / 6 < touchSensor.current) {
+        touchSensor.thresh = (touchSensor.current * 6) / 7;
         touchSensor.low = touchSensor.thresh;
     }
     if (touchSensor.thresh < touchSensor.current) { // not touched?

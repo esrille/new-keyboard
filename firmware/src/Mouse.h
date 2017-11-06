@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016 Esrille Inc.
+ * Copyright 2015-2017 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
 
 #include <stdint.h>
 
-#define PAD_SENSE_1      0
-#define PAD_SENSE_2      1
-#define PAD_SENSE_3      2
-#define PAD_SENSE_4      3
-#define PAD_SENSE_MAX    PAD_SENSE_4
+#define PAD_SENSE_1     0
+#define PAD_SENSE_2     1
+#define PAD_SENSE_3     2
+#define PAD_SENSE_4     3
+#define PAD_SENSE_MAX   PAD_SENSE_4
 
 void initMouse(void);
 void loadMouseSettings(void);
