@@ -138,7 +138,7 @@ static uint8_t const codeRev2[8][12] =
 };
 
 typedef struct Keys {
-    uint8_t keys[6];
+    uint8_t keys[8];
 } Keys;
 
 static uint8_t ordered_keys[MAX_MACRO_SIZE];
@@ -152,8 +152,6 @@ static int8_t currentKey = 0;
 static uint8_t tick;
 static uint8_t processed[8];
 
-static uint8_t modifiers;
-static uint8_t modifiersPrev;
 static uint8_t current[8];
 static int8_t count;
 static uint8_t rowCount[8];
@@ -173,7 +171,6 @@ void initKeyboard(void)
     memset(current, 0, 8);
     memset(processed, 0, 2);
     memset(processed + 2, VOID_KEY, 6);
-    modifiers = modifiersPrev = 0;
     count = 2;
     loadKeyboardSettings();
 }
@@ -266,15 +263,11 @@ void onPressed(int8_t row, uint8_t column)
     ++columnCount[column];
     ++rowCount[row];
     key = getKeyBase(code);
-    if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI) {
-        modifiers |= 1u << (key - KEY_LEFTCONTROL);
-        return;
-    }
-    if (KEY_LEFT_FN <= key && key <= KEY_RIGHT_FN) {
+    if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI)
+        current[0] |= 1u << (key - KEY_LEFTCONTROL);
+    else if (KEY_LEFT_FN <= key && key <= KEY_RIGHT_FN)
         current[1] |= 1u << (key - KEY_LEFT_FN);
-        return;
-    }
-    if (count < 8)
+    else if (count < 8)
         current[count++] = code;
 }
 
@@ -895,15 +888,40 @@ uint8_t processModKey(uint8_t key)
 
 int8_t makeReport(uint8_t* report)
 {
+    static uint8_t modifiersPrev = 0;
     int8_t xmit = XMIT_NONE;
     int8_t at;
     int8_t prev;
+    uint8_t modifiers;
 
     if (!detectGhost()) {
         while (count < 8)
             current[count++] = VOID_KEY;
-        memmove(keys[currentKey].keys, current + 2, 6);
-        current[0] = modifiers;
+        memmove(keys[currentKey].keys, current, 8);
+
+        // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
+        at = currentKey + DELAY_MAX + 2 - currentDelay;
+        if (DELAY_MAX + 1 < at)
+            at -= DELAY_MAX + 2;
+        prev = at + DELAY_MAX + 1;
+        if (DELAY_MAX + 1 < prev)
+           prev -= DELAY_MAX + 2;
+        count = 2;
+        for (int8_t i = 2; i < 8; ++i) {
+            uint8_t key = keys[at].keys[i];
+            if (memchr(keys[prev].keys + 2, key, 6))
+                current[count++] = key;
+        }
+        while (count < 8)
+            current[count++] = VOID_KEY;
+
+        // Copy modifier keys that exist in both keys[currentKey] and keys[prev] for debouncing.
+        prev = currentKey + DELAY_MAX + 1;
+        if (DELAY_MAX + 1 < prev)
+           prev -= DELAY_MAX + 2;
+        current[0] = keys[currentKey].keys[0] & keys[prev].keys[0];
+        current[1] = keys[currentKey].keys[1] & keys[prev].keys[1];
+
         if (led & LED_SCROLL_LOCK)
             current[1] |= MOD_LEFTFN;
 #ifdef ENABLE_MOUSE
@@ -911,6 +929,7 @@ int8_t makeReport(uint8_t* report)
             current[1] |= MOD_PAD;
 #endif
 
+        modifiers = current[0];
         if (prefix_shift && isKanaMode(current)) {
             current[0] |= prefix;
             if (!(modifiersPrev & MOD_LEFTSHIFT) && (modifiers & MOD_LEFTSHIFT))
@@ -920,29 +939,17 @@ int8_t makeReport(uint8_t* report)
         }
         modifiersPrev = modifiers;
 
-        // Copy keys that exist in both keys[prev] and keys[at] for debouncing.
-        at = currentKey + DELAY_MAX + 2 - currentDelay;
-        if (DELAY_MAX + 1 < at)
-                at -= DELAY_MAX + 2;
-        prev = at + DELAY_MAX + 1;
-        if (DELAY_MAX + 1 < prev)
-                prev -= DELAY_MAX + 2;
-        count = 2;
-        for (int8_t i = 0; i < 6; ++i) {
-            uint8_t key = keys[at].keys[i];
-            if (memchr(keys[prev].keys, key, 6))
-                current[count++] = key;
-        }
-        while (count < 8)
-            current[count++] = VOID_KEY;
-
 #ifdef ENABLE_MOUSE
         if (current[1] == MOD_PAD)
             processMouseKeys(current, processed);
 #endif
 
         if (memcmp(current, processed, 8)) {
-            if (memcmp(current + 2, processed + 2, 6) || current[2] == VOID_KEY || current[1] || (current[0] & MOD_SHIFT)) {
+            if (memcmp(current + 2, processed + 2, 6) ||
+                current[2] == VOID_KEY ||
+                current[1] ||
+                (current[0] & MOD_SHIFT))
+            {
                 if (current[2] != VOID_KEY)
                     prefix = 0;
                 xmit = processKeys(current, processed, report);
@@ -958,15 +965,14 @@ int8_t makeReport(uint8_t* report)
     } else {
         prev = currentKey + DELAY_MAX + 1;
         if (DELAY_MAX + 1 < prev)
-                prev -= DELAY_MAX + 2;
-        memmove(keys[currentKey].keys, keys[prev].keys, 6);
+            prev -= DELAY_MAX + 2;
+        memmove(keys[currentKey].keys, keys[prev].keys, 8);
     }
 
     if (DELAY_MAX + 1 < ++currentKey)
         currentKey = 0;
     count = 2;
-    modifiers = 0;
-    current[1] = 0;
+    current[0] = current[1] = 0;
 
     return xmit;
 }
