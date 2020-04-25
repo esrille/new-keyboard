@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 Esrille Inc.
+ * Copyright 2013-2020 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -382,7 +382,7 @@ static const uint8_t about_ver[] = {
     KEY_V, KEY_E, KEY_R, KEY_PERIOD, KEY_SPACEBAR, 0
 };
 static const uint8_t about_copyright[] = {
-    KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_MINUS, KEY_2, KEY_0, KEY_1, KEY_7, KEY_SPACEBAR,
+    KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_MINUS, KEY_2, KEY_0, KEY_2, KEY_0, KEY_SPACEBAR,
     KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_I, KEY_N, KEY_C, KEY_PERIOD, KEY_ENTER, 0
 };
 static const uint8_t about_f2[] = {
