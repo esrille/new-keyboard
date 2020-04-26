@@ -11,6 +11,43 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <asminc-extensions/>
             <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>../src</sourceRootElem>
+                <sourceRootElem>../../../../../../bsp</sourceRootElem>
+                <sourceRootElem>../../../../../../framework/usb</sourceRootElem>
+                <sourceRootElem>../../../bootloaders/pic24_dspic/firmware/src/linker</sourceRootElem>
+                <sourceRootElem>../../../bootloaders/firmware/pic24_dspic/src/linker</sourceRootElem>
+                <sourceRootElem>../../../../../../../../src</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>PIC18F4550_NISSE</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>PIC18F4550_NISSE_TSAP</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>PIC18F47J53_NISSE_BLE</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>PIC18F47J53_NISSE_BLE_TSAP</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>PIC18F47J53_NISSE_USB</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>PIC18F47J53_NISSE_USB_TSAP</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
         </data>
     </configuration>
 </project>

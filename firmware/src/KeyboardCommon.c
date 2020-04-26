@@ -67,6 +67,10 @@ static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
     {KEY_C, KEY_X, KEY_ENTER},
     {KEY_S, KEY_X, KEY_ENTER},
 #endif
+#ifdef SWAP_SPACE_AND_SHIFT
+    {KEY_C, KEY_S, KEY_ENTER},
+    {KEY_S, KEY_S, KEY_ENTER},
+#endif
 };
 
 static uint8_t const matrixFn[8][12][3] =
@@ -867,6 +871,10 @@ uint8_t processModKey(uint8_t key)
 {
     const uint8_t* map = modMap[0];
     uint8_t xfer = mod;
+#ifdef SWAP_SPACE_AND_SHIFT
+    bool swap = false;
+#endif
+
 #ifdef ENABLE_DUAL_ROLE_FN
     switch (mod) {
     case MOD_CX:
@@ -875,8 +883,38 @@ uint8_t processModKey(uint8_t key)
     case MOD_SX:
         xfer = MOD_S;
         break;
+#ifdef SWAP_SPACE_AND_SHIFT
+    case MOD_CS:
+        xfer = MOD_C;
+        swap = true;
+        break;
+    case MOD_SS:
+        xfer = MOD_S;
+        swap = true;
+        break;
+#endif
     default:
         break;
+    }
+#endif
+#ifdef SWAP_SPACE_AND_SHIFT
+    if (swap) {
+        switch (key) {
+        case KEY_LEFTSHIFT:
+            key = KEY_BACKSPACE;
+            break;
+        case KEY_BACKSPACE:
+            key = KEY_LEFTSHIFT;
+            break;
+        case KEY_SPACEBAR:
+            key = KEY_RIGHTSHIFT;
+            break;
+        case KEY_RIGHTSHIFT:
+            key = KEY_SPACEBAR;
+            break;
+        default:
+            break;
+        }
     }
 #endif
     for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {

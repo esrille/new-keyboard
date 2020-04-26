@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 Esrille Inc.
+ * Copyright 2013-2020 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -564,21 +564,30 @@ void switchOS(void);
 #define MOD_S           3
 #define MOD_SJ          4
 #define MOD_SJ_MAC      5
-#ifndef ENABLE_DUAL_ROLE_FN
-#define MOD_MAX         MOD_SJ_MAC
-#define MOD_DEFAULT     MOD_C
-#else
+#ifdef SWAP_SPACE_AND_SHIFT
+#undef ENABLE_DUAL_ROLE_FN
+#define ENABLE_DUAL_ROLE_FN
+#define MOD_CX          6
+#define MOD_SX          7
+#define MOD_CS          8
+#define MOD_SS          9
+#define MOD_MAX         MOD_SS
+#define MOD_DEFAULT     MOD_CS
+#elif defined(ENABLE_DUAL_ROLE_FN)
 #define MOD_CX          6
 #define MOD_SX          7
 #define MOD_MAX         MOD_SX
 #define MOD_DEFAULT     MOD_CX
+#else
+#define MOD_MAX         MOD_SJ_MAC
+#define MOD_DEFAULT     MOD_C
 #endif
 
 void emitModName(void);
 void switchMod(void);
 
 #define isMacMod()          (mod == MOD_CJ_MAC || mod == MOD_SJ_MAC)
-#define isDualRoleFnMod()   (mod == MOD_CX || mod == MOD_SX)
+#define isDualRoleFnMod()   (MOD_CX <= mod)
 
 #define DELAY_0         0
 #define DELAY_12        1
