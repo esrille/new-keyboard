@@ -953,12 +953,19 @@ int8_t makeReport(uint8_t* report)
                 if (current[2] != VOID_KEY)
                     prefix = 0;
                 xmit = processKeys(current, processed, report);
-            } else if (processed[1] && !current[1] ||
+            }
+            /* Remove the following else if block to send the shift key release
+             * event immediately.  This behavior is required for inputting
+             * Japanese alphabets directly with several Japanese keyboard
+             * layouts.
+             */
+            else if (processed[1] && !current[1] ||
                      (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
                      (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT))
             {
                 /* empty */
-            } else
+            }
+            else
                 xmit = processKeys(current, processed, report);
         }
         processOSMode(report);
