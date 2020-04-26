@@ -548,11 +548,12 @@ void switchKana(void);
 #define OS_MAC          1   // Kana / Eisuu
 #define OS_104A         2   // Shift-Ctrl-Space / Shift-Ctlr-Backspace
 #define OS_104B         3   // Alt-`
-#define OS_109A         4   // Shift-Ctrl-Henkan / Shift-Ctlr-Muhenkan
-#define OS_109B         5   // `
-#define OS_ALT_SP       6   // Alt-Space
-#define OS_SHIFT_SP     7   // Shift-Space
-#define OS_MAX          7
+#define OS_109          4   // Henkan / Muhenkan
+#define OS_109A         5   // Shift-Ctrl-Henkan / Shift-Ctlr-Muhenkan
+#define OS_109B         6   // `
+#define OS_ALT_SP       7   // Alt-Space
+#define OS_SHIFT_SP     8   // Shift-Space
+#define OS_MAX          8
 void emitOSName(void);
 void switchOS(void);
 

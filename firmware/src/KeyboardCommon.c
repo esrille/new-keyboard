@@ -36,6 +36,7 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
     {KEY_M, KEY_A, KEY_C, KEY_ENTER},
     {KEY_1, KEY_0, KEY_4, KEY_A, KEY_ENTER},
     {KEY_1, KEY_0, KEY_4, KEY_B, KEY_ENTER},
+    {KEY_1, KEY_0, KEY_9, KEY_ENTER},
     {KEY_1, KEY_0, KEY_9, KEY_A, KEY_ENTER},
     {KEY_1, KEY_0, KEY_9, KEY_B, KEY_ENTER},
     {KEY_A, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
@@ -810,6 +811,18 @@ static void processOSMode(uint8_t* report)
             case KEY_INTERNATIONAL4:
             case KEY_INTERNATIONAL5:
                 report[i] = KEY_SPACEBAR;
+                break;
+            default:
+                break;
+            }
+            break;
+        case OS_109:
+            switch (key) {
+            case KEY_LANG1:
+                report[i] = KEY_INTERNATIONAL4;
+                break;
+            case KEY_LANG2:
+                report[i] = KEY_INTERNATIONAL5;
                 break;
             default:
                 break;
