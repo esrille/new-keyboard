@@ -553,7 +553,8 @@ void switchKana(void);
 #define OS_109B         6   // `
 #define OS_ALT_SP       7   // Alt-Space
 #define OS_SHIFT_SP     8   // Shift-Space
-#define OS_MAX          8
+#define OS_CTRL_SP      9   // Ctrl-Space
+#define OS_MAX          9
 void emitOSName(void);
 void switchOS(void);
 
@@ -572,7 +573,7 @@ void switchOS(void);
 #define MOD_XSJ         9
 #define MOD_XCJA        10      // Apple
 #define MOD_XSJA        11      // Apple
-#define MOD_MAX         MOD_XSJA
+#define MOD_MAX         11
 #define MOD_DEFAULT     MOD_XC
 
 void emitModName(void);

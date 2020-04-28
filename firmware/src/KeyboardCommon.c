@@ -41,6 +41,7 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
     {KEY_1, KEY_0, KEY_9, KEY_B, KEY_ENTER},
     {KEY_A, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
     {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
+    {KEY_C, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
 };
 
 #define MAX_MOD_KEY_NAME    5
@@ -833,6 +834,17 @@ static void processOSMode(uint8_t* report)
             case KEY_LANG2:
                 report[i] = KEY_SPACEBAR;
                 report[0] |= MOD_LEFTSHIFT;
+                break;
+            default:
+                break;
+            }
+            break;
+        case OS_CTRL_SP:
+            switch (key) {
+            case KEY_LANG1:
+            case KEY_LANG2:
+                report[i] = KEY_SPACEBAR;
+                report[0] |= MOD_LEFTCONTROL;
                 break;
             default:
                 break;
