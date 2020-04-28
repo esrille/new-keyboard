@@ -43,31 +43,39 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
     {KEY_S, KEY_MINUS, KEY_S, KEY_P, KEY_ENTER},
 };
 
-#define MAX_MOD_KEY_NAME    6
-#define MAX_MOD_KEYS        7
+#define MAX_MOD_KEY_NAME    5
+#define MAX_MOD_KEYS        9
 
 static uint8_t const modMap[MOD_MAX + 1][MAX_MOD_KEYS] =
 {
-    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
-    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
-    {KEY_LEFTCONTROL, KEY_LEFTSHIFT, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_RIGHTSHIFT, KEY_RIGHTCONTROL },
-    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
-    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFTALT, KEY_LANG2, KEY_LANG1, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
-    {KEY_LEFTSHIFT, KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LANG2, KEY_LANG1, KEY_RIGHTCONTROL, KEY_RIGHTSHIFT },
+    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
+    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
+    {KEY_LEFTALT,  KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
+    {KEY_LEFTALT,  KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
+    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
+    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
+    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
+    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
+    {KEY_LEFTALT,  KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LANG2,   KEY_LANG1,    KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
+    {KEY_LEFTALT,  KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LANG2,   KEY_LANG1,    KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
+    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LANG2,   KEY_LANG1,    KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
+    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LANG2,   KEY_LANG1,    KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
 };
 
 static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
 {
     {KEY_C, KEY_ENTER},
-    {KEY_C, KEY_J, KEY_ENTER},
-    {KEY_C, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
     {KEY_S, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_ENTER},
     {KEY_S, KEY_J, KEY_ENTER},
-    {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
-    {KEY_C, KEY_X, KEY_ENTER},
-    {KEY_S, KEY_X, KEY_ENTER},
-    {KEY_C, KEY_S, KEY_ENTER},
-    {KEY_S, KEY_S, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_A, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_A, KEY_ENTER},
+    {KEY_X, KEY_C, KEY_ENTER},
+    {KEY_X, KEY_S, KEY_ENTER},
+    {KEY_X, KEY_C, KEY_J, KEY_ENTER},
+    {KEY_X, KEY_S, KEY_J, KEY_ENTER},
+    {KEY_X, KEY_C, KEY_J, KEY_A, KEY_ENTER},
+    {KEY_X, KEY_S, KEY_J, KEY_A, KEY_ENTER},
 };
 
 #define MAX_FN_KEYS 3
@@ -705,7 +713,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
     else
         xmit = processKeysBase(current, processed, report);
 
-    if (isDualRoleFnMod()) {
+    if (isDualRoleFnMod() && !isPC()) {
         if ((current[1] ^ processed[1]) & MOD_FN) {
             modFn = (current[1] & MOD_FN);
             if (modFn) {
@@ -738,14 +746,6 @@ static void processOSMode(uint8_t* report)
         switch (os) {
         case OS_MAC:
             switch (key) {
-            case KEY_APPLICATION:
-                if (isMacMod()) {
-                    report[0] |= MOD_LEFTALT;
-                    memmove(report + i, report + i + 1, 7 - i);
-                    report[7] = 0;
-                    --i;
-                }
-                break;
 #ifdef WITH_HOS
             case KEYPAD_ENTER:
                 report[i] = KEY_ENTER;
@@ -847,49 +847,13 @@ static void processOSMode(uint8_t* report)
 uint8_t processModKey(uint8_t key)
 {
     const uint8_t* map = modMap[0];
-    uint8_t xfer = mod;
-    bool swap = false;
 
-    switch (mod) {
-    case MOD_CX:
-        xfer = MOD_C;
-        break;
-    case MOD_SX:
-        xfer = MOD_S;
-        break;
-    case MOD_CS:
-        xfer = MOD_C;
-        swap = true;
-        break;
-    case MOD_SS:
-        xfer = MOD_S;
-        swap = true;
-        break;
-    default:
-        break;
-    }
-    if (swap) {
-        switch (key) {
-        case KEY_LEFTSHIFT:
-            key = KEY_BACKSPACE;
-            break;
-        case KEY_BACKSPACE:
-            key = KEY_LEFTSHIFT;
-            break;
-        case KEY_SPACEBAR:
-            key = KEY_RIGHTSHIFT;
-            break;
-        case KEY_RIGHTSHIFT:
-            key = KEY_SPACEBAR;
-            break;
-        default:
-            break;
-        }
-    }
     for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {
         if (key == map[i])
-            return modMap[xfer][i];
+            return modMap[mod][i];
     }
+    if (key == KEY_APPLICATION && isMacMod())
+        key = KEY_LEFTALT;
     return key;
 }
 

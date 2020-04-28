@@ -561,23 +561,25 @@ void switchOS(void);
 #define is109()     (OS_109 <= os && os <= OS_109B)
 
 #define MOD_C           0
-#define MOD_CJ          1
-#define MOD_CJ_MAC      2
-#define MOD_S           3
-#define MOD_SJ          4
-#define MOD_SJ_MAC      5
-#define MOD_CX          6
-#define MOD_SX          7
-#define MOD_CS          8
-#define MOD_SS          9
-#define MOD_MAX         MOD_SS
-#define MOD_DEFAULT     MOD_CS
+#define MOD_S           1
+#define MOD_CJ          2
+#define MOD_SJ          3
+#define MOD_CJA         4       // Apple
+#define MOD_SJA         5       // Apple
+#define MOD_XC          6
+#define MOD_XS          7
+#define MOD_XCJ         8
+#define MOD_XSJ         9
+#define MOD_XCJA        10      // Apple
+#define MOD_XSJA        11      // Apple
+#define MOD_MAX         MOD_XSJA
+#define MOD_DEFAULT     MOD_XC
 
 void emitModName(void);
 void switchMod(void);
 
-#define isMacMod()          (mod == MOD_CJ_MAC || mod == MOD_SJ_MAC)
-#define isDualRoleFnMod()   (MOD_CX <= mod)
+#define isMacMod()          (mod == MOD_CJA || mod == MOD_SJA || mod == MOD_XCJA || mod == MOD_XSJA)
+#define isDualRoleFnMod()   (mod == MOD_C || mod == MOD_S || mod == MOD_XC || mod == MOD_XS)
 
 #define DELAY_0         0
 #define DELAY_12        1
