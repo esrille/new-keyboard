@@ -12,6 +12,20 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <asminc-extensions/>
             <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>../</sourceRootElem>
+                <sourceRootElem>../../../../../../../bsp/pic18f47j53_nisse</sourceRootElem>
+                <sourceRootElem>../../../../../../../../../src</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>PIC18F47J53_NISSE</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
         </data>
     </configuration>
 </project>
