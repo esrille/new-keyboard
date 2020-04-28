@@ -566,24 +566,12 @@ void switchOS(void);
 #define MOD_S           3
 #define MOD_SJ          4
 #define MOD_SJ_MAC      5
-#ifdef SWAP_SPACE_AND_SHIFT
-#undef ENABLE_DUAL_ROLE_FN
-#define ENABLE_DUAL_ROLE_FN
 #define MOD_CX          6
 #define MOD_SX          7
 #define MOD_CS          8
 #define MOD_SS          9
 #define MOD_MAX         MOD_SS
 #define MOD_DEFAULT     MOD_CS
-#elif defined(ENABLE_DUAL_ROLE_FN)
-#define MOD_CX          6
-#define MOD_SX          7
-#define MOD_MAX         MOD_SX
-#define MOD_DEFAULT     MOD_CX
-#else
-#define MOD_MAX         MOD_SJ_MAC
-#define MOD_DEFAULT     MOD_C
-#endif
 
 void emitModName(void);
 void switchMod(void);

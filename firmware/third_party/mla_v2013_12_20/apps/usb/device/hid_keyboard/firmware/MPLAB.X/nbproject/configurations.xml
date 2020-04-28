@@ -384,8 +384,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros"
-                  value="ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT;DISABLE_MTYPE;DISABLE__STICKNEY"/>
+        <property key="define-macros" value="DISABLE_MTYPE"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/esrille_new_keyboard;../src/system_config/esrille_new_keyboard"/>
@@ -742,8 +741,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros"
-                  value="ENABLE_MOUSE;ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT;DISABLE_MTYPE"/>
+        <property key="define-macros" value="ENABLE_MOUSE;DISABLE_MTYPE"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/esrille_new_keyboard;../src/system_config/esrille_new_keyboard"/>
@@ -1072,8 +1070,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros"
-                  value="WITH_HOS;ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT"/>
+        <property key="define-macros" value="WITH_HOS"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>
@@ -1372,8 +1369,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros"
-                  value="WITH_HOS;ENABLE_MOUSE;ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT"/>
+        <property key="define-macros" value="WITH_HOS;ENABLE_MOUSE"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>
@@ -1746,7 +1742,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros" value="ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT"/>
+        <property key="define-macros" value=""/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>
@@ -2119,8 +2115,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros"
-                  value="ENABLE_MOUSE;ENABLE_DUAL_ROLE_FN;SWAP_SPACE_AND_SHIFT"/>
+        <property key="define-macros" value="ENABLE_MOUSE"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/pic18f47j53_nisse;../src/system_config/pic18f47j53_nisse"/>

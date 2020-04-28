@@ -64,14 +64,10 @@ static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
     {KEY_S, KEY_ENTER},
     {KEY_S, KEY_J, KEY_ENTER},
     {KEY_S, KEY_J, KEY_M, KEY_A, KEY_C, KEY_ENTER},
-#ifdef ENABLE_DUAL_ROLE_FN
     {KEY_C, KEY_X, KEY_ENTER},
     {KEY_S, KEY_X, KEY_ENTER},
-#endif
-#ifdef SWAP_SPACE_AND_SHIFT
     {KEY_C, KEY_S, KEY_ENTER},
     {KEY_S, KEY_S, KEY_ENTER},
-#endif
 };
 
 #define MAX_FN_KEYS 3
@@ -164,10 +160,8 @@ static uint8_t columnCount[12];
 
 static uint8_t led;
 
-#ifdef ENABLE_DUAL_ROLE_FN
 static uint8_t modFn;
 static uint8_t dualFn;  // Used for dual-role FN keys
-#endif
 
 void initKeyboard(void)
 {
@@ -711,7 +705,6 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
     else
         xmit = processKeysBase(current, processed, report);
 
-#ifdef ENABLE_DUAL_ROLE_FN
     if (isDualRoleFnMod()) {
         if ((current[1] ^ processed[1]) & MOD_FN) {
             modFn = (current[1] & MOD_FN);
@@ -731,7 +724,6 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
             dualFn = 0;
         }
     }
-#endif
 
     if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER || xmit == XMIT_MACRO)
         memmove(processed, current, 8);
@@ -856,11 +848,8 @@ uint8_t processModKey(uint8_t key)
 {
     const uint8_t* map = modMap[0];
     uint8_t xfer = mod;
-#ifdef SWAP_SPACE_AND_SHIFT
     bool swap = false;
-#endif
 
-#ifdef ENABLE_DUAL_ROLE_FN
     switch (mod) {
     case MOD_CX:
         xfer = MOD_C;
@@ -868,7 +857,6 @@ uint8_t processModKey(uint8_t key)
     case MOD_SX:
         xfer = MOD_S;
         break;
-#ifdef SWAP_SPACE_AND_SHIFT
     case MOD_CS:
         xfer = MOD_C;
         swap = true;
@@ -877,12 +865,9 @@ uint8_t processModKey(uint8_t key)
         xfer = MOD_S;
         swap = true;
         break;
-#endif
     default:
         break;
     }
-#endif
-#ifdef SWAP_SPACE_AND_SHIFT
     if (swap) {
         switch (key) {
         case KEY_LEFTSHIFT:
@@ -901,7 +886,6 @@ uint8_t processModKey(uint8_t key)
             break;
         }
     }
-#endif
     for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {
         if (key == map[i])
             return modMap[xfer][i];
