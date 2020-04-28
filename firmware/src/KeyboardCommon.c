@@ -74,7 +74,9 @@ static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
 #endif
 };
 
-static uint8_t const matrixFn[8][12][3] =
+#define MAX_FN_KEYS 3
+
+static uint8_t const matrixFn[8][12][MAX_FN_KEYS] =
 {
     {{KEY_INSERT}, {KEY_F2}, {KEY_F3}, {KEY_F4}, {KEY_F5}, {KEY_F6}, {KEY_F7}, {KEY_F8}, {KEY_F9}, {KEY_MUTE}, {KEY_VOLUME_DOWN}, {KEY_PAUSE}},
     {{KEY_LEFTCONTROL, KEY_DELETE}, {KEY_F1}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {0}, {KEY_VOLUME_UP}, {KEY_SCROLL_LOCK}},
@@ -86,11 +88,11 @@ static uint8_t const matrixFn[8][12][3] =
 #endif
     {{KEY_LEFTCONTROL, KEY_Q}, {KEY_LEFTCONTROL, KEY_W}, {KEY_PAGEUP}, {KEY_LEFTCONTROL, KEY_R}, {KEY_LEFTCONTROL, KEY_T}, {0}, {0}, {KEY_LEFTCONTROL, KEY_HOME}, {KEY_LEFTCONTROL, KEY_LEFTARROW}, {KEY_UPARROW}, {KEY_LEFTCONTROL, KEY_RIGHTARROW}, {KEY_LEFTCONTROL, KEY_END}},
     {{KEY_LEFTCONTROL, KEY_A}, {KEY_LEFTCONTROL, KEY_S}, {KEY_PAGEDOWN}, {KEY_LEFTCONTROL, KEY_F}, {KEY_LEFTCONTROL, KEY_G}, {KEY_ESCAPE}, {KEY_CAPS_LOCK}, {KEY_HOME}, {KEY_LEFTARROW}, {KEY_DOWNARROW}, {KEY_RIGHTARROW}, {KEY_END}},
-    {{KEY_LEFTCONTROL, KEY_Z}, {KEY_LEFTCONTROL, KEY_X}, {KEY_LEFTCONTROL, KEY_C}, {KEY_LEFTCONTROL, KEY_V}, {KEY_LANG2}, {KEY_TAB}, {KEY_ENTER}, {KEY_LANG1}, {KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_DOWNARROW}, {KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_LEFTSHIFT, KEY_END}},
+    {{KEY_LEFTCONTROL, KEY_Z}, {KEY_LEFTCONTROL, KEY_X}, {KEY_LEFTCONTROL, KEY_C}, {KEY_LEFTCONTROL, KEY_V}, {KEY_LEFTCONTROL, KEY_B}, {KEY_TAB}, {KEY_ENTER}, {KEY_LEFTCONTROL, KEY_N}, {KEY_LEFTSHIFT, KEY_LEFTARROW}, {KEY_LEFTSHIFT, KEY_DOWNARROW}, {KEY_LEFTSHIFT, KEY_RIGHTARROW}, {KEY_LEFTSHIFT, KEY_END}},
     {{0}, {0}, {0}, {0}, {KEY_LEFTCONTROL, KEY_BACKSPACE}, {0}, {0}, {KEY_LEFTCONTROL, KEY_SPACEBAR}, {0}, {0}, {0}, {0}}
 };
 
-static uint8_t const matrixFn109[4][3] =
+static uint8_t const matrixFn109[4][MAX_FN_KEYS] =
 {
     {KEY_INTERNATIONAL5},   // no-convert
     {KEY_INTERNATIONAL4},   // convert
@@ -98,10 +100,8 @@ static uint8_t const matrixFn109[4][3] =
     {KEY_GRAVE_ACCENT}      // zenkaku
 };
 
-static uint8_t const matrixNumLock[8][5] =
+static uint8_t const matrixNumLock[6][5] =
 {
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
     0, 0, 0, KEYPAD_MULTIPLY, 0,
     KEY_CALC, 0, KEYPAD_EQUAL, KEYPAD_DIVIDE, 0,
     0, KEYPAD_7, KEYPAD_8, KEYPAD_9, KEYPAD_SUBTRACT,
@@ -566,7 +566,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
         for (int8_t i = 2; i < 8 && xmit == XMIT_NORMAL; ++i) {
             uint8_t code = current[i];
             const uint8_t* a = getKeyFn(code);
-            for (int8_t j = 0; j < 3 && count < 8; ++j) {
+            for (int8_t j = 0; j < MAX_FN_KEYS && count < 8; ++j) {
                 uint8_t key = a[j];
                 int8_t make = !memchr(processed + 2, code, 6);
 
@@ -744,28 +744,8 @@ static void processOSMode(uint8_t* report)
     for (int8_t i = 2; i < 8; ++i) {
         uint8_t key = report[i];
         switch (os) {
-        case OS_PC:
-            switch (key) {
-            case KEY_LANG1:
-                report[i] = KEY_F13;
-                break;
-            case KEY_LANG2:
-                report[i] = KEY_F14;
-                break;
-            case KEY_INTERNATIONAL4:
-            case KEY_INTERNATIONAL5:
-                report[i] = KEY_SPACEBAR;
-                break;
-            default:
-                break;
-            }
-            break;
         case OS_MAC:
             switch (key) {
-            case KEY_INTERNATIONAL4:
-            case KEY_INTERNATIONAL5:
-                report[i] = KEY_SPACEBAR;
-                break;
             case KEY_APPLICATION:
                 if (isMacMod()) {
                     report[0] |= MOD_LEFTALT;
@@ -793,10 +773,6 @@ static void processOSMode(uint8_t* report)
                 report[i] = KEY_BACKSPACE;
                 report[0] |= MOD_LEFTSHIFT | MOD_LEFTCONTROL;
                 break;
-            case KEY_INTERNATIONAL4:
-            case KEY_INTERNATIONAL5:
-                report[i] = KEY_SPACEBAR;
-                break;
             default:
                 break;
             }
@@ -807,10 +783,6 @@ static void processOSMode(uint8_t* report)
             case KEY_LANG2:
                 report[i] = KEY_GRAVE_ACCENT;
                 report[0] |= MOD_LEFTALT;
-                break;
-            case KEY_INTERNATIONAL4:
-            case KEY_INTERNATIONAL5:
-                report[i] = KEY_SPACEBAR;
                 break;
             default:
                 break;
@@ -937,6 +909,12 @@ uint8_t processModKey(uint8_t key)
     return key;
 }
 
+#define isFNReleased()      (processed[1] && !current[1])
+
+#define isShiftReleased()   \
+    ((processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) || \
+     (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT))
+
 int8_t makeReport(uint8_t* report)
 {
     static uint8_t modifiersPrev = 0;
@@ -1004,19 +982,13 @@ int8_t makeReport(uint8_t* report)
                 if (current[2] != VOID_KEY)
                     prefix = 0;
                 xmit = processKeys(current, processed, report);
-            }
-            /* Remove the following else if block to send the shift key release
-             * event immediately.  This behavior is required for inputting
-             * Japanese alphabets directly with several Japanese keyboard
-             * layouts.
-             */
-            else if (processed[1] && !current[1] ||
-                     (processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) ||
-                     (processed[0] & MOD_RIGHTSHIFT) && !(current[0] & MOD_RIGHTSHIFT))
-            {
+            } else if (isFNReleased() || !isPC() && isShiftReleased()) {
                 /* empty */
-            }
-            else
+                /* Note the releases of shift keys need to be ignored for
+                 * inputting Japanese alphabets directly with several Japanese
+                 * keyboard layouts.
+                 */
+            } else
                 xmit = processKeys(current, processed, report);
         }
         processOSMode(report);
@@ -1056,11 +1028,13 @@ uint8_t controlLED(uint8_t report)
 
 uint8_t getKeyNumLock(uint8_t code)
 {
+    uint8_t row = code / 12;
     uint8_t col = code % 12;
 
-    if ((led & LED_NUM_LOCK) && 7 <= col) {
+    if ((led & LED_NUM_LOCK) && 7 <= col && 2 <= row) {
         col -= 7;
-        return matrixNumLock[code / 12][col];
+        row -= 2;
+        return matrixNumLock[row][col];
     }
     return 0;
 }

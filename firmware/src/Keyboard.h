@@ -544,7 +544,7 @@ int8_t isJP(void);
 void emitKanaName(void);
 void switchKana(void);
 
-#define OS_PC           0   // F13 / F14
+#define OS_PC           0   // No language keys
 #define OS_MAC          1   // Kana / Eisuu
 #define OS_104A         2   // Shift-Ctrl-Space / Shift-Ctlr-Backspace
 #define OS_104B         3   // Alt-`
@@ -557,7 +557,8 @@ void switchKana(void);
 void emitOSName(void);
 void switchOS(void);
 
-#define is109()     (os == OS_109A || os == OS_109B)
+#define isPC()      (OS_PC == os)
+#define is109()     (OS_109 <= os && os <= OS_109B)
 
 #define MOD_C           0
 #define MOD_CJ          1
