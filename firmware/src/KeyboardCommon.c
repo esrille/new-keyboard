@@ -981,7 +981,7 @@ uint8_t controlLED(uint8_t report)
         if (4 <= ++tick)
             tick = 0;
         else
-            report &= ~LED_USB_DEVICE_HID_KEYBOARD_CAPS_LOCK;
+            report &= ~LED_NUM_LOCK;
     }
     return report;
 }
