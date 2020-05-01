@@ -36,6 +36,10 @@ typedef struct {
     uint16_t current;
     uint16_t thresh;
     uint16_t low;
+    uint8_t  delay;
+#if APP_MACHINE_VALUE != 0x4550
+    uint8_t  spurious;
+#endif
 } TouchSensor;
 
 #define CODE_F1         (1*1+1)
@@ -59,9 +63,11 @@ typedef struct {
 #define CODE_B          (6*12+4)
 #define CODE_COMMA      (6*12+9)
 
-#define PLAY_XY     36  // x or y value smaller than PLAY_XY should be ignored.
-#define THRESH_XY   48  // x or y value threshold
-#define AIM_BUTTON  0x80
+#define PLAY_XY         36      // x or y value smaller than PLAY_XY should be ignored.
+#define THRESH_XY       48      // x or y value threshold
+#define AIM_BUTTON      0x80
+#define TOUCH_DELAY     8       // a very short touch should be ignored.
+#define TOUCH_THRESH    2000
 
 const static uint8_t normalTable[PAD_SENSE_MAX + 1] = {
     3, 4, 5, 6
@@ -90,7 +96,10 @@ static Pos prev;
 
 void initMouse(void)
 {
-    touchSensor.current = touchSensor.thresh = 0;
+    touchSensor.current = touchSensor.thresh = touchSensor.delay = 0;
+#if APP_MACHINE_VALUE != 0x4550
+    touchSensor.spurious = 0;
+#endif
     center.x = center.y = 0;
     loadMouseSettings();
 }
@@ -112,6 +121,8 @@ void emitMouse(void)
     emitNumber(touchSensor.current);
     emitKey(KEY_SLASH);
     emitNumber(touchSensor.thresh);
+    emitKey(KEY_SLASH);
+    emitNumber(touchSensor.spurious);
     emitKey(KEY_SPACEBAR);
     emitNumber(prev.x);
     emitKey(KEY_COMMA);
@@ -244,7 +255,17 @@ static void processSerialData(void)
         touchSensor.thresh = (touchSensor.current * 6) / 7;
         touchSensor.low = touchSensor.thresh;
     }
-    if (touchSensor.thresh < touchSensor.current) { // not touched?
+    if (touchSensor.current < touchSensor.thresh) { // touched?
+        if (touchSensor.current < TOUCH_THRESH) // too weak
+            touchSensor.delay = 1;
+        else if (touchSensor.delay < TOUCH_DELAY)
+            ++touchSensor.delay;
+    } else {
+#if APP_MACHINE_VALUE != 0x4550
+        if (0 < touchSensor.delay && touchSensor.delay < TOUCH_DELAY)
+            ++touchSensor.spurious;
+#endif
+        touchSensor.delay = 0;
         if ((distance(rawData.x, 128u) < PLAY_XY && distance(rawData.y, 128u) < PLAY_XY) || (center.x == 0 && center.y == 0)) {
             if (rawData.x == prev.x && rawData.y == prev.y) {
                 center.x = rawData.x;
@@ -300,7 +321,11 @@ int8_t processSerialUnit(uint8_t data)
 
 int8_t isMouseTouched(void)
 {
-    return (touchSensor.current < touchSensor.thresh) || x || y;
+    if (x || y)
+        return true;
+    if (touchSensor.current < touchSensor.thresh && TOUCH_DELAY <= touchSensor.delay)
+        return true;
+    return false;
 }
 
 int8_t getKeyboardMouseX(void)
