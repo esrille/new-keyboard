@@ -588,6 +588,7 @@ void switchMod(void);
 #define DELAY_36        3
 #define DELAY_48        4
 #define DELAY_MAX       4
+#define DELAY_DEFAULT   DELAY_0
 
 void emitDelayName(void);
 void switchDelay(void);
