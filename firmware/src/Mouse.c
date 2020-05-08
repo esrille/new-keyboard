@@ -35,11 +35,9 @@ typedef struct {
 typedef struct {
     uint16_t current;
     uint16_t thresh;
-    uint16_t low;
+    uint16_t high;
     uint8_t  delay;
-#if APP_MACHINE_VALUE != 0x4550
     uint8_t  spurious;
-#endif
 } TouchSensor;
 
 #define CODE_F1         (1*1+1)
@@ -96,10 +94,8 @@ static Pos prev;
 
 void initMouse(void)
 {
-    touchSensor.current = touchSensor.thresh = touchSensor.delay = 0;
-#if APP_MACHINE_VALUE != 0x4550
-    touchSensor.spurious = 0;
-#endif
+    touchSensor.current = touchSensor.thresh = touchSensor.high = 0;
+    touchSensor.delay = touchSensor.spurious = 0;
     center.x = center.y = 0;
     loadMouseSettings();
 }
@@ -249,29 +245,28 @@ static uint16_t lowPassFilter(uint16_t prev, uint16_t raw)
 static void processSerialData(void)
 {
     touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
-    if (touchSensor.current < touchSensor.low)
-        touchSensor.low = touchSensor.current;
-    if ((touchSensor.low * 7) / 6 < touchSensor.current) {
-        touchSensor.thresh = (touchSensor.current * 6) / 7;
-        touchSensor.low = touchSensor.thresh;
+    if (touchSensor.high < touchSensor.current) {
+        touchSensor.high = touchSensor.current;
+        touchSensor.thresh = (touchSensor.high * 6) / 7;
     }
     if (touchSensor.current < touchSensor.thresh) { // touched?
-        if (touchSensor.current < TOUCH_THRESH) // too weak
+        if (touchSensor.current < TOUCH_THRESH) // too weak?
             touchSensor.delay = 1;
         else if (touchSensor.delay < TOUCH_DELAY)
             ++touchSensor.delay;
     } else {
-#if APP_MACHINE_VALUE != 0x4550
         if (0 < touchSensor.delay && touchSensor.delay < TOUCH_DELAY)
             ++touchSensor.spurious;
-#endif
-        touchSensor.delay = 0;
         if ((distance(rawData.x, 128u) < PLAY_XY && distance(rawData.y, 128u) < PLAY_XY) || (center.x == 0 && center.y == 0)) {
             if (rawData.x == prev.x && rawData.y == prev.y) {
                 center.x = rawData.x;
                 center.y = rawData.y;
+                if (touchSensor.delay == TOUCH_DELAY) { // previously touched?
+                    touchSensor.high = (touchSensor.high * 8) / 9;
+                }
             }
         }
+        touchSensor.delay = 0;
     }
     x = trimXY(rawData.x, center.x);
     y = trimXY(rawData.y, center.y);

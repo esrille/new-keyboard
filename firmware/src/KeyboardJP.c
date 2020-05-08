@@ -25,10 +25,16 @@ static uint8_t const kanaKeys[KANA_MAX + 1][MAX_KANA_KEY_NAME] =
 {
     {KEY_R, KEY_O, KEY_M, KEY_A, KEY_ENTER},
     {KEY_N, KEY_I, KEY_C, KEY_O, KEY_ENTER},
-    {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
     {KEY_T, KEY_R, KEY_O, KEY_N, KEY_ENTER},
+#if 3 <= KANA_MAX
     {KEY_S, KEY_T, KEY_I, KEY_C, KEY_K, KEY_ENTER},
+#endif
+#if 4 <= KANA_MAX
     {KEY_X, KEY_6, KEY_0, KEY_0, KEY_4, KEY_ENTER},
+#endif
+#if 5 <= KANA_MAX
+    {KEY_M, KEY_T, KEY_Y, KEY_P, KEY_E, KEY_ENTER},
+#endif
 };
 
 #define MAX_LED_KEY_NAME    4
@@ -92,7 +98,7 @@ static uint8_t const vowelSet[] =
     KEY_Y
 };
 
-#ifndef DISABLE_MTYPE
+#if KANA_MTYPE <= KANA_MAX
 static uint8_t const mtypeSet[][3] =
 {
     {KEY_A, KEY_N, KEY_N},
@@ -222,7 +228,7 @@ static uint8_t const appleSet[][3] =
     {KEY_LEFTSHIFT, KEY_GRAVE_ACCENT},
 };
 
-#ifndef DISABLE_STICKNEY
+#if KANA_STICKNEY <= KANA_MAX
 //
 // Stickney Next
 //
@@ -321,7 +327,7 @@ static uint8_t const matrixNicolaRight[7][12] =
     {ROMA_KUTEN, ROMA_BI, ROMA_ZU, ROMA_BU, ROMA_BE, 0, 0, ROMA_NU, ROMA_YU, ROMA_MU, ROMA_WA, ROMA_XO},
 };
 
-#ifndef DISABLE_MTYPE
+#if KANA_MTYPE <= KANA_MAX
 //
 // M type
 //
@@ -348,6 +354,7 @@ static uint8_t const matrixMtypeShift[7][12] =
 };
 #endif
 
+#if KANA_X6004 <= KANA_MAX
 //
 // JIS X 6004
 //
@@ -372,6 +379,7 @@ static uint8_t const matrixX6004Shift[7][12] =
     {ROMA_XI, ROMA_HE, ROMA_RA, ROMA_XYU, ROMA_YO, 0, 0, ROMA_MA, ROMA_O, ROMA_MO, ROMA_WA, ROMA_YU},
     {ROMA_XU, ROMA_XE, ROMA_XO, ROMA_NE, ROMA_XYA, 0, 0, ROMA_MU, ROMA_RO, ROMA_NAKAGURO, ROMA_CHOUON, ROMA_QUESTION},
 };
+#endif
 
 static uint8_t const dakuonFrom[] = { KEY_K, KEY_S, KEY_T, KEY_H };
 static uint8_t const dakuonTo[] = { KEY_G, KEY_Z, KEY_D, KEY_B };
@@ -423,14 +431,6 @@ void emitKanaName(void)
 void switchKana(void)
 {
     ++mode;
-#ifdef DISABLE_MTYPE
-    if (mode == KANA_MTYPE)
-        ++mode;
-#endif
-#ifdef DISABLE_STICKNEY
-    if (mode == KANA_STICKNEY)
-        ++mode;
-#endif
     if (KANA_MAX < mode)
         mode = 0;
     WriteNvram(EEPROM_KANA, mode);
@@ -465,7 +465,7 @@ static void processRomaji(uint8_t roma, uint8_t a[])
             a[i++] = 0;
         return;
     }
-#ifndef DISABLE_MTYPE
+#if KANA_MTYPE <= KANA_MAX
     if (ROMA_ANN <= roma && roma <= ROMA_Q) {
         memcpy(a, mtypeSet[roma - ROMA_ANN], 3);
         return;
@@ -685,16 +685,18 @@ int8_t processKeysKana(const uint8_t* current, const uint8_t* processed, uint8_t
         return processKana(current, processed, report, matrixTron, matrixTronLeft, matrixTronRight);
     case KANA_NICOLA:
         return processKana(current, processed, report, matrixNicola, matrixNicolaLeft, matrixNicolaRight);
-#ifndef DISABLE_MTYPE
+#if KANA_MTYPE <= KANA_MAX
     case KANA_MTYPE:
         return processKana(current, processed, report, matrixMtype, matrixMtypeShift, matrixMtypeShift);
 #endif
-#ifndef DISABLE_STICKNEY
+#if KANA_STICKNEY <= KANA_MAX
     case KANA_STICKNEY:
         return processKana(current, processed, report, matrixStickney, matrixStickneyShift, matrixStickneyShift);
 #endif
+#if KANA_X6004 <= KANA_MAX
     case KANA_X6004:
         return processKana(current, processed, report, matrixX6004, matrixX6004Shift, matrixX6004Shift);
+#endif
     default:
         return processKeysBase(current, processed, report);
     }

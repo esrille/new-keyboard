@@ -536,11 +536,13 @@ int8_t isJP(void);
 
 #define KANA_ROMAJI     0
 #define KANA_NICOLA     1
-#define KANA_MTYPE      2
-#define KANA_TRON       3
-#define KANA_STICKNEY   4
-#define KANA_X6004      5
-#define KANA_MAX        5
+#define KANA_TRON       2
+#define KANA_STICKNEY   3
+#define KANA_X6004      4
+#define KANA_MTYPE      5
+#ifndef KANA_MAX
+#define KANA_MAX        KANA_X6004
+#endif
 void emitKanaName(void);
 void switchKana(void);
 
@@ -648,11 +650,7 @@ uint8_t controlKanaLED(uint8_t report);
 uint8_t getKeyNumLock(uint8_t code);
 uint8_t getKeyBase(uint8_t code);
 
-#if APP_MACHINE_VALUE == 0x4550
-#define MAX_MACRO_SIZE  132
-#else
 #define MAX_MACRO_SIZE  254
-#endif
 
 uint8_t beginMacro(uint8_t max);
 uint8_t peekMacro(void);
