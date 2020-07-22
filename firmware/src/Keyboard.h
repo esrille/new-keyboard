@@ -541,7 +541,7 @@ int8_t isJP(void);
 #define KANA_X6004      4
 #define KANA_MTYPE      5
 #ifndef KANA_MAX
-#define KANA_MAX        KANA_X6004
+#define KANA_MAX        KANA_MTYPE
 #endif
 void emitKanaName(void);
 void switchKana(void);
