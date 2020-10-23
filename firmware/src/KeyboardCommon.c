@@ -45,38 +45,45 @@ static uint8_t const osKeys[OS_MAX + 1][MAX_OS_KEY_NAME] =
 };
 
 #define MAX_MOD_KEY_NAME    5
-#define MAX_MOD_KEYS        9
-
-static uint8_t const modMap[MOD_MAX + 1][MAX_MOD_KEYS] =
-{
-    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
-    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
-    {KEY_LEFTALT,  KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
-    {KEY_LEFTALT,  KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
-    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTSHIFT,   KEY_RIGHTCONTROL},
-    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LANG2,   KEY_LANG1,    KEY_SPACEBAR,     KEY_RIGHTCONTROL, KEY_RIGHTSHIFT},
-    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
-    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LEFTALT, KEY_RIGHTALT, KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
-    {KEY_LEFTALT,  KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LANG2,   KEY_LANG1,    KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
-    {KEY_LEFTALT,  KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LANG2,   KEY_LANG1,    KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
-    {KEY_LEFT_GUI, KEY_LEFTCONTROL, KEY_BACKSPACE,   KEY_LEFTSHIFT,   KEY_LANG2,   KEY_LANG1,    KEY_RIGHTSHIFT,   KEY_SPACEBAR,     KEY_RIGHTCONTROL},
-    {KEY_LEFT_GUI, KEY_LEFTSHIFT,   KEY_BACKSPACE,   KEY_LEFTCONTROL, KEY_LANG2,   KEY_LANG1,    KEY_RIGHTCONTROL, KEY_SPACEBAR,     KEY_RIGHTSHIFT},
-};
 
 static uint8_t const modKeys[MOD_MAX + 1][MAX_MOD_KEY_NAME] =
 {
     {KEY_C, KEY_ENTER},
     {KEY_S, KEY_ENTER},
-    {KEY_C, KEY_J, KEY_ENTER},
-    {KEY_S, KEY_J, KEY_ENTER},
-    {KEY_C, KEY_J, KEY_A, KEY_ENTER},
-    {KEY_S, KEY_J, KEY_A, KEY_ENTER},
     {KEY_X, KEY_C, KEY_ENTER},
     {KEY_X, KEY_S, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_ENTER},
     {KEY_X, KEY_C, KEY_J, KEY_ENTER},
     {KEY_X, KEY_S, KEY_J, KEY_ENTER},
+    {KEY_C, KEY_J, KEY_A, KEY_ENTER},
+    {KEY_S, KEY_J, KEY_A, KEY_ENTER},
     {KEY_X, KEY_C, KEY_J, KEY_A, KEY_ENTER},
     {KEY_X, KEY_S, KEY_J, KEY_A, KEY_ENTER},
+};
+
+
+/* 7th row configurations */
+static uint8_t const modMap[4][12] =
+{
+    /*
+     * 0: KEY_LEFTCONTROL
+     * 1: KEY_LEFT_GUI  ==> KEY_LEFTALT (Japanese)
+     * 2: KEY_LEFT_FN
+     * 3: KEY_LEFTSHIFT
+     * 4: KEY_BACKSPACE
+     * 5: KEY_LEFTALT  ==> KEY_LANG2 (Japanese)
+     * 6: KEY_RIGHTALT ==> KEY_LANG1 (Japanese)
+     * 7: KEY_SPACEBAR
+     * 8: KEY_RIGHTSHIFT
+     * 9: KEY_RIGHT_FN
+     * 10: KEY_RIGHT_GUI
+     * 11: KEY_RIGHTCONTROL
+     */
+    {0, 1, 2, 3, 4, 5, 6,  7,  8, 9, 10, 11},   // C
+    {3, 1, 2, 0, 4, 5, 6,  7, 11, 9, 10,  8},   // S
+    {0, 1, 2, 4, 3, 5, 6,  8,  7, 9, 10, 11},   // XC
+    {3, 1, 2, 4, 0, 5, 6, 11,  7, 9, 10,  8},   // XS
 };
 
 #define MAX_FN_KEYS 3
@@ -260,12 +267,19 @@ void onPressed(int8_t row, uint8_t column)
     uint8_t key;
     uint8_t code;
 
-    if (2 <= BOARD_REV_VALUE)
-        code = codeRev2[row][column];
-    else
-        code = 12 * row + column;
     ++columnCount[column];
     ++rowCount[row];
+    if (BOARD_REV_VALUE < 2) {
+        code = 12 * row + column;
+    } else {
+        code = codeRev2[row][column];
+        row = code / 12;
+        column = code % 12;
+    }
+    if (row == 7) {
+        column = modMap[mod % 4][column];
+        code = 12 * row + column;
+    }
     key = getKeyBase(code);
     if (KEY_LEFTCONTROL <= key && key <= KEY_RIGHT_GUI)
         current[0] |= 1u << (key - KEY_LEFTCONTROL);
@@ -854,14 +868,27 @@ static void processOSMode(uint8_t* report)
 
 uint8_t processModKey(uint8_t key)
 {
-    const uint8_t* map = modMap[0];
-
-    for (int8_t i = 0; i < MAX_MOD_KEYS; ++i) {
-        if (key == map[i])
-            return modMap[mod][i];
+    if (isMacMod()) {
+        if (key == KEY_RIGHTALT) {
+            key = KEY_LANG1;
+        }
+        else if (key == KEY_LEFTALT) {
+            key = KEY_LANG2;
+        }
+        else if (key == KEY_APPLICATION) {
+            key = KEY_LEFTALT;
+        }
+    } else if (isJapaneseMod()) {
+        if (key == KEY_RIGHTALT) {
+            key = KEY_LANG1;
+        }
+        else if (key == KEY_LEFTALT) {
+            key = KEY_LANG2;
+        }
+        else if (key == KEY_LEFT_GUI) {
+            key = KEY_LEFTALT;
+        }
     }
-    if (key == KEY_APPLICATION && isMacMod())
-        key = KEY_LEFTALT;
     return key;
 }
 

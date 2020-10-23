@@ -565,14 +565,14 @@ void switchOS(void);
 
 #define MOD_C           0
 #define MOD_S           1
-#define MOD_CJ          2
-#define MOD_SJ          3
-#define MOD_CJA         4       // Apple
-#define MOD_SJA         5       // Apple
-#define MOD_XC          6
-#define MOD_XS          7
-#define MOD_XCJ         8
-#define MOD_XSJ         9
+#define MOD_XC          2
+#define MOD_XS          3
+#define MOD_CJ          4
+#define MOD_SJ          5
+#define MOD_XCJ         6
+#define MOD_XSJ         7
+#define MOD_CJA         8       // Apple
+#define MOD_SJA         9       // Apple
 #define MOD_XCJA        10      // Apple
 #define MOD_XSJA        11      // Apple
 #define MOD_MAX         11
@@ -581,8 +581,9 @@ void switchOS(void);
 void emitModName(void);
 void switchMod(void);
 
-#define isMacMod()          (mod == MOD_CJA || mod == MOD_SJA || mod == MOD_XCJA || mod == MOD_XSJA)
-#define isDualRoleFnMod()   (mod == MOD_C || mod == MOD_S || mod == MOD_XC || mod == MOD_XS)
+#define isJapaneseMod()     (MOD_CJ <= mod)
+#define isMacMod()          (MOD_CJA <= mod)
+#define isDualRoleFnMod()   (MOD_C <= mod && mod <= MOD_XS)
 
 #define DELAY_0         0
 #define DELAY_12        1
@@ -663,6 +664,7 @@ void emitNumber(uint16_t n);
 #endif
 
 extern uint8_t os;
+extern uint8_t mod;
 extern uint8_t prefix_shift;
 extern uint8_t prefix;
 
