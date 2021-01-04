@@ -39,7 +39,7 @@
 #define MOUSE_REPORT_DATA_BUFFER_ADDRESS                0x50A
 
 #define APP_VERSION_ADDRESS     0x1826  // The application image firmware version number address
-#define APP_VERSION_VALUE       0x0026  // BCD
+#define APP_VERSION_VALUE       0x0027  // BCD
 
 #define BOARD_REV_ADDRESS       0x17FE
 #define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
