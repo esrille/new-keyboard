@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 Esrille Inc.
+ * Copyright 2013-2021 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@
 #define KEY_NON_US_HASH         0x32
 #define KEY_SEMICOLON           0x33
 #define KEY_QUOTE               0x34
-#define KEY_GRAVE_ACCENT        0x35   // `
+#define KEY_GRAVE_ACCENT        0x35    // `
 #define KEY_COMMA               0x36
 #define KEY_PERIOD              0x37
 #define KEY_SLASH               0x38
@@ -211,10 +211,10 @@
 #define KEYPAD_OR               0xC9
 #define KEYPAD_LOGICAL_OR       0xCA
 #define KEYPAD_COLON            0xCB
-#define KEYPAD_HASH             0xCC     // #
+#define KEYPAD_HASH             0xCC    // #
 #define KEYPAD_SPACE            0xCD
 #define KEYPAD_ATMARK           0xCE
-#define KEYPAD_NOT              0xCF      // !
+#define KEYPAD_NOT              0xCF    // !
 #define KEYPAD_MEMORY_STORE     0xD0
 #define KEYPAD_MEMORY_RECALL    0xD1
 #define KEYPAD_MEMORY_CLEAR     0xD2
@@ -222,7 +222,7 @@
 #define KEYPAD_MEMORY_SUBTRACT  0xD4
 #define KEYPAD_MEMORY_MULTIPLY  0xD5
 #define KEYPAD_MEMORY_DIVIDE    0xD6
-#define KEYPAD_SIGN             0xD7     // +/-
+#define KEYPAD_SIGN             0xD7    // +/-
 #define KEYPAD_CLEAR            0xD8
 #define KEYPAD_CLEAR_ENTRY      0xD9
 #define KEYPAD_BINARY           0xDA
@@ -478,7 +478,7 @@
 #define KANA_HO         215     // -
 #define KANA_NU         216     // 1
 #define KANA_ME         217     // /
-#define KANA_MU         218     //KEY_NON_US_HASH
+#define KANA_MU         218     // KEY_NON_US_HASH
 #define KANA_WO         219
 #define KANA_RO         220     // KEY_INTERNATIONAL1
 #define KANA_TOUTEN     221
