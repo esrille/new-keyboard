@@ -21,6 +21,9 @@
 #include <string.h>
 #include <system.h>
 
+static uint8_t getKeyNumLockRaw(uint8_t code);
+
+
 NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_DEFAULT, MOD_DEFAULT, LED_DEFAULT, IME_MS, PAD_SENSE_1);
 
 uint8_t os;
@@ -287,6 +290,11 @@ void onPressed(int8_t row, uint8_t column)
         current[1] |= 1u << (key - KEY_LEFT_FN);
     else if (count < 8)
         current[count++] = code;
+
+#ifdef WITH_HOS
+    if (getKeyNumLockRaw(code) == KEYPAD_0)
+        current[1] |= MOD_KEYPAD_0;
+#endif
 }
 
 static int8_t detectGhost(void)
@@ -575,10 +583,15 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
     if (current[1] & MOD_FN) {
         uint8_t modifiers = current[0];
         uint8_t count = 2;
+#ifdef WITH_HOS
+        bool is_shift = (current[1] & MOD_KEYPAD_0);
+#endif
+
         xmit = XMIT_NORMAL;
         for (int8_t i = 2; i < 8 && xmit == XMIT_NORMAL; ++i) {
             uint8_t code = current[i];
             const uint8_t* a = getKeyFn(code);
+
             for (int8_t j = 0; j < MAX_FN_KEYS && count < 8; ++j) {
                 uint8_t key = a[j];
                 int8_t make = !memchr(processed + 2, code, 6);
@@ -589,7 +602,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F1:
                     if (make) {
 #ifdef WITH_HOS
-                        if (current[0] & MOD_SHIFT) {
+                        if (is_shift) {
                             switchProfile(1);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -605,7 +618,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F2:
                     if (make) {
 #ifdef WITH_HOS
-                        if (current[0] & MOD_SHIFT) {
+                        if (is_shift) {
                             switchProfile(2);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -621,7 +634,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F3:
                     if (make) {
 #ifdef WITH_HOS
-                        if (current[0] & MOD_SHIFT) {
+                        if (is_shift) {
                             switchProfile(3);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -637,7 +650,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F4:
                     if (make) {
 #ifdef WITH_HOS
-                        if (current[0] & MOD_SHIFT) {
+                        if (is_shift) {
                             switchProfile(0);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -695,7 +708,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 #ifdef WITH_HOS
                 case KEY_ESCAPE:
                     if (make) {
-                        if (!isUSBMode() && (current[0] & MOD_SHIFT)) {
+                        if (!isUSBMode() && is_shift) {
                             HosSetEvent(HOS_TYPE_DEFAULT, HOS_EVENT_CLEAR_BONDING_DATA);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -892,7 +905,8 @@ uint8_t processModKey(uint8_t key)
     return key;
 }
 
-#define isFNReleased()      (processed[1] && !current[1])
+#define isFNReleased()      \
+    ((processed[1] & (MOD_FN | MOD_PAD)) && !(current[1] & (MOD_FN | MOD_PAD)))
 
 #define isShiftReleased()   \
     ((processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) || \
@@ -952,14 +966,14 @@ int8_t makeReport(uint8_t* report)
         modifiersPrev = modifiers;
 
 #ifdef ENABLE_MOUSE
-        if (current[1] == MOD_PAD)
+        if ((current[1] & (MOD_FN | MOD_PAD)) == MOD_PAD)
             processMouseKeys(current, processed);
 #endif
 
         if (memcmp(current, processed, 8)) {
             if (memcmp(current + 2, processed + 2, 6) ||
                 current[2] == VOID_KEY ||
-                current[1] ||
+                (current[1] & (MOD_FN | MOD_PAD)) ||
                 (current[0] & MOD_SHIFT))
             {
                 if (current[2] != VOID_KEY)
@@ -1011,10 +1025,18 @@ uint8_t controlLED(uint8_t report)
 
 uint8_t getKeyNumLock(uint8_t code)
 {
+    if (led & LED_NUM_LOCK) {
+        return getKeyNumLockRaw(code);
+    }
+    return 0;
+}
+
+static uint8_t getKeyNumLockRaw(uint8_t code)
+{
     uint8_t row = code / 12;
     uint8_t col = code % 12;
 
-    if ((led & LED_NUM_LOCK) && 7 <= col && 2 <= row) {
+    if (7 <= col && 2 <= row) {
         col -= 7;
         row -= 2;
         return matrixNumLock[row][col];

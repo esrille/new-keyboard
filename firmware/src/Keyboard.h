@@ -267,6 +267,7 @@
 #define MOD_RIGHTFN             (1u << (KEY_RIGHT_FN - KEY_LEFT_FN))
 #define MOD_FN                  (MOD_LEFTFN | MOD_RIGHTFN)
 #define MOD_PAD                 4u      // Touch sensor
+#define MOD_KEYPAD_0            8u      // Shift, Space, or Control
 
 
 //
