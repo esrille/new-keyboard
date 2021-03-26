@@ -21,9 +21,6 @@
 #include <string.h>
 #include <system.h>
 
-static uint8_t getKeyNumLockRaw(uint8_t code);
-
-
 NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_DEFAULT, MOD_DEFAULT, LED_DEFAULT, IME_MS, PAD_SENSE_1);
 
 uint8_t os;
@@ -178,6 +175,10 @@ static uint8_t led;
 static uint8_t modFn;
 static uint8_t dualFn;  // Used for dual-role FN keys
 
+#ifdef WITH_HOS
+static int8_t firstScan = 1;
+#endif
+
 void initKeyboard(void)
 {
     memset(keys, VOID_KEY, sizeof keys);
@@ -265,6 +266,23 @@ void switchPrefixShift(void)
 
 #define CODE_A      (5*12+0)
 
+#ifdef WITH_HOS
+
+static checkShift(int8_t row, int8_t column)
+{
+    // 1 if it can be a shift, space or control key
+    static const uint8_t row7[12] =
+    {
+        1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1
+    };
+
+    if (row == 7 && row7[column]) {
+        current[1] |= MOD_HOS;
+    }
+}
+
+#endif
+
 void onPressed(int8_t row, uint8_t column)
 {
     uint8_t key;
@@ -292,8 +310,7 @@ void onPressed(int8_t row, uint8_t column)
         current[count++] = code;
 
 #ifdef WITH_HOS
-    if (getKeyNumLockRaw(code) == KEYPAD_0)
-        current[1] |= MOD_KEYPAD_0;
+    checkShift(row, column);
 #endif
 }
 
@@ -408,7 +425,7 @@ static const uint8_t about_ver[] = {
     KEY_V, KEY_E, KEY_R, KEY_PERIOD, KEY_SPACEBAR, 0
 };
 static const uint8_t about_copyright[] = {
-    KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_MINUS, KEY_2, KEY_0, KEY_2, KEY_0, KEY_SPACEBAR,
+    KEY_C, KEY_O, KEY_P, KEY_Y, KEY_R, KEY_I, KEY_G, KEY_H, KEY_T, KEY_SPACEBAR, KEY_2, KEY_0, KEY_1, KEY_3, KEY_MINUS, KEY_2, KEY_0, KEY_2, KEY_1, KEY_SPACEBAR,
     KEY_E, KEY_S, KEY_R, KEY_I, KEY_L, KEY_L, KEY_E, KEY_SPACEBAR, KEY_I, KEY_N, KEY_C, KEY_PERIOD, KEY_ENTER, 0
 };
 static const uint8_t about_f2[] = {
@@ -584,7 +601,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
         uint8_t modifiers = current[0];
         uint8_t count = 2;
 #ifdef WITH_HOS
-        bool is_shift = (current[1] & MOD_KEYPAD_0);
+        bool is_hos = (current[1] & MOD_HOS);
 #endif
 
         xmit = XMIT_NORMAL;
@@ -602,7 +619,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F1:
                     if (make) {
 #ifdef WITH_HOS
-                        if (is_shift) {
+                        if (is_hos) {
                             switchProfile(1);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -618,7 +635,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F2:
                     if (make) {
 #ifdef WITH_HOS
-                        if (is_shift) {
+                        if (is_hos) {
                             switchProfile(2);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -634,7 +651,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F3:
                     if (make) {
 #ifdef WITH_HOS
-                        if (is_shift) {
+                        if (is_hos) {
                             switchProfile(3);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -650,7 +667,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 case KEY_F4:
                     if (make) {
 #ifdef WITH_HOS
-                        if (is_shift) {
+                        if (is_hos) {
                             switchProfile(0);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -708,7 +725,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 #ifdef WITH_HOS
                 case KEY_ESCAPE:
                     if (make) {
-                        if (!isUSBMode() && is_shift) {
+                        if (!isUSBMode() && is_hos) {
                             HosSetEvent(HOS_TYPE_DEFAULT, HOS_EVENT_CLEAR_BONDING_DATA);
                             modifiers &= ~(MOD_CONTROL | MOD_SHIFT);
                             xmit = XMIT_BRK;
@@ -726,11 +743,6 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 }
             }
         }
-#ifdef WITH_HOS
-        if (count == 2) {
-            modifiers &= ~MOD_SHIFT;
-        }
-#endif
         report[0] = modifiers;
     } else if (isKanaMode(current))
         xmit = processKeysKana(current, processed, report);
@@ -755,6 +767,11 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
         if (dualFn && (xmit != XMIT_NORMAL || report[2])) {
             dualFn = 0;
         }
+#ifdef WITH_HOS
+        if (dualFn && firstScan) {
+            dualFn = 0;
+        }
+#endif
     }
 
     if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER || xmit == XMIT_MACRO)
@@ -1001,6 +1018,10 @@ int8_t makeReport(uint8_t* report)
     count = 2;
     current[0] = current[1] = 0;
 
+#ifdef WITH_HOS
+    firstScan = 0;
+#endif
+
     return xmit;
 }
 
@@ -1026,20 +1047,14 @@ uint8_t controlLED(uint8_t report)
 uint8_t getKeyNumLock(uint8_t code)
 {
     if (led & LED_NUM_LOCK) {
-        return getKeyNumLockRaw(code);
-    }
-    return 0;
-}
+        uint8_t row = code / 12;
+        uint8_t col = code % 12;
 
-static uint8_t getKeyNumLockRaw(uint8_t code)
-{
-    uint8_t row = code / 12;
-    uint8_t col = code % 12;
-
-    if (7 <= col && 2 <= row) {
-        col -= 7;
-        row -= 2;
-        return matrixNumLock[row][col];
+        if (7 <= col && 2 <= row) {
+            col -= 7;
+            row -= 2;
+            return matrixNumLock[row][col];
+        }
     }
     return 0;
 }

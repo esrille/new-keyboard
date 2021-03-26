@@ -146,6 +146,8 @@
       <packs>
         <pack name="PIC18Fxxxx_DFP" vendor="Microchip" version="1.2.26"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -533,6 +535,8 @@
       <packs>
         <pack name="PIC18Fxxxx_DFP" vendor="Microchip" version="1.2.26"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -890,6 +894,8 @@
       <packs>
         <pack name="PIC18F-J_DFP" vendor="Microchip" version="1.2.31"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -1219,6 +1225,8 @@
       <packs>
         <pack name="PIC18F-J_DFP" vendor="Microchip" version="1.2.31"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -1518,6 +1526,8 @@
       <packs>
         <pack name="PIC18F-J_DFP" vendor="Microchip" version="1.2.31"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
@@ -1891,6 +1901,8 @@
       <packs>
         <pack name="PIC18F-J_DFP" vendor="Microchip" version="1.2.31"/>
       </packs>
+      <ScriptingSettings>
+      </ScriptingSettings>
       <compileType>
         <linkerTool>
           <linkerLibItems>
