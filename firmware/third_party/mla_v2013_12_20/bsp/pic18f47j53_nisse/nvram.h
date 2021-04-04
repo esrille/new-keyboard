@@ -19,10 +19,10 @@
 
 #include <stdint.h>
 
-#define NVRAM_INITIAL_DATA_SIZE 8
+#define NVRAM_INITIAL_DATA_SIZE 9
 
-#define NVRAM_DATA(a, b, c, d, e, f, g, h)  \
-    const uint8_t nvram_initial_data[NVRAM_INITIAL_DATA_SIZE] = { a, b, c, d, e, f, g, h }
+#define NVRAM_DATA(a, b, c, d, e, f, g, h, i)  \
+    const uint8_t nvram_initial_data[NVRAM_INITIAL_DATA_SIZE] = { a, b, c, d, e, f, g, h, i }
 
 void InitNvram(void);
 uint8_t ReadNvram(uint8_t offset);
