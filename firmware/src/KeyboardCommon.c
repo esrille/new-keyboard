@@ -21,6 +21,8 @@
 #include <string.h>
 #include <system.h>
 
+#define DUAL_FN_TIMEOUT     16
+
 NVRAM_DATA(BASE_QWERTY, KANA_ROMAJI, OS_PC, DELAY_DEFAULT, MOD_DEFAULT, LED_DEFAULT, IME_MS, PAD_SENSE_1);
 
 uint8_t os;
@@ -172,8 +174,8 @@ static uint8_t columnCount[12];
 
 static uint8_t led;
 
-static uint8_t modFn;
 static uint8_t dualFn;  // Used for dual-role FN keys
+static int8_t dualFnCount;
 
 #ifdef WITH_HOS
 static int8_t firstScan = 1;
@@ -594,7 +596,7 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 {
     int8_t xmit;
 
-    if (!memcmp(current, processed, 8))
+    if (!memcmp(current, processed, 8) || (current[1] & MOD_PAD))
         return XMIT_NONE;
     memset(report, 0, 8);
     if (current[1] & MOD_FN) {
@@ -751,9 +753,10 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 
     if (isDualRoleFnMod() && !isPC()) {
         if ((current[1] ^ processed[1]) & MOD_FN) {
-            modFn = (current[1] & MOD_FN);
+            uint8_t modFn = (current[1] & MOD_FN);
             if (modFn) {
                 dualFn = modFn;
+                dualFnCount = DUAL_FN_TIMEOUT;
             } else if (dualFn && xmit == XMIT_NORMAL && !report[2]) {
                 uint8_t key = (dualFn & MOD_RIGHTFN) ? KEY_LANG1 : KEY_LANG2;
                 key = toggleKanaMode(key, current[0], 1);
@@ -764,14 +767,16 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
                 return xmit;
             }
         }
-        if (dualFn && (xmit != XMIT_NORMAL || report[2])) {
-            dualFn = 0;
-        }
+        if (dualFn) {
+            if (xmit != XMIT_NORMAL || report[2]) {
+                dualFn = 0;
+            }
 #ifdef WITH_HOS
-        if (dualFn && firstScan) {
-            dualFn = 0;
-        }
+            if (firstScan) {
+                dualFn = 0;
+            }
 #endif
+        }
     }
 
     if (xmit == XMIT_NORMAL || xmit == XMIT_IN_ORDER || xmit == XMIT_MACRO)
@@ -922,8 +927,8 @@ uint8_t processModKey(uint8_t key)
     return key;
 }
 
-#define isFNReleased()      \
-    ((processed[1] & (MOD_FN | MOD_PAD)) && !(current[1] & (MOD_FN | MOD_PAD)))
+#define isPadReleased()      \
+    ((processed[1] & MOD_PAD) && !(current[1] & MOD_PAD))
 
 #define isShiftReleased()   \
     ((processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) || \
@@ -983,27 +988,29 @@ int8_t makeReport(uint8_t* report)
         modifiersPrev = modifiers;
 
 #ifdef ENABLE_MOUSE
-        if ((current[1] & (MOD_FN | MOD_PAD)) == MOD_PAD)
+        if (current[1] & MOD_PAD)
             processMouseKeys(current, processed);
 #endif
 
-        if (memcmp(current, processed, 8)) {
-            if (memcmp(current + 2, processed + 2, 6) ||
-                current[2] == VOID_KEY ||
-                (current[1] & (MOD_FN | MOD_PAD)) ||
-                (current[0] & MOD_SHIFT))
-            {
-                if (current[2] != VOID_KEY)
-                    prefix = 0;
-                xmit = processKeys(current, processed, report);
-            } else if (isFNReleased() || !isPC() && isShiftReleased()) {
-                /* empty */
-                /* Note the releases of shift keys need to be ignored for
-                 * inputting Japanese alphabets directly with several Japanese
-                 * keyboard layouts.
-                 */
-            } else
-                xmit = processKeys(current, processed, report);
+        if (dualFn && --dualFnCount <= 0) {
+            dualFn = 0;
+        }
+        if (memcmp(current + 2, processed + 2, 6) ||
+            current[2] == VOID_KEY ||
+            (current[1] & MOD_FN) ||
+            (current[0] & MOD_SHIFT))
+        {
+            if (current[2] != VOID_KEY)
+                prefix = 0;
+            xmit = processKeys(current, processed, report);
+        } else if (isPadReleased() || !isPC() && isShiftReleased()) {
+            /* empty */
+            /* Note the releases of shift keys need to be ignored for
+             * inputting Japanese alphabets directly with several Japanese
+             * keyboard layouts.
+             */
+        } else {
+            xmit = processKeys(current, processed, report);
         }
         processOSMode(report);
     } else {
