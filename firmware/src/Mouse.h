@@ -23,7 +23,7 @@
 #define PAD_SENSE_2       1
 #define PAD_SENSE_3       2
 #define PAD_SENSE_4       3
-#define PAD_SENSE_MAX     PAD_SENSE_4
+#define PAD_SENSE_MAX     3
 #define PAD_SENSE_DEFAULT PAD_SENSE_1
 
 void initMouse(void);
