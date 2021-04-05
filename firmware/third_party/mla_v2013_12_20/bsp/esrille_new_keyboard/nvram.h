@@ -17,7 +17,7 @@
 #ifndef NVRAM_H
 #define NVRAM_H
 
-#define NVRAM_DATA(a, b, c, d, e, f, g, h)  __EEPROM_DATA(a, b, c, d, e, f, g, h)
+#define NVRAM_DATA(a, b, c, d, e, f, g, h, i)  __EEPROM_DATA(a, b, c, d, e, f, g, h, i)
 
 #define InitNvram()
 #define ReadNvram(offset)           eeprom_read(offset)
