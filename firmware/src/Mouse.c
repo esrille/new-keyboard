@@ -64,7 +64,7 @@ typedef struct {
 #define PLAY_XY         36      // x or y value smaller than PLAY_XY should be ignored.
 #define THRESH_XY       48      // x or y value threshold
 #define AIM_BUTTON      0x80
-#define TOUCH_DELAY     8       // a very short touch should be ignored.
+#define TOUCH_DELAY     12      // a very short touch should be ignored.
 #define TOUCH_THRESH    1000
 
 const static uint8_t normalTable[PAD_SENSE_MAX + 1] = {
