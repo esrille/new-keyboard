@@ -927,8 +927,8 @@ uint8_t processModKey(uint8_t key)
     return key;
 }
 
-#define isPadReleased()      \
-    ((processed[1] & MOD_PAD) && !(current[1] & MOD_PAD))
+#define isFNReleased()      \
+    ((processed[1] & MOD_FN) && !(current[1] & MOD_FN))
 
 #define isShiftReleased()   \
     ((processed[0] & MOD_LEFTSHIFT) && !(current[0] & MOD_LEFTSHIFT) || \
@@ -1003,11 +1003,13 @@ int8_t makeReport(uint8_t* report)
             if (current[2] != VOID_KEY)
                 prefix = 0;
             xmit = processKeys(current, processed, report);
-        } else if (isPadReleased() || !isPC() && isShiftReleased()) {
+        } else if (isFNReleased() || !isPC() && isShiftReleased()) {
             /* empty */
             /* Note the releases of shift keys need to be ignored for
              * inputting Japanese alphabets directly with several Japanese
-             * keyboard layouts.
+             * keyboard layouts.  The release of FN keys also need to be
+             * ignored; otherwise, unwanted keys might be entered when FN
+             * keys are released first.
              */
         } else {
             xmit = processKeys(current, processed, report);
