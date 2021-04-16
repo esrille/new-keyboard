@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Esrille Inc.
+ * Copyright 2016-2021 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 #ifndef NVRAM_H
 #define NVRAM_H
 
-#define NVRAM_DATA(a, b, c, d, e, f, g, h)  __EEPROM_DATA(a, b, c, d, e, f, g, h)
+#define NVRAM_DATA(a, b, c, d, e, f, g, h, i)   \
+    __EEPROM_DATA(a, b, c, d, e, f, g, h);      \
+    __EEPROM_DATA(i, 0, 0, 0, 0, 0, 0, 0)
 
 #define InitNvram()
 #define ReadNvram(offset)           eeprom_read(offset)

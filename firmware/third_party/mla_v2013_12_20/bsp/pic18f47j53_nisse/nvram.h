@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Esrille Inc.
+ * Copyright 2016-2021 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
 
 #include <stdint.h>
 
-#define NVRAM_INITIAL_DATA_SIZE 8
+#define NVRAM_INITIAL_DATA_SIZE 9
 
-#define NVRAM_DATA(a, b, c, d, e, f, g, h)  \
-    const uint8_t nvram_initial_data[NVRAM_INITIAL_DATA_SIZE] = { a, b, c, d, e, f, g, h }
+#define NVRAM_DATA(a, b, c, d, e, f, g, h, i)                       \
+    const uint8_t nvram_initial_data[NVRAM_INITIAL_DATA_SIZE] = {   \
+        a, b, c, d, e, f, g, h, i                                   \
+    }
 
 void InitNvram(void);
 uint8_t ReadNvram(uint8_t offset);
