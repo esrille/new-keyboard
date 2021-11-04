@@ -12,6 +12,34 @@
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <asminc-extensions/>
             <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>../</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>ESRILLE_NEW_KEYBOARD</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>ESRILLE_NEW_KEYBOARD_REV2</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>ESRILLE_NEW_KEYBOARD_REV3</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>ESRILLE_NEW_KEYBOARD_REV4</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>ESRILLE_NEW_KEYBOARD_REV5</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
         </data>
     </configuration>
 </project>
