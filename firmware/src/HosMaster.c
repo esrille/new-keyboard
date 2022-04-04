@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Esrille Inc.
+ * Copyright 2016-2022 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -473,6 +473,15 @@ void HosMainLoop(void)
     for (uint16_t tick = 0;; ++tick)
     {
         uint8_t* keyboard_report = APP_KeyboardScan();
+
+        if (HosGetProfile() != CurrentProfile()) {
+            if (HosGetIndication() == HOS_BLE_STATE_CONNECTED && keyboard_report) {
+                // Send break
+                HosReport(HOS_TYPE_DEFAULT, HOS_CMD_KEYBOARD_REPORT, 8, keyboard_report);
+                Sleep();
+                Nop();
+            }
+        }
 
         if (isUSBMode()) {
             if (isBusPowered()) {
