@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2021 Esrille Inc.
+ * Copyright 2013-2022 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -598,17 +598,19 @@ static int8_t processKeys(const uint8_t* current, uint8_t* processed, uint8_t* r
 {
     int8_t xmit;
 
-    if (!memcmp(current, processed, 8) || (current[1] & MOD_PAD))
+    if (!memcmp(current, processed, 8))
         return XMIT_NONE;
     memset(report, 0, 8);
-    if (current[1] & MOD_FN) {
+    xmit = XMIT_NORMAL;
+    if (current[1] & MOD_PAD) {
+        report[0] = current[0];
+    } else if (current[1] & MOD_FN) {
         uint8_t modifiers = current[0];
         uint8_t count = 2;
 #ifdef WITH_HOS
         bool is_hos = (current[1] & MOD_HOS);
 #endif
 
-        xmit = XMIT_NORMAL;
         for (int8_t i = 2; i < 8 && xmit == XMIT_NORMAL; ++i) {
             uint8_t code = current[i];
             const uint8_t* a = getKeyFn(code);
