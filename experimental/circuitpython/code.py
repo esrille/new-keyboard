@@ -68,6 +68,8 @@ fn_map = {
     Keycode.L: {Keycode.RIGHT_ARROW},
     Keycode.U: {Keycode.LEFT_CONTROL, Keycode.LEFT_ARROW},
     Keycode.O: {Keycode.LEFT_CONTROL, Keycode.RIGHT_ARROW},
+    Keycode.Y: {Keycode.LEFT_CONTROL, Keycode.HOME},
+    Keycode.P: {Keycode.LEFT_CONTROL, Keycode.END},
     Keycode.MINUS: {Keycode.PRINT_SCREEN},
     Keycode.QUOTE: {Keycode.KEYPAD_NUMLOCK},
     Keycode.BACKSLASH: {Keycode.SCROLL_LOCK},
@@ -131,13 +133,13 @@ class NISSEController:
     def _scan_keys(self):
         on = set()
         for r in range(len(row_pins)):
-            self.rows[r].switch_to_output(False, digitalio.DriveMode.OPEN_DRAIN)
+            self.rows[r].value = False
             for c in range(len(col_pins)):
                 if self.cols[c].value == 0:
                     key = keymap[r][c]
                     if key is not None:
                         on.add(key)
-            self.rows[r].switch_to_output(True, digitalio.DriveMode.OPEN_DRAIN)
+            self.rows[r].value = True
         return on
 
     def _update_leds(self):
@@ -148,49 +150,45 @@ class NISSEController:
             self.led_caps.value = bool(self._report[0] & Keyboard.LED_CAPS_LOCK)
             self.led_scroll.value = bool(self._report[0] & Keyboard.LED_SCROLL_LOCK)
 
-    def _was_pressed(self):
-        return self._keyboard.report_modifier[0] or self._keyboard.report_keys[0]
-
-    def _clear_report(self):
+    def _send_report(self, keycodes):
         self._keyboard.report_modifier[0] = 0
         for i in range(6):
             self._keyboard.report_keys[i] = 0
+        try:
+            self._keyboard.press(*keycodes)
+        except ValueError:
+            pass
 
     def run(self):
         self._keyboard = Keyboard(usb_hid.devices)
         self.led_num.value = False
         self.led_caps.value = False
         self.led_scroll.value = False
-        previous_keys = set()
-        current_keys = set()
+        previous_pressed = set()  # previously pressed keys
+        current_pressed = set()   # currently pressed keys
+        previous = set()          # previously report
         while True:
             self._update_leds()
-            current_keys = self._scan_keys()
-            on = previous_keys & current_keys
-            previous_keys = current_keys
-            if {LEFT_FN, RIGHT_FN} & on:
-                on.discard(LEFT_FN)
-                on.discard(RIGHT_FN)
-                current_keys = set()
-                for k in on:
+            current_pressed = self._scan_keys()
+            current = previous_pressed & current_pressed
+            previous_pressed = current_pressed
+            if {LEFT_FN, RIGHT_FN} & current:
+                current -= {LEFT_FN, RIGHT_FN}
+                tmp = set()
+                for k in current:
                     if Keycode.modifier_bit(k):
-                        current_keys.add(k)
+                        tmp.add(k)
                     else:
-                        current_keys.update(fn_map.get(k, {k, Keycode.LEFT_CONTROL}))
-                on = current_keys
+                        tmp.update(fn_map.get(k, {k, Keycode.LEFT_CONTROL}))
+                current = tmp
             elif self._report[0] & Keyboard.LED_NUM_LOCK:
-                current_keys = set()
-                for k in on:
-                    current_keys.update(num_map.get(k, {k}))
-                on = current_keys
-            if on:
-                try:
-                    self._clear_report()
-                    self._keyboard.press(*on)
-                except ValueError:
-                    pass
-            elif self._was_pressed():
-                self._keyboard.release_all()
+                tmp = set()
+                for k in current:
+                    tmp.update(num_map.get(k, {k}))
+                current = tmp
+            if current != previous:
+                self._send_report(current)
+                previous = current
             time.sleep(0.008)
 
 
