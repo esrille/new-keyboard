@@ -109,9 +109,6 @@ col_pins = (board.GP2, board.GP3, board.GP4, board.GP5,
 class NISSEController:
 
     def __init__(self):
-        self._keyboard = None
-        self._led_status = 0
-
         self._rows = []
         for i in range(len(row_pins)):
             self._rows.append(digitalio.DigitalInOut(row_pins[i]))
@@ -128,6 +125,9 @@ class NISSEController:
         self._led_caps.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
         self._led_scroll = digitalio.DigitalInOut(board.GP16)
         self._led_scroll.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
+
+        self._keyboard = Keyboard(usb_hid.devices)
+        self._led_status = 0
 
     def _scan_keys(self):
         pressed = set()
@@ -163,7 +163,6 @@ class NISSEController:
         self._keyboard._keyboard_device.send_report(self._keyboard.report)
 
     def run(self):
-        self._keyboard = Keyboard(usb_hid.devices)
         self._led_num.value = False
         self._led_caps.value = False
         self._led_scroll.value = False
