@@ -75,7 +75,7 @@ fn_map = {
 
 # 10 key mode keymap
 num_map = {
-    Keycode.SPACE: {Keycode.ZERO},
+    Keycode.SPACE: {Keycode.KEYPAD_ZERO},
     Keycode.M: {Keycode.KEYPAD_ONE},
     Keycode.COMMA: {Keycode.KEYPAD_TWO},
     Keycode.PERIOD: {Keycode.KEYPAD_THREE},
