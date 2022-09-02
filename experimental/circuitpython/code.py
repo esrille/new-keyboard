@@ -110,60 +110,63 @@ class NISSEController:
 
     def __init__(self):
         self._keyboard = None
+        self._led_status = 0
 
-        self.rows = []
+        self._rows = []
         for i in range(len(row_pins)):
-            self.rows.append(digitalio.DigitalInOut(row_pins[i]))
-            self.rows[i].switch_to_output(True, digitalio.DriveMode.OPEN_DRAIN)
+            self._rows.append(digitalio.DigitalInOut(row_pins[i]))
+            self._rows[i].switch_to_output(True, digitalio.DriveMode.OPEN_DRAIN)
 
-        self.cols = []
+        self._cols = []
         for i in range(len(col_pins)):
-            self.cols.append(digitalio.DigitalInOut(col_pins[i]))
-            self.cols[i].switch_to_input(digitalio.Pull.UP)
+            self._cols.append(digitalio.DigitalInOut(col_pins[i]))
+            self._cols[i].switch_to_input(digitalio.Pull.UP)
 
-        self.led_num = digitalio.DigitalInOut(board.GP18)
-        self.led_num.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
-        self.led_caps = digitalio.DigitalInOut(board.GP17)
-        self.led_caps.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
-        self.led_scroll = digitalio.DigitalInOut(board.GP16)
-        self.led_scroll.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
-
-        self._report = b"\x00"  # LED status
+        self._led_num = digitalio.DigitalInOut(board.GP18)
+        self._led_num.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
+        self._led_caps = digitalio.DigitalInOut(board.GP17)
+        self._led_caps.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
+        self._led_scroll = digitalio.DigitalInOut(board.GP16)
+        self._led_scroll.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
 
     def _scan_keys(self):
-        on = set()
+        pressed = set()
         for r in range(len(row_pins)):
-            self.rows[r].value = False
+            self._rows[r].value = False
             for c in range(len(col_pins)):
-                if self.cols[c].value == 0:
+                if self._cols[c].value == 0:
                     key = keymap[r][c]
                     if key is not None:
-                        on.add(key)
-            self.rows[r].value = True
-        return on
+                        pressed.add(key)
+            self._rows[r].value = True
+        return pressed
 
     def _update_leds(self):
         report = self._keyboard._keyboard_device.get_last_received_report()
         if report is not None:
-            self._report = report
-            self.led_num.value = bool(self._report[0] & Keyboard.LED_NUM_LOCK)
-            self.led_caps.value = bool(self._report[0] & Keyboard.LED_CAPS_LOCK)
-            self.led_scroll.value = bool(self._report[0] & Keyboard.LED_SCROLL_LOCK)
+            self._led_status = report[0]
+            self._led_num.value = bool(self._led_status & Keyboard.LED_NUM_LOCK)
+            self._led_caps.value = bool(self._led_status & Keyboard.LED_CAPS_LOCK)
+            self._led_scroll.value = bool(self._led_status & Keyboard.LED_SCROLL_LOCK)
 
     def _send_report(self, keycodes):
-        self._keyboard.report_modifier[0] = 0
-        for i in range(6):
-            self._keyboard.report_keys[i] = 0
-        try:
-            self._keyboard.press(*keycodes)
-        except ValueError:
-            pass
+        for i in range(8):
+            self._keyboard.report[i] = 0
+        i = 2
+        for keycode in keycodes:
+            modifier = Keycode.modifier_bit(keycode)
+            if modifier:
+                self._keyboard.report[0] |= modifier
+            elif i < 8:
+                self._keyboard.report[i] = keycode
+                i += 1
+        self._keyboard._keyboard_device.send_report(self._keyboard.report)
 
     def run(self):
         self._keyboard = Keyboard(usb_hid.devices)
-        self.led_num.value = False
-        self.led_caps.value = False
-        self.led_scroll.value = False
+        self._led_num.value = False
+        self._led_caps.value = False
+        self._led_scroll.value = False
         previous_pressed = set()  # previously pressed keys
         current_pressed = set()   # currently pressed keys
         previous = set()          # previously report
@@ -181,7 +184,7 @@ class NISSEController:
                     else:
                         tmp.update(fn_map.get(k, {k, Keycode.LEFT_CONTROL}))
                 current = tmp
-            elif self._report[0] & Keyboard.LED_NUM_LOCK:
+            elif self._led_status & Keyboard.LED_NUM_LOCK:
                 tmp = set()
                 for k in current:
                     tmp.update(num_map.get(k, {k}))
