@@ -27,6 +27,8 @@ import digitalio
 import usb_hid
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
+from adafruit_hid.consumer_control import ConsumerControl
+from adafruit_hid.consumer_control_code import ConsumerControlCode
 
 
 # Extra key codes
@@ -53,6 +55,15 @@ keymap = [
     [Keycode.LEFT_ALT, Keycode.Z, Keycode.X, Keycode.C, Keycode.V, Keycode.B,
      Keycode.N, Keycode.M, Keycode.COMMA, Keycode.PERIOD, Keycode.FORWARD_SLASH, Keycode.RIGHT_ALT],
 ]
+
+cc_map = {
+    Keycode.F7: ConsumerControlCode.SCAN_PREVIOUS_TRACK,
+    Keycode.F8: ConsumerControlCode.PLAY_PAUSE,
+    Keycode.F9: ConsumerControlCode.SCAN_NEXT_TRACK,
+    Keycode.F10: ConsumerControlCode.MUTE,
+    Keycode.F11: ConsumerControlCode.VOLUME_DECREMENT,
+    Keycode.F12: ConsumerControlCode.VOLUME_INCREMENT,
+}
 
 # function keymap
 fn_map = {
@@ -128,6 +139,7 @@ class NISSEController:
 
         self._keyboard = Keyboard(usb_hid.devices)
         self._led_status = 0
+        self._cc = ConsumerControl(usb_hid.devices)
 
     def _scan_keys(self):
         pressed = set()
@@ -169,8 +181,10 @@ class NISSEController:
         previous_pressed = set()  # previously pressed keys
         current_pressed = set()   # currently pressed keys
         previous = set()          # previously report
+        previous_cc = 0
         while True:
             self._update_leds()
+            current_cc = 0
             current_pressed = self._scan_keys()
             current = previous_pressed & current_pressed
             previous_pressed = current_pressed
@@ -180,6 +194,8 @@ class NISSEController:
                 for k in current:
                     if Keycode.modifier_bit(k):
                         tmp.add(k)
+                    elif k in cc_map:
+                        current_cc = cc_map[k]
                     else:
                         tmp.update(fn_map.get(k, {k, Keycode.LEFT_CONTROL}))
                 current = tmp
@@ -191,6 +207,9 @@ class NISSEController:
             if current != previous:
                 self._send_report(current)
                 previous = current
+            if current_cc != previous_cc:
+                self._cc.press(current_cc)
+                previous_cc = current_cc
             time.sleep(0.008)
 
 
