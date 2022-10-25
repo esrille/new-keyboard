@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 Esrille Inc.
+ * Copyright 2013-2022 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,12 @@ static uint8_t const baseKeys[BASE_MAX + 1][5] =
 {
     {KEY_U, KEY_S, KEY_ENTER},
     {KEY_U, KEY_S, KEY_MINUS, KEY_D, KEY_ENTER},
-    {KEY_U, KEY_S, KEY_MINUS, KEY_C, KEY_ENTER},
     {KEY_J, KEY_P, KEY_ENTER},
     {KEY_J, KEY_P, KEY_MINUS, KEY_N, KEY_ENTER},
+    {KEY_U, KEY_S, KEY_MINUS, KEY_C, KEY_ENTER},
+#if BASE_COLEMAK_DHM <= BASE_MAX
+    {KEY_U, KEY_S, KEY_MINUS, KEY_M, KEY_ENTER},
+#endif
 };
 
 static uint8_t const matrixQwerty[8][12] =
@@ -63,6 +66,22 @@ static uint8_t const matrixColemak[8][12] =
     KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_TAB, KEY_ENTER, KEY_K, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFT_FN, KEY_LEFTSHIFT, KEY_SPACEBAR, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_RIGHT_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
+
+#if BASE_COLEMAK_DHM <= BASE_MAX
+
+static uint8_t const matrixColemakDHm[8][12] =
+{
+    KEY_LEFT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_EQUAL,
+    KEY_GRAVE_ACCENT, KEY_F1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_F12, KEY_BACKSLASH,
+    KEY_RIGHT_BRACKET, KEY_1, 0, 0, 0, 0, 0, 0, 0, 0, KEY_0, KEY_MINUS,
+    KEY_BACKSPACE, KEY_2, KEY_3, KEY_4, KEY_5, 0, 0, KEY_6, KEY_7, KEY_8, KEY_9, KEY_QUOTE,
+    KEY_Q, KEY_W, KEY_F, KEY_P, KEY_B, 0, 0, KEY_J, KEY_L, KEY_U, KEY_Y, KEY_SEMICOLON,
+    KEY_A, KEY_R, KEY_S, KEY_T, KEY_G, KEY_ESCAPE, KEY_APPLICATION, KEY_M, KEY_N, KEY_E, KEY_I, KEY_O,
+    KEY_Z, KEY_X, KEY_C, KEY_D, KEY_V, KEY_TAB, KEY_ENTER, KEY_K, KEY_H, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
+    KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFT_FN, KEY_LEFTSHIFT, KEY_SPACEBAR, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_RIGHT_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
+};
+
+#endif
 
 //
 // Japanese layouts
@@ -170,15 +189,20 @@ uint8_t getKeyBase(uint8_t code)
     case BASE_DVORAK:
         key = matrixDvorak[row][column];
         break;
-    case BASE_COLEMAK:
-        key = matrixColemak[row][column];
-        break;
     case BASE_JIS:
         key = matrixJIS[row][column];
         break;
     case BASE_NICOLA_F:
         key = matrixNicolaF[row][column];
         break;
+    case BASE_COLEMAK:
+        key = matrixColemak[row][column];
+        break;
+#if BASE_COLEMAK_DHM <= BASE_MAX
+    case BASE_COLEMAK_DHM:
+        key = matrixColemakDHm[row][column];
+        break;
+#endif
     default:
         key = matrixQwerty[row][column];
         break;

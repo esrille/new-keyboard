@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2021 Esrille Inc.
+ * Copyright 2013-2022 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -523,12 +523,15 @@ void loadKeyboardSettings(void);
 void loadBaseSettings(void);
 void loadKanaSettings(void);
 
-#define BASE_QWERTY     0
-#define BASE_DVORAK     1
-#define BASE_COLEMAK    2
-#define BASE_JIS        3
-#define BASE_NICOLA_F   4
-#define BASE_MAX        4
+#define BASE_QWERTY         0
+#define BASE_DVORAK         1
+#define BASE_JIS            2
+#define BASE_NICOLA_F       3
+#define BASE_COLEMAK        4
+#define BASE_COLEMAK_DHM    5
+#ifndef BASE_MAX
+#define BASE_MAX            5
+#endif
 void emitBaseName(void);
 void switchBase(void);
 
