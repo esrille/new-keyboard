@@ -124,6 +124,18 @@ static uint8_t const matrixNicolaF[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFT_FN, KEY_LEFTSHIFT, KEYPAD_ENTER, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_RIGHT_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
+static uint8_t const (*matrixes[BASE_MAX + 1])[12] =
+{
+    matrixQwerty,
+    matrixDvorak,
+    matrixJIS,
+    matrixNicolaF,
+    matrixColemak,
+#if BASE_COLEMAK_DHM <= BASE_MAX
+    matrixColemakDHm,
+#endif
+};
+
 static uint8_t mode;
 
 void loadBaseSettings(void)
@@ -178,34 +190,11 @@ int8_t processKeysBase(const uint8_t* current, const uint8_t* processed, uint8_t
 uint8_t getKeyBase(uint8_t code)
 {
     uint8_t key = getKeyNumLock(code);
-    uint8_t row = code / 12;
-    uint8_t column = code % 12;
     if (key)
         return key;
-    switch (mode) {
-    case BASE_QWERTY:
-        key = matrixQwerty[row][column];
-        break;
-    case BASE_DVORAK:
-        key = matrixDvorak[row][column];
-        break;
-    case BASE_JIS:
-        key = matrixJIS[row][column];
-        break;
-    case BASE_NICOLA_F:
-        key = matrixNicolaF[row][column];
-        break;
-    case BASE_COLEMAK:
-        key = matrixColemak[row][column];
-        break;
-#if BASE_COLEMAK_DHM <= BASE_MAX
-    case BASE_COLEMAK_DHM:
-        key = matrixColemakDHm[row][column];
-        break;
-#endif
-    default:
-        key = matrixQwerty[row][column];
-        break;
-    }
+
+    uint8_t row = code / 12;
+    uint8_t column = code % 12;
+    key = matrixes[mode][row][column];
     return processModKey(key);
 }
