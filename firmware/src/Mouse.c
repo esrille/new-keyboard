@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 Esrille Inc.
+ * Copyright 2015-2022 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ typedef struct {
 #define AIM_BUTTON      0x80
 #define TOUCH_DELAY     12      // a very short touch should be ignored.
 #define TOUCH_THRESH    1000
+#define TOUCH_MAX       4095
 
 const static uint8_t normalTable[PAD_SENSE_MAX + 1] = {
     3, 4, 5, 6
@@ -244,19 +245,24 @@ static uint16_t lowPassFilter(uint16_t prev, uint16_t raw)
 
 static void processSerialData(void)
 {
-    touchSensor.current = lowPassFilter(touchSensor.current, rawData.touch);
+    uint16_t touch = rawData.touch;
+
+    if (touch < TOUCH_THRESH) { // too weak
+        touch = TOUCH_MAX;
+    }
+    touchSensor.current = lowPassFilter(touchSensor.current, touch);
     if (touchSensor.high < touchSensor.current) {
         touchSensor.high = touchSensor.current;
         touchSensor.thresh = (touchSensor.high * 6) / 7;
     }
     if (touchSensor.current < touchSensor.thresh) { // touched?
-        if (touchSensor.current < TOUCH_THRESH) // too weak?
-            touchSensor.delay = 1;
-        else if (touchSensor.delay < TOUCH_DELAY)
+        if (touchSensor.delay < TOUCH_DELAY) {
             ++touchSensor.delay;
+        }
     } else {
-        if (0 < touchSensor.delay && touchSensor.delay < TOUCH_DELAY)
+        if (0 < touchSensor.delay && touchSensor.delay < TOUCH_DELAY) {
             ++touchSensor.spurious;
+        }
         if ((distance(rawData.x, 128u) < PLAY_XY && distance(rawData.y, 128u) < PLAY_XY) || (center.x == 0 && center.y == 0)) {
             if (rawData.x == prev.x && rawData.y == prev.y) {
                 center.x = rawData.x;
