@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 Esrille Inc.
+ * Copyright 2015-2023 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ static int8_t trimXY(uint8_t raw, uint8_t center)
     else
         r = normalTable[resolution];
     value *= r;
-    value / = 3;
+    value /= 3;
     if (value < THRESH_XY) {
         value = value * value / THRESH_XY * value / THRESH_XY * 10 / THRESH_XY;
         value = (tick <= value) ? 1 : 0;
