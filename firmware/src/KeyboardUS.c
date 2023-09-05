@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 Esrille Inc.
+ * Copyright 2013-2023 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@ static uint8_t const baseKeys[BASE_MAX + 1][5] =
     {KEY_U, KEY_S, KEY_MINUS, KEY_D, KEY_ENTER},
     {KEY_J, KEY_P, KEY_ENTER},
     {KEY_J, KEY_P, KEY_MINUS, KEY_N, KEY_ENTER},
+#if BASE_NICOLA_F < BASE_MAX
     {KEY_U, KEY_S, KEY_MINUS, KEY_C, KEY_ENTER},
 #if BASE_COLEMAK_DHM <= BASE_MAX
     {KEY_U, KEY_S, KEY_MINUS, KEY_M, KEY_ENTER},
+#endif
 #endif
 };
 
@@ -55,6 +57,8 @@ static uint8_t const matrixDvorak[8][12] =
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFT_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_RIGHT_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
 
+#if BASE_NICOLA_F < BASE_MAX
+
 static uint8_t const matrixColemak[8][12] =
 {
     KEY_LEFT_BRACKET, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_EQUAL,
@@ -80,6 +84,8 @@ static uint8_t const matrixColemakDHm[8][12] =
     KEY_Z, KEY_X, KEY_C, KEY_D, KEY_V, KEY_TAB, KEY_ENTER, KEY_K, KEY_H, KEY_COMMA, KEY_PERIOD, KEY_SLASH,
     KEY_LEFTCONTROL, KEY_LEFT_GUI, KEY_LEFT_FN, KEY_LEFTSHIFT, KEY_BACKSPACE, KEY_LEFTALT, KEY_RIGHTALT, KEY_SPACEBAR, KEY_RIGHTSHIFT, KEY_RIGHT_FN, KEY_RIGHT_GUI, KEY_RIGHTCONTROL
 };
+
+#endif
 
 #endif
 
@@ -130,9 +136,11 @@ static uint8_t const (*matrixes[BASE_MAX + 1])[12] =
     matrixDvorak,
     matrixJIS,
     matrixNicolaF,
+#if BASE_NICOLA_F < BASE_MAX
     matrixColemak,
 #if BASE_COLEMAK_DHM <= BASE_MAX
     matrixColemakDHm,
+#endif
 #endif
 };
 

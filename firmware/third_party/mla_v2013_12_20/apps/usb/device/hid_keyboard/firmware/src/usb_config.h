@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2015 Esrille Inc.
+ * Copyright 2014-2023 Esrille Inc.
  *
  * This file is a modified version of usb_config.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -46,11 +46,11 @@
                                     // application related data.
 
 #ifndef ENABLE_MOUSE
-#define USB_MAX_NUM_INT     	1
-#define USB_MAX_EP_NUMBER       1
+#define USB_MAX_NUM_INT         2
+#define USB_MAX_EP_NUMBER       2
 #else
-#define USB_MAX_NUM_INT     	2   //Set this number to match the maximum interface number used in the descriptors for this firmware project
-#define USB_MAX_EP_NUMBER	    2   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
+#define USB_MAX_NUM_INT         3   //Set this number to match the maximum interface number used in the descriptors for this firmware project
+#define USB_MAX_EP_NUMBER       3   //Set this number to match the maximum endpoint number used in the descriptors for this firmware project
 #endif
 
 //Make sure only one of the below "#define USB_PING_PONG_MODE"
@@ -141,19 +141,26 @@
 //#define USER_GET_REPORT_HANDLER USBHIDCBGetReportHandler
 #define USER_SET_REPORT_HANDLER USBHIDCBSetReportHandler
 
+/* HID - Consumer Control */
+#define HID_CC_INTF_ID              0x01
+#define HID_CC_EP                   2
+#define HID_CC_INT_OUT_EP_SIZE      2
+#define HID_CC_INT_IN_EP_SIZE       2
+#define HID_RPT02_SIZE              23
+
 /* HID - Mouse */
-#define HID_MOUSE_INTF_ID           0x01
-#define HID_MOUSE_EP                2
+#define HID_MOUSE_INTF_ID           0x02
+#define HID_MOUSE_EP                3
 #define HID_MOUSE_INT_OUT_EP_SIZE   3
 #define HID_MOUSE_INT_IN_EP_SIZE    3
-#define HID_RPT02_SIZE              52
+#define HID_RPT03_SIZE              52
 
 #define HID_NUM_OF_DSC              1
 
 #ifndef ENABLE_MOUSE
-#define HID_NUM_OF_INTF             1
-#else
 #define HID_NUM_OF_INTF             2
+#else
+#define HID_NUM_OF_INTF             3
 #endif
 
 /** DEFINITIONS ****************************************************/

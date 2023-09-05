@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Esrille Inc.
+ * Copyright 2014-2023 Esrille Inc.
  *
  * This file is a modified version of main.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -68,6 +68,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "app_led_usb_status.h"
 #include "app_device_keyboard.h"
+#include "app_device_cc.h"
 #include "app_device_mouse.h"
 
 #include <Keyboard.h>
@@ -337,6 +338,7 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
             /* When the device is configured, we can (re)initialize the keyboard
              * demo code. */
             APP_KeyboardInit();
+            APP_DeviceConsumerInitialize();
 #ifdef ENABLE_MOUSE
             APP_DeviceMouseInitialize();
 #endif

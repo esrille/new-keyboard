@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016 Esrille Inc.
+ * Copyright 2015-2023 Esrille Inc.
  *
  * This file is a modified version of app_device_mouse.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -52,7 +52,7 @@
  * In this example there are only one INPUT report.  This report descriptor can
  * be generated using the HID descriptor tool available at www.usb.org.
  ******************************************************************************/
-const struct{uint8_t report[HID_RPT02_SIZE];}hid_rpt02=
+const struct{uint8_t report[HID_RPT03_SIZE];}hid_rpt03=
 {
     {
         0x05, 0x01, /* Usage Page (Generic Desktop)             */

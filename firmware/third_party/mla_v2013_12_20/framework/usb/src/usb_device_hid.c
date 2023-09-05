@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Esrille Inc.
+ * Copyright 2015, 2023 Esrille Inc.
  *
  * This file is a modified version of usb_device_hid.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -92,8 +92,9 @@ static uint8_t idle_rate[HID_NUM_OF_INTF];
 static uint8_t active_protocol[HID_NUM_OF_INTF];   // [0] Boot Protocol [1] Report Protocol
 
 extern const struct{uint8_t report[HID_RPT01_SIZE];}hid_rpt01;
-#ifdef ENABLE_MOUSE
 extern const struct{uint8_t report[HID_RPT02_SIZE];}hid_rpt02;
+#ifdef ENABLE_MOUSE
+extern const struct{uint8_t report[HID_RPT03_SIZE];}hid_rpt03;
 #endif
 
 // *****************************************************************************
@@ -183,10 +184,16 @@ void USBCheckHIDRequest(void)
                             sizeof(USB_HID_DSC)+3,
                             USB_EP0_INCLUDE_ZERO);
                     }
+                    else if (SetupPkt.bIntfID == HID_CC_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&configDescriptor1 + 41,		//41 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
+                            sizeof(USB_HID_DSC)+3,
+                            USB_EP0_INCLUDE_ZERO);
+                    }
 #ifdef ENABLE_MOUSE
                     else if (SetupPkt.bIntfID == HID_MOUSE_INTF_ID) {
                         USBEP0SendROMPtr(
-                            (const uint8_t*)&configDescriptor1 + 41,		//41 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
+                            (const uint8_t*)&configDescriptor1 + 66,		//66 is a magic number.  It is the offset from start of the configuration descriptor to the start of the HID descriptor.
                             sizeof(USB_HID_DSC)+3,
                             USB_EP0_INCLUDE_ZERO);
                     }
@@ -202,11 +209,17 @@ void USBCheckHIDRequest(void)
                             HID_RPT01_SIZE,     //See usbcfg.h
                             USB_EP0_INCLUDE_ZERO);
                     }
-#ifdef ENABLE_MOUSE
-                    else if(SetupPkt.bIntfID == HID_MOUSE_INTF_ID) {
+                    else if(SetupPkt.bIntfID == HID_CC_INTF_ID) {
                         USBEP0SendROMPtr(
                             (const uint8_t*)&hid_rpt02,
                             HID_RPT02_SIZE,     //See usbcfg.h
+                            USB_EP0_INCLUDE_ZERO);
+                    }
+#ifdef ENABLE_MOUSE
+                    else if(SetupPkt.bIntfID == HID_MOUSE_INTF_ID) {
+                        USBEP0SendROMPtr(
+                            (const uint8_t*)&hid_rpt03,
+                            HID_RPT03_SIZE,     //See usbcfg.h
                             USB_EP0_INCLUDE_ZERO);
                     }
 #endif

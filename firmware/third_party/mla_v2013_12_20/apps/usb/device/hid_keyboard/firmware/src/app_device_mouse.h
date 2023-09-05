@@ -1,3 +1,11 @@
+/*
+ * Copyright 2015-2023 Esrille Inc.
+ *
+ * This file is a modified version of app_device_mouse.h provided by
+ * Microchip Technology, Inc. for using Esrille New Keyboard.
+ * See the file NOTICE for copying permission.
+ */
+
 /********************************************************************
  Software License Agreement:
 

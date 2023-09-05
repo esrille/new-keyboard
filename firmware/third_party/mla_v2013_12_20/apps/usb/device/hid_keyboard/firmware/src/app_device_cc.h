@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2023 Esrille Inc.
+ * Copyright 2023 Esrille Inc.
  *
- * This file is a modified version of fixed_address_memory.h provided by
+ * This file is a modified version of app_device_mouse.h provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
  * See the file NOTICE for copying permission.
  */
@@ -28,23 +28,43 @@
  CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
  *******************************************************************/
 
-#ifndef FIXED_MEMORY_ADDRESS_H
-#define FIXED_MEMORY_ADDRESS_H
+#ifndef APP_DEVICE_CC_H
+#define APP_DEVICE_CC_H
 
-#define FIXED_ADDRESS_MEMORY
+#include <stdbool.h>
+#include <stddef.h>
+#include <usb/usb_device.h>
+#include <usb/usb_device_hid.h>
 
-#define KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRESS_TAG   @0x500
-#define KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG  @0x508
+/*********************************************************************
+* Function: void APP_DeviceConsumerInitialize(void);
+*
+* Overview: Initializes the demo code
+*
+* PreCondition: None
+*
+* Input: None
+*
+* Output: None
+*
+********************************************************************/
+void APP_DeviceConsumerInitialize();
 
-#define MOUSE_REPORT_DATA_BUFFER_ADDRESS                0x510
-#define CC_REPORT_DATA_BUFFER_ADDRESS                   0x518
+/*********************************************************************
+* Function: void APP_DeviceConsumerTasks(void);
+*
+* Overview: Keeps the demo running.
+*
+* PreCondition: The demo should have been initialized and started via
+*   the APP_DeviceConsumerInitialize() and APP_DeviceConsumerStart() demos
+*   respectively.
+*
+* Input: None
+*
+* Output: None
+*
+********************************************************************/
+void APP_DeviceConsumerTasks(uint8_t* report);
 
-#define APP_VERSION_ADDRESS     0x1826  // The application image firmware version number address
-#define APP_VERSION_VALUE       0x0032  // BCD
 
-#define BOARD_REV_ADDRESS       0x17FE
-#define BOARD_REV_VALUE         (*(const unsigned int*) BOARD_REV_ADDRESS)
-
-#define APP_MACHINE_VALUE       0x4550  // PIC18F4550
-
-#endif //FIXED_MEMORY_ADDRESS
+#endif

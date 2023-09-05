@@ -36,7 +36,8 @@
 #define KEYBOARD_INPUT_REPORT_DATA_BUFFER_ADDRESS_TAG   @0x500
 #define KEYBOARD_OUTPUT_REPORT_DATA_BUFFER_ADDRESS_TAG  @0x508
 
-#define MOUSE_REPORT_DATA_BUFFER_ADDRESS                0x50A
+#define MOUSE_REPORT_DATA_BUFFER_ADDRESS                0x510
+#define CC_REPORT_DATA_BUFFER_ADDRESS                   0x518
 
 #define APP_VERSION_ADDRESS     0x1F7F8 // The application image firmware version number address
 #define APP_VERSION_VALUE       0x0115  // BCD

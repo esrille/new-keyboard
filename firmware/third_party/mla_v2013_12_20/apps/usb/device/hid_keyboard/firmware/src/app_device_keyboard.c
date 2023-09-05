@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 Esrille Inc.
+ * Copyright 2014-2023 Esrille Inc.
  *
  * This file is a modified version of app_device_keyboard.c provided by
  * Microchip Technology, Inc. for using Esrille New Keyboard.
@@ -61,6 +61,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <plib/timers.h>
 
 #include "app_device_keyboard.h"
+#include "app_device_cc.h"
 #include "app_led_usb_status.h"
 
 #include <Keyboard.h>
@@ -632,6 +633,7 @@ void APP_KeyboardTasks(void)
     if (!HIDTxHandleBusy(keyboard.lastINTransmission)) {
         uint8_t* report = APP_KeyboardScan();
         if (report) {
+            APP_DeviceConsumerTasks(report);
             keyboard.lastINTransmission = HIDTxPacket(HID_EP, report, sizeof(inputReport));
         }
     }
