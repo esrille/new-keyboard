@@ -1,7 +1,7 @@
 # Esrille New Keyboard
-# NISSE Powered by RP2040
+# NISSE Powered by Raspberry Pi Pico
 #
-# Copyright (c) 2022 Esrille Inc.
+# Copyright (c) 2022, 2023 Esrille Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,10 @@ from adafruit_hid.keycode import Keycode
 from adafruit_hid.consumer_control import ConsumerControl
 from adafruit_hid.consumer_control_code import ConsumerControlCode
 
+
+LED_NUM = 0
+LED_CAPS = 1
+LED_SCROLL = 2
 
 # Extra key codes
 LEFT_FN = 0xF0
@@ -110,11 +114,13 @@ num_map = {
 }
 
 # NISSE pin configuration
-row_pins = (board.GP15, board.GP14, board.GP13, board.GP12,
-            board.GP11, board.GP10, board.GP9, board.GP8)
-col_pins = (board.GP2, board.GP3, board.GP4, board.GP5,
-            board.GP6, board.GP7, board.GP20, board.GP21,
-            board.GP22, board.GP23, board.GP24, board.GP25)
+row_pins = (board.GP0, board.GP1, board.GP2, board.GP3,
+            board.GP4, board.GP5, board.GP6, board.GP27)
+col_pins = (board.GP18, board.GP19, board.GP20, board.GP21,
+            board.GP22, board.GP26, board.GP7, board.GP8,
+            board.GP9, board.GP10, board.GP11, board.GP12)
+led_pins = (board.GP15, board.GP14, board.GP13)
+
 
 
 class NISSEController:
@@ -130,11 +136,11 @@ class NISSEController:
             self._cols.append(digitalio.DigitalInOut(col_pins[i]))
             self._cols[i].switch_to_input(digitalio.Pull.UP)
 
-        self._led_num = digitalio.DigitalInOut(board.GP18)
+        self._led_num = digitalio.DigitalInOut(led_pins[LED_NUM])
         self._led_num.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
-        self._led_caps = digitalio.DigitalInOut(board.GP17)
+        self._led_caps = digitalio.DigitalInOut(led_pins[LED_CAPS])
         self._led_caps.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
-        self._led_scroll = digitalio.DigitalInOut(board.GP16)
+        self._led_scroll = digitalio.DigitalInOut(led_pins[LED_SCROLL])
         self._led_scroll.switch_to_output(True, digitalio.DriveMode.PUSH_PULL)
 
         self._keyboard = Keyboard(usb_hid.devices)
