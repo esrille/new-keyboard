@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 Esrille Inc.
+ * Copyright 2013-2023 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -665,8 +665,17 @@ uint8_t toggleKanaMode(uint8_t key, uint8_t mod, int8_t make)
         prefix = 0;
         break;
     case KEY_CAPS_LOCK:
-        if (make && isJP())
+        if (os == OS_CAPS) {
+            if (kana_led) {
+                kana_led = 0;
+                prefix = 0;
+            } else {
+                kana_led = 1;
+            }
+        }
+        else if (make && isJP()) {
             eisuu_mode ^= 1;
+        }
         break;
     case KEY_0:
         if ((mod & MOD_SHIFT) && isJP())

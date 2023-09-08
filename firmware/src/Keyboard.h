@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2022 Esrille Inc.
+ * Copyright 2013-2023 Esrille Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -560,7 +560,8 @@ void switchKana(void);
 #define OS_ALT_SP       7   // Alt-Space
 #define OS_SHIFT_SP     8   // Shift-Space
 #define OS_CTRL_SP      9   // Ctrl-Space
-#define OS_MAX          9
+#define OS_CAPS         10  // Caps Lock
+#define OS_MAX          10
 void emitOSName(void);
 void switchOS(void);
 
