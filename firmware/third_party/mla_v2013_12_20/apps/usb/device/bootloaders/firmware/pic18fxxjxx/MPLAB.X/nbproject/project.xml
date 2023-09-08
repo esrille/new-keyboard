@@ -22,6 +22,10 @@
                     <name>PIC18F47J53_NISSE</name>
                     <type>2</type>
                 </confElem>
+                <confElem>
+                    <name>PIC18F47J53_NISSE_TYPE_C</name>
+                    <type>2</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>
