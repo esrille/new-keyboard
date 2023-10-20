@@ -389,7 +389,8 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros" value="KANA_MAX=KANA_X6004;BASE_MAX=4"/>
+        <property key="define-macros"
+                  value="KANA_MAX=KANA_X6004;BASE_MAX=BASE_NICOLA_F"/>
         <property key="disable-optimizations" value="false"/>
         <property key="extra-include-directories"
                   value="../../../../../../../../src;../src;../../../../../../framework;../../../../../../bsp/esrille_new_keyboard;../src/system_config/esrille_new_keyboard"/>
